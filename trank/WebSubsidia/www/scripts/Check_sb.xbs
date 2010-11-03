@@ -1,0 +1,71 @@
+#COMMAND ? [<x,...>] => WSH:Echo( <x> )
+#include "pathes.xinc"
+pth:="..\"+files_db
+Set Default to &(pth)
+SET DATE TO GERMAN
+
+nCounter := 0
+nCountern := 0
+IDx := 0
+
+ST := ""
+BUKVI := {"€ƒ","‚„…†‡ˆŠ‹","Œ‘","’“”•–—˜™Ÿ"}
+
+public stol[4]
+public stola[4]
+public stolb[4]
+FOR I = 1 TO 4
+  stol[I] := 0
+  stola[I] := 0
+  stolb[I] := 0
+NEXT
+
+USE register NEW
+Pack
+Area1 := SELECT()
+INDEX ON NUM TO RegNumb
+
+USE subsid_p NEW
+Pack
+Area2 := SELECT()
+INDEX ON LCHET TO SubNumb
+
+USE sv2 NEW
+Pack
+Area3 := SELECT()
+?  "<?php"
+?  "$BankErrors=array();"
+DO WHILE !EOF()
+  LC := LCHET
+  xNCHETA := NCHETA
+  if .not. CheckBankNum(NCHETA)
+    SELECT(Area2)
+    SEEK LC
+    IF FOUND() .AND. SV == 2
+      N := NUM
+      SELECT(Area1)
+      SEEK N
+      IF FOUND()
+        BankError:='$BankErrors[]=array('
+        BankError+='"LC"=>'+IntToStr(LC)+','
+        BankError+='"Family"=>"'+Trim(ToANSI(FAMILY))+'",'
+        BankError+='"Name"=>"'+Trim(ToANSI(Name))+'",'
+        BankError+='"Father"=>"'+Trim(ToANSI(Father))+'",'
+        BankError+='"NCHETA"=>"'+Trim(xNCHETA)+'"'
+        BankError+=');'
+        ? BankError
+      ENDIF
+    ENDIF
+  ENDIF
+  SELECT(Area3)
+  SKIP
+ENDDO
+?  "?>"
+CLOSE sv2
+CLOSE register
+CLOSE subsid_p
+ERASE RegNumb.ntx
+ERASE SubNumb.ntx
+
+#INCLUDE "CheckBank.inc"
+#INCLUDE "AnsiOem.xinc"

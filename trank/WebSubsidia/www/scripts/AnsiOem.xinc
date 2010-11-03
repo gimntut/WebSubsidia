@@ -1,0 +1,66 @@
+
+FUNCTION TransformStr
+PARAMETERS S,S1,S2
+FOR I = 1 TO LEN(S)
+    position := AT(S[I],S1)
+    IF position>0
+        S[I] = S2[position]
+    ENDIF
+NEXT
+RETURN S
+
+FUNCTION ToANSI
+PARAMETERS S
+public OEMChars :=  "ñ©æãª¥­£èé§åêäë¢ ¯à®«¤¦íïçá¬¨âì¡îð‰–“Š…ƒ˜™‡•š”›‚€Ž‹„†Ÿ—‘Œˆ’œž"
+public ANSIChars := "¸éöóêåíãøùçõúôûâàïðîëäæýÿ÷ñìèòüáþ¨ÉÖÓÊÅÍÃØÙÇÕÚÔÛÂÀÏÐÎËÄÆÝß×ÑÌÈÒÜÁÞ"
+RETURN TransformStr(S,OEMChars,ANSIChars)
+
+FUNCTION ToOEM
+PARAMETERS S
+public OEMChars :=  "ñ©æãª¥­£èé§åêäë¢ ¯à®«¤¦íïçá¬¨âì¡îð‰–“Š…ƒ˜™‡•š”›‚€Ž‹„†Ÿ—‘Œˆ’œž"
+public ANSIChars := "¸éöóêåíãøùçõúôûâàïðîëäæýÿ÷ñìèòüáþ¨ÉÖÓÊÅÍÃØÙÇÕÚÔÛÂÀÏÐÎËÄÆÝß×ÑÌÈÒÜÁÞ"
+RETURN TransformStr(S,ANSIChars,OEMChars)
+
+FUNCTION UpperCyr
+PARAMETERS S
+public LowerChars := "qwertyuiopasdfghjklzxcvbnm¸éöóêåíãøùçõúôûâàïðîëäæýÿ÷ñìèòüáþ"
+public UpperChars := "QWERTYUIOPASDFGHJKLZXCVBNM¨ÉÖÓÊÅÍÃØÙÇÕÚÔÛÂÀÏÐÎËÄÆÝß×ÑÌÈÒÜÁÞ"
+RETURN TransformStr(S,LowerChars,UpperChars)
+
+FUNCTION LowerCyr
+PARAMETERS S
+public LowerChars := "qwertyuiopasdfghjklzxcvbnm¸éöóêåíãøùçõúôûâàïðîëäæýÿ÷ñìèòüáþ"
+public UpperChars := "QWERTYUIOPASDFGHJKLZXCVBNM¨ÉÖÓÊÅÍÃØÙÇÕÚÔÛÂÀÏÐÎËÄÆÝß×ÑÌÈÒÜÁÞ"
+RETURN TransformStr(S,UpperChars,LowerChars)
+
+FUNCTION IntToStr
+PARAMETERS IntNumber
+RETURN ALLTRIM(TRANSFORM(IntNumber,"#########"))
+
+FUNCTION CurrToStr
+PARAMETERS CurrNumber
+S:=ALLTRIM(TRANSFORM(CurrNumber,"#######.##"))
+S=STRTRAN(S,".",",")
+RETURN S
+
+FUNCTION CurrToStrDot
+PARAMETERS CurrNumber
+S:=ALLTRIM(TRANSFORM(CurrNumber,"#######.##"))
+RETURN S
+
+FUNCTION ItemCSV 
+PARAMETERS CsvLine, xPos, xDelimiter
+// ? CsvLine, xPos, xDelimiter
+  FOR i=1 TO xPos STEP 1
+    p:=AT(xDelimiter,CsvLine)
+    IF p>0
+      CsvLine=STUFF(CsvLine,1,p,"")
+    ELSE
+      CsvLine=""
+    ENDIF
+  NEXT
+  p:=AT(xDelimiter,CsvLine)
+  IF p>0
+    CsvLine=LEFT(CsvLine,p-1)
+  ENDIF
+RETURN CsvLine

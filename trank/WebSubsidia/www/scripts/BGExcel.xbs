@@ -1,0 +1,18 @@
+#COMMAND ? [<x,...>] => WSH:Echo(<x>)
+#include "pathes.xinc"
+#include "DefineExcel.xinc"
+pth:="..\"+files_db
+Set Default to &(pth)
+/* SET DATE TO FRENCH  */
+Result:="..\"+files_tmp+"\BGResult.csv"
+XlsHead:="..\"+files_store+"\gazHead.xls"
+LastColumn:="L"
+XlsOut:="..\"+files_download+"\bashgaz.xls"
+SortColumns:={"B"}
+InsertLine:=4
+SInsLine:=IntToStr(InsertLine)
+FirstCell:="A"+SInsLine
+SecondCell:="B"+SInsLine
+
+#INCLUDE "MakeExcel.xinc"
+#INCLUDE "AnsiOem.xinc"

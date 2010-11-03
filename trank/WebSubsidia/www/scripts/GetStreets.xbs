@@ -1,0 +1,20 @@
+#COMMAND ? [<x,...>] => WSH:Echo(<x>)
+// oArgs := WScript:Arguments
+// nArgs := oArgs:Length - 1
+// xID :=oArgs:Item(0)
+#include "pathes.xinc"
+pth:="..\"+files_db
+Set Default to &(pth)
+
+USE street ALIAS "streets" NEW
+PACK
+INDEX ON ToAnsi(NM) TO StreetName
+? "<?php"
+? "$Streets=array();"
+DO WHILE !EOF()
+  // ? '$Streets[]="'+Trim(ToAnsi(NM))+'";',
+  ? '$Streets[]=array("Name" => "' + Trim(ToAnsi(NM)) + '", "ID" => ' + IntToStr(Kod) + ');'
+  SKIP
+ENDDO
+? "?>"
+#INCLUDE "AnsiOem.xinc"

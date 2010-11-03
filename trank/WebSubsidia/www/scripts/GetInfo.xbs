@@ -1,0 +1,116 @@
+#COMMAND ? [<x,...>] => WSH:Echo( <x> )
+#include "pathes.xinc"
+
+oArgs := WScript:Arguments
+nArgs := oArgs:Length - 1
+SessID :=oArgs:Item(0)
+
+fso := CreateObject("Scripting.FileSystemObject")
+LCsFile := fso:OpenTextFile("..\"+files_tmp+"\"+SessID, 1)
+
+pth:="..\"+files_db
+Set Default to &(pth)
+
+OtkazTxt := {"Не работает без уважительных причин",;
+"Нет опекунского удостоверения",;
+"Родители лишены родительских прав",;
+"СДД превышает пожиточный минимум",;
+"Не все доходы представлены"}
+SET DATE TO GERMAN
+
+USE sv7_p NEW
+Pack
+Area3 := SELECT()
+INDEX ON LCHET TO Sv7
+
+USE Register NEW
+Pack
+Area2 := SELECT()
+INDEX ON NUM TO RegNum
+
+USE subsid_p NEW
+Pack
+Area1 := SELECT()
+INDEX ON LCHET TO LCNum
+
+USE Street NEW
+INDEX ON KOD TO Street
+
+USE Punkt NEW
+INDEX ON KOD TO Punkt
+
+///////////////////////////////////////////////////////////////////
+ ? "<?php"
+ ? "$Journal=array();"
+
+DO WHILE .NOT. LCsFile:AtEndOfLine
+  sLC:=LCsFile:ReadLine
+  xLC:=VAL(sLC)
+  SELECT(Area1)
+  SEEK xLC
+  IF FOUND()
+    xNUM:=NUM
+    xSV:=SV
+    xSUM:=CurrToStrDot(SUBSID)
+    // xNEDOP:=CurrToStr(NEDOP)
+    xKV_FACT:=CurrToStrDot(KV_FACT)
+    // S:=DTOC(D_NAZN)
+    // if S="  .  .  "
+    S:=DTOC(DATEOBR)
+    // ENDIF
+    Result := "$Journal[]="
+    Result=Result+"array('DATEOBR'=>'"+S+"','LCHET'=>"+IntToStr(xLC)+","
+    SELECT(Area2)
+    SEEK xNUM
+    IF FOUND()
+      FIO:=ToAnsi(AllTrim(FAMILY)+" "+AllTrim(NAME)+" "+AllTrim(FATHER))
+      Result=Result+"'FIO'=>'"+FIO+"',"
+      ADDRESS:="д."+IntToStr(HOUSE)
+      IF AllTrim(KORP)+"!"<>"!"
+        ADDRESS:=ADDRESS+"/"+ToAnsi(AllTrim(KORP))
+      ENDIF
+      IF AllTrim(FLAT)+"!"<>"!"
+        ADDRESS:=ADDRESS+", кв."+AllTrim(FLAT)
+      ENDIF
+      xPUNKT:=PUNKT
+      xSTREET:=STREET
+      select("street")
+      SEEK xStreet
+      IF FOUND()
+        ADDRESS:=ToAnsi(AllTrim(NM))+", "+ADDRESS
+      ELSE
+        ADDRESS:="--- "+ADDRESS
+      ENDIF
+      select("punkt")
+      SEEK xPUNKT
+      IF FOUND()
+        ADDRESS:=ToAnsi(AllTrim(NM))+", "+ADDRESS
+      ELSE
+        ADDRESS:="--- "+ADDRESS
+      ENDIF
+      Result = Result+"'ADDRESS'=>'"+ADDRESS+"','SUMMA'=>"+xSUM+",'FACT'=>"+xKV_FACT+","
+      IF xSV=7
+        SELECT(Area3)
+        SEEK xLC
+        xOtkaz :=""
+        IF FOUND()
+          IF (REASON_S>0) .and. (REASON_S<6)
+            xOtkaz = OtkazTxt[REASON_S]
+          ELSE
+            xOtkaz = "Причина отказа не известна"
+          ENDIF
+        ENDIF
+        Result = Result+"'OTKAZ'=>'"+xOtkaz+"'"
+      ENDIF
+      Result = Result+");"
+      ? Result
+    ENDIF
+  ENDIF
+ENDDO
+LCsFile:CLOSE()
+? "?>"
+CLOSE Register
+CLOSE subsid_p
+CLOSE sv7_p
+
+#INCLUDE "AnsiOem.xinc"

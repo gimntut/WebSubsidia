@@ -1,0 +1,69 @@
+#COMMAND ? [<x,...>] => WSH:Echo( <x> )
+#include "pathes.xinc"
+pth:="..\"+files_db
+Set Default to &(pth)
+oArgs := WScript:Arguments
+nArgs := oArgs:Length - 1
+
+IDx := 0
+xID :=oArgs:Item(0)
+xLC :=oArgs:Item(1)
+SPEC :=oArgs:Item(2)
+? "NOMER=",xLC
+? "SPEC=",SPEC
+MARK := {"1111111","222222","333333","444444","555555"}
+
+
+USE Register NEW
+Pack
+Area2 := SELECT()
+INDEX ON NUM TO RegNum
+USE subsid_p NEW
+Pack
+Area1 := SELECT()
+INDEX ON LCHET TO LCNum
+SEEK xLC
+IF FOUND()
+  ? "GEU=",AllTrim(ToAnsi(TCG))
+  xNUM:=NUM
+  SELECT(Area2)
+  SEEK xNUM
+  IF FOUND()
+    ? "PHONE=",ToAnsi(AllTrim(PHONE))
+    ? "FIO=",ToAnsi(AllTrim(FAMILY)+" "+AllTrim(NAME)+" "+AllTrim(FATHER))
+    xStol:=StolNum(FAMILY)
+    ? "STOL=","Стол №",xStol
+    ? "MARK=",MARK[xStol]
+    ADDRESS:="д."+IntToStr(HOUSE)
+    IF AllTrim(KORP)+"!"<>"!"
+      ADDRESS:=ADDRESS+"/"+ToAnsi(AllTrim(KORP))
+    ENDIF
+    IF AllTrim(FLAT)+"!"<>"!"
+      ADDRESS:=ADDRESS+", кв."+AllTrim(FLAT)
+    ENDIF
+    xPUNKT:=PUNKT
+    xSTREET:=STREET
+    USE Street NEW
+    INDEX ON KOD TO Street
+    SEEK xStreet
+    IF FOUND()
+      ADDRESS:=ToAnsi(AllTrim(NM))+", "+ADDRESS
+    ELSE
+      ADDRESS:="--- "+ADDRESS
+    ENDIF
+    USE Punkt NEW
+    INDEX ON KOD TO Punkt
+    SEEK xPUNKT
+    IF FOUND()
+      ADDRESS:=ToAnsi(AllTrim(NM))+", "+ADDRESS
+    ELSE
+      ADDRESS:="--- "+ADDRESS
+    ENDIF
+    ? "ADDRESS=",ADDRESS
+  ENDIF
+ENDIF
+CLOSE Register
+CLOSE subsid_p
+
+#INCLUDE "StolNum.xinc"
+#INCLUDE "AnsiOem.xinc"

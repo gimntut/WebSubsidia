@@ -1,0 +1,81 @@
+#COMMAND ? [<x,...>] => WSH:Echo(<x>)
+#include "pathes.xinc"
+pth:="..\"+files_db
+Set Default to &(pth)
+set date to german
+nCounter := 0
+nCountern := 0
+IDx := 0
+
+aPol:={"М","Ж"}
+? "Лиц.счет;Фамилия;Имя;Отчество;Город;Улица;Дом;Корпус;Квартира;Пол;Дата обращения"
+USE register alias "Reg" NEW
+INDEX ON NUM TO RegNum
+USE punkt alias "Punkt" NEW
+INDEX ON KOD TO Punkt
+USE street alias "Street" NEW
+INDEX ON KOD TO Street
+USE subsid_p alias "Subs" NEW
+us:=.f.
+DO WHILE !EOF()
+    us:=.t.
+    IDx := NUM
+    xDATEOBR := DATEOBR
+    SELECT("Reg")
+    SEEK IDx
+    DO WHILE NUM==IDx
+      IF DELETED() 
+        SKIP
+        LOOP
+      ENDIF
+      xFam:=Trim(ToAnsi(Family))
+      xNam:=Trim(ToAnsi(Name))
+      xFat:=Trim(ToAnsi(Father))
+      xPun:=""
+      xStr:=""
+      xPol:=POL
+      if xPol=0
+        if UpperCyr(Right(xFat,1))=="Ч"
+          xPol:=1
+        endif
+        if UpperCyr(Right(xFat,1))=="А"
+          xPol:=2
+        endif
+      endif
+      if xPol=0
+        if UpperCyr(Right(xFam,1))=="А"
+          xPol:=2
+        else
+          exit
+        endif
+      endif
+      sPol:=aPol[xPOL]
+      SELECT("Punkt")
+      SEEK(Reg->Punkt)
+      IF FOUND()
+        xPun:=Trim(ToAnsi(NM))
+      else
+        exit
+      ENDIF
+      SELECT("Street")
+      SEEK(Reg->Street)
+      IF FOUND()
+        xStr:=Trim(ToAnsi(NM))
+      else
+        exit
+      ENDIF
+      ? IntToStr(Subs->LCHET)+";"+xFam+";"+xNam+";"+xFat;
+        +";"+xPun+";"+xStr+";"+IntToStr(Reg->House);
+        +";"+Trim(ToAnsi(Reg->Korp))+";"+Trim(ToAnsi(Reg->Flat))+";"+sPol+";"+DtoC(xDATEOBR)
+        us:=.f.
+      EXIT
+    ENDDO
+    SELECT("Subs")
+    // if US
+      // ? xFam,xNam,xFat
+    // endif
+    SKIP
+ENDDO
+CLOSE Reg
+CLOSE Subs
+#INCLUDE "AnsiOEM.xinc"

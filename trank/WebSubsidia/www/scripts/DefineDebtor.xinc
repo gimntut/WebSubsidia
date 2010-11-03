@@ -1,0 +1,9 @@
+InputFile:=''
+HeaderLine:=''
+LCColumn:=0
+LCPColumn:=1
+DateColumn:=2
+DolgColumn:=3
+SoglachColumn:=-1
+SoglachYes:="Есть"
+KoefDolg:=10 // Коэфициент привышения субсидии долгом

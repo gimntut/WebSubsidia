@@ -1,0 +1,9 @@
+set files_download=download
+set files_upload=files\upload
+set files_tmp=files\tmp
+set files_log=files\log
+set files_db=files\db
+set files_exe=files\exe
+set files_journal=files\journal
+set files_store=files\store
+set files_units=files\units

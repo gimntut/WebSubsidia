@@ -1,0 +1,634 @@
+unit PublGraph;
+interface
+Uses Windows, publ, Graphics, Types, Classes, SysUtils, Printers, ExtCtrls;
+     //ViewLog;
+ Type
+  TPublGraph=Class(TComponent)
+  End;
+  TCorner=(crLeftTop,crRightTop,crLeftBottom,crRightBottom);
+ // Закраска прямоугольника по четырём сторонам
+ Procedure Fill(Bm:TBitMap;G,V:Real);
+ // Закраска прямоугольника по двум сторонам верх-низ
+ Procedure FillV(Bm:TBitMap;K:Real);
+ // Закраска прямоугольника по двум сторонам лево-право
+ Procedure FillG(Bm:TBitMap;K:Real);
+ // Смешивание двух цветов
+ Function Mix(c1,c2:TColor):TColor; overload;
+ // Смешивание двух рисунков
+ Procedure Mix(Bm1,Bm2:TBitMap;Out Bm3:TBitMap); overload;
+ // Закрашивание прямоугольной области по 4 сторонам
+ Procedure Draw(Bm:TBitMap;G,V:Real;ARect:TRect);
+ // Закрашивание прямоугольной области по 2 сторонам <->
+ Procedure DrawG(Bm:TBitMap;K:Real;ARect:TRect);
+ // Закрашивание прямоугольной области по 2 сторонам ^-v
+ Procedure DrawV(Bm:TBitMap;K:Real;ARect:TRect);
+ // Заполнение массива цветами плавного перехода от одного цвета к другому
+ procedure Grad(Col1, Col2: TColor; Count: integer; var Grd: ai; K:real); overload;
+ // Заполнение массива перехода от одного цвета к другому на основе массива
+ procedure Grad(Col1, Col2: TColor; Ks:ar; var Grd: ai); overload;
+ // Рисование одного рисунка на порхности другого
+ procedure CopyBm(bmSource, bmDest: TBitMap; ARect: TRect);
+ // Коэффиент смешения двух цветов
+ function Gamma(K, X: real): real;
+ // Рисование углов
+ procedure DrawCorners(BM,bm1,bm2,bm3,bm4:TBitMap);
+ // Рисования всего рисунка кнопки
+ procedure OutBtn(BM,bm1,bm2,bm3,bm4:TBitMap; GK,VK:real); overload;
+ procedure OutBtn(ms:TStream; BM:TBitMap); overload;
+ // Максимальная зона заливки
+ function GetBig(BM, bm1, bm2, bm3, bm4: TBitMap): TRect;
+ // Минимальная зона заливки
+ function GetSmall(BM, bm1, bm2, bm3, bm4: TBitMap): TRect;
+ procedure ReadBMP(ms:TStream; bmp:TBitMap);
+ procedure WriteBMP(ms:TStream; bmp:TBitMap);
+ procedure LoadBtnFromStream(ms:TStream; LT,RT,LB,RB:TBitMap; out GK,VK:Real;
+ out TC:TColor);
+ procedure SaveBtnToStream(ms:TStream; LT,RT,LB,RB:TBitMap; GK,VK:Real; TC:TColor);
+ procedure OutCenterText(bmv: TBitMap; Text:String; AFont:TFont;
+           Down:boolean=false);
+ procedure Turn90(bmp:TBitMap);
+ procedure Turn270(bmp:TBitMap);
+ procedure Turn180(bmp:TBitMap);
+ // Рисование BitMap'a на принтере
+ procedure CopyToPrinter(BitMap:TBitMap;x,y:Integer);
+ // ClearImage
+ procedure ClearImage(Image:TImage);
+ // Определение координат BitMap'a соответствующие координате Imag'a
+ function RealCoord(Image:TImage; p:TPoint):TPoint; overload;
+ function RealCoord(Image:TImage; x,y:Integer):TPoint; overload;
+implementation
+Uses Math, UQPixels;
+
+procedure SideToSide(bm:TBitMap;LR,TB:Boolean);
+Var
+ RectL,RectR,RectT,RectB:TRect;
+begin
+ RectL:=Rect(0,0,1,bm.Height);
+ RectR:=Rect(bm.Width-1,0,bm.Width,bm.Height);
+ RectT:=Rect(0,0,bm.Width,1);
+ RectB:=Rect(0,bm.Height-1,bm.Width,bm.Height);
+ With bm.Canvas do Begin
+  if LR
+   then CopyRect(RectR,bm.Canvas,RectL)
+   else CopyRect(RectL,bm.Canvas,RectR);
+  if TB
+   then CopyRect(RectB,bm.Canvas,RectT)
+   else CopyRect(RectT,bm.Canvas,RectB);
+ End;
+end;
+
+
+procedure Fill(Bm: TBitMap;G,V:Real);
+Var
+ us1,us2:Boolean;
+ bm1:TBitmap;
+begin
+ us1:=bm.Width>2;
+ us2:=bm.Height>2;
+ bm1:=TBitmap.Create;
+ bm1.PixelFormat:=pf24bit;
+ bm1.Assign(bm);
+ if us1 then FillV(bm1,V);
+ if us2 then FillG(bm,G);
+ if us1 and us2 then Mix(bm,bm1,bm) else
+  if us1 then bm.Assign(bm1);
+ bm1.Free;
+end;
+
+procedure FillG(Bm: TBitMap;K:Real);
+Var
+ i,j,n:integer;
+ c1,c2:TColor;
+ ks:ar;
+ cls:ai;
+ qp:TQuickPixels;
+begin
+ SetLength(cls,0);
+ if bm.Width<3 then Exit;
+ if bm.Empty then Exit;
+ qp:=TQuickPixels.Create;
+ qp.Attach(bm);
+ n:=bm.Width-2;
+ SetLength(ks,n);
+ For i:=0 to n-1 do ks[i]:=Gamma(k,i/(n-1));
+ For i:=0 to bm.Height-1 do Begin
+  c1:=qp.Pixels[0,i];
+  c2:=qp.Pixels[n+1,i];
+  Grad(c1,c2,ks,cls);
+  For j:=0 to n-1 do qp.Pixels[j+1,i]:=cls[j];
+ End;
+ qp.Free;
+end;
+
+procedure FillV(Bm: TBitMap;K:Real);
+Var
+ i,j,n:integer;
+ c1,c2:TColor;
+ cls:ai;
+ ks:ar;
+ qp:TQuickPixels;
+begin
+ SetLength(cls,0);
+ if bm.Height<3 then Exit;
+ if bm.Empty then Exit;
+ qp:=TQuickPixels.Create;
+ qp.Attach(bm);
+ n:=bm.Height-2;
+ SetLength(ks,n);
+ For i:=0 to n-1 do ks[i]:=Gamma(k,i/(n-1));
+ For i:=0 to bm.Width-1 do Begin
+  c1:=qp.Pixels[i,0];
+  c2:=qp.Pixels[i,n+1];
+  Grad(c1,c2,ks,cls);
+  For j:=0 to High(cls) do qp.Pixels[i,j+1]:=cls[j];
+ End;
+ qp.Free;
+end;
+
+procedure Mix(Bm1, Bm2: TBitMap; out Bm3: TBitMap);
+Var
+ i,j:integer;
+begin
+ For i:=0 to bm1.Width-1 do
+  For j:=0 to bm1.Height-1 do
+   bm3.Canvas.Pixels[i,j]:=Mix(bm1.Canvas.Pixels[i,j],bm2.Canvas.Pixels[i,j]);
+end;
+
+procedure FillCorn(Bm: TBitMap; Corner: TCorner; G,V:Real);
+begin
+ Case Corner of
+  crLeftTop:     SideToSide(bm,true ,true);
+  crRightTop:    SideToSide(bm,false,true);
+  crLeftBottom:  SideToSide(bm,true ,false);
+  crRightBottom: SideToSide(bm,false,false);
+ End;
+ Fill(bm,G,V);
+end;
+
+function Mix(c1, c2: TColor): TColor;
+Var
+ r,r1,r2:integer;
+ g,g1,g2:integer;
+ b,b1,b2:integer;
+begin
+ r1:=GetRValue(C1);
+ g1:=GetGValue(C1);
+ b1:=GetBValue(C1);
+ r2:=GetRValue(C2);
+ g2:=GetGValue(C2);
+ b2:=GetBValue(C2);
+ //--//
+ r:=(r1+r2) div 2;
+ g:=(g1+g2) div 2;
+ b:=(b1+b2) div 2;
+ result:=(b shl 16) or (g shl 8) or r;
+end;
+
+procedure Draw(Bm: TBitMap; G, V: Real; ARect: TRect);
+Var
+ bmTmp:TBitMap;
+begin
+ bmTmp:=TBitMap.Create;
+ CopyBm(bm,bmTmp,ARect);
+ bmTmp.PixelFormat:=pf24bit;
+ FillG(bmTmp,G);
+ With ARect do
+  bm.Canvas.Draw(Left,Top,bmTmp);
+ bmTmp.Free;
+end;
+
+procedure DrawG(Bm: TBitMap; K: Real; ARect: TRect);
+Var
+ bmTmp:TBitMap;
+begin
+ bmTmp:=TBitMap.Create;
+ CopyBm(bm,bmTmp,ARect);
+ bmTmp.PixelFormat:=pf24bit;
+ FillG(bmTmp,K);
+ With ARect do
+  bm.Canvas.Draw(Left,Top,bmTmp);
+ bmTmp.Free;
+end;
+
+procedure DrawV(Bm: TBitMap; K: Real; ARect: TRect);
+Var
+ bmTmp:TBitMap;
+begin
+ bmTmp:=TBitMap.Create;
+ CopyBm(bm,bmTmp,ARect);
+ bmTmp.PixelFormat:=pf24bit;
+ FillV(bmTmp,K);
+ With ARect do
+  bm.Canvas.Draw(Left,Top,bmTmp);
+ bmTmp.Free;
+end;
+
+procedure DrawCorners(BM, bm1, bm2, bm3, bm4: TBitMap);
+begin
+ With BM, Canvas do Begin
+  Draw(0,0,bm1);
+  Draw(Width-bm2.Width,0,bm2);
+  Draw(0,Height-bm3.Height,bm3);
+  Draw(Width-bm4.Width,Height-bm4.Height,bm4);
+ End;
+end;
+
+procedure Grad(Col1, Col2: TColor; Count: integer; var Grd: ai; K:real);
+Var
+ i,dr,dg,db:integer;
+ r,r1,r2:integer;
+ g,g1,g2:integer;
+ b,b1,b2:integer;
+ kg:real;
+begin
+ r1:=GetRValue(Col1);
+ g1:=GetGValue(Col1);
+ b1:=GetBValue(Col1);
+ r2:=GetRValue(Col2);
+ g2:=GetGValue(Col2);
+ b2:=GetBValue(Col2);
+ SetLength(Grd,Count);
+ dr:=r2-r1;
+ dg:=g2-g1;
+ db:=b2-b1;
+ For i:=0 to Count-1 do Begin
+  { TODO 1 -oOwner -cCategory : Перевести к целочисленому виду}
+  kg:=Gamma(k,i/Count);
+  r:=Round(dr*kg+r1);
+  g:=Round(dg*kg+g1);
+  b:=Round(db*kg+b1);
+  Grd[i]:=(b shl 16) or (g shl 8) or r;
+ End;
+end;
+
+procedure Grad(Col1, Col2: TColor; Ks:ar; var Grd: ai); overload;
+Var
+ i,dr,dg,db:integer;
+ r,r1,r2:integer;
+ g,g1,g2:integer;
+ b,b1,b2:integer;
+ Count:integer;
+ kg:real;
+begin
+ Count:=Length(ks);
+ r1:=GetRValue(Col1);
+ g1:=GetGValue(Col1);
+ b1:=GetBValue(Col1);
+ r2:=GetRValue(Col2);
+ g2:=GetGValue(Col2);
+ b2:=GetBValue(Col2);
+ SetLength(Grd,Count);
+ dr:=r2-r1;
+ dg:=g2-g1;
+ db:=b2-b1;
+ For i:=0 to Count-1 do Begin
+  { TODO 1 -oOwner -cCategory : Перевести к целочисленому виду}
+  kg:=ks[i];
+  r:=Round(dr*kg+r1);
+  g:=Round(dg*kg+g1);
+  b:=Round(db*kg+b1);
+  Grd[i]:=(b shl 16) or (g shl 8) or r;
+ End;
+end;
+
+procedure CopyBm(bmSource, bmDest: TBitMap; ARect: TRect);
+Var
+ w,h:Integer;
+begin
+ With ARect do Begin
+  w:=max(0,Right-Left);
+  h:=max(0,Bottom-Top);
+ End;
+ bmDest.Width:=w;
+ bmDest.Height:=h;
+ bmDest.Canvas.CopyRect(Rect(0,0,w,h),bmSource.Canvas,ARect);
+end;
+
+function Bound(X: real): real;
+begin
+ if x<1e-6 then x:=1e-6 else
+  if x>1-1e-6 then x:=1-1e-6;
+ result:=x;
+end;
+
+function Basis(K: real): real;
+begin
+ if K<1e-6 then result:=0 else
+  if K>1-1e-6 then result:=1e+30 else
+   result:=LogN(K,1-K);
+end;
+
+function Gamma(K, X: real): real;
+Var
+ a,b:real;
+begin
+ result:=x;
+ if SameValue(k,0.5) then Exit;
+ x:=Bound(x);
+ a:=1-Power(X,Basis(K));
+ b:=Power(1-X,Basis(1-K));
+ result:=1-(a+b)/2;
+end;
+
+procedure OutBtn(BM,bm1,bm2,bm3,bm4:TBitMap; GK,VK:real);
+Var
+ BigRect,SmallRect:TRect;
+Begin
+ BigRect:=GetBig(BM,bm1,bm2,bm3,bm4);
+ SmallRect:=GetSmall(BM,bm1,bm2,bm3,bm4);
+ DrawCorners(BM,bm1,bm2,bm3,bm4);
+ ////////////////////// x //////////////////////
+ With BigRect do Begin
+  DrawG(bm,GK,Rect(left-1,0,right+1,top));
+  DrawG(bm,GK,Rect(left-1,bottom,right+1,bm.Height));
+  DrawV(bm,VK,Rect(0,top-1,left,bottom+1));
+  DrawV(bm,VK,Rect(right,top-1,bm.Width,bottom+1));
+  Draw(bm,GK,VK,Rect(left-1,top-1,right+1,bottom+1));
+ End;
+End;
+
+procedure OutBtn(ms:TStream; BM:TBitMap); overload;
+Var
+ b1,b2,b3,b4:TBitmap;
+ tc:TColor;
+ g,v:real;
+begin
+ b1:=TBitmap.Create;
+ b2:=TBitmap.Create;
+ b3:=TBitmap.Create;
+ b4:=TBitmap.Create;
+ LoadBtnFromStream(ms,b1,b2,b3,b4,g,v,tc);
+ OutBtn(BM,b1,b2,b3,b4,g,v);
+ b1.Free;
+ b2.Free;
+ b3.Free;
+ b4.Free;
+end;
+
+function GetBig(BM, bm1, bm2, bm3, bm4: TBitMap): TRect;
+begin
+ With Result do Begin
+  Left:=Min(bm1.Width,bm3.Width);
+  Right:=bm.Width-Min(bm2.Width,bm4.Width);
+  Top:=Min(bm1.Height,bm2.Height);
+  Bottom:=bm.Height-Min(bm3.Height,bm4.Height);
+ End;
+end;
+
+function GetSmall(BM, bm1, bm2, bm3, bm4: TBitMap): TRect;
+begin
+ With Result do Begin
+  Left:=Max(bm1.Width,bm3.Width);
+  Right:=bm.Width-Max(bm2.Width,bm4.Width);
+  Top:=Max(bm1.Height,bm2.Height);
+  Bottom:=bm.Height-Max(bm3.Height,bm4.Height);
+ End;
+end;
+
+procedure ReadBMP(ms:TStream; bmp:TBitMap);
+Var
+ m:TMemoryStream;
+ sz:integer;
+begin
+ m:=TMemoryStream.Create;
+ ms.Read(sz,4);
+ m.CopyFrom(ms,sz);
+ m.Position:=0;
+ if bmp<>nil then Begin
+  bmp.Width:=0;
+  bmp.Height:=0;
+  bmp.LoadFromStream(m);
+ End;
+ m.Free;
+end;
+
+procedure WriteBMP(ms:TStream; bmp:TBitMap);
+Var
+ m:TMemoryStream;
+ sz:integer;
+begin
+ m:=TMemoryStream.Create;
+ if bmp<>nil then bmp.SaveToStream(m);
+ m.Position:=0;
+ sz:=m.Size;
+ ms.Write(sz,4);
+ ms.CopyFrom(m,sz);
+ m.Free;
+end;
+
+procedure LoadBtnFromStream( ms:TStream; LT,RT,LB,RB:TBitMap; out GK,VK:Real;
+                             out TC:TColor);
+begin
+ ms.Read(GK,8);
+ ms.Read(VK,8);
+ ReadBMP(ms,LT);
+ ReadBMP(ms,RT);
+ ReadBMP(ms,LB);
+ ReadBMP(ms,RB);
+ if ms.Position<ms.Size then ms.Read(TC,4) else tc:=clNone;
+end;
+
+procedure SaveBtnToStream(ms:TStream; LT,RT,LB,RB:TBitMap; GK,VK:Real; TC:TColor);
+begin
+ ms.Write(GK,8);
+ ms.Write(VK,8);
+ WriteBMP(ms,LT);
+ WriteBMP(ms,RT);
+ WriteBMP(ms,LB);
+ WriteBMP(ms,RB);
+ ms.Write(TC,4);
+end;
+
+procedure OutCenterText(bmv: TBitMap; Text:String; AFont:TFont; Down:boolean=false);
+Var
+ w,h:integer;
+ x:integer;
+ r:TRect;
+ s:String;
+begin
+ if Down then x:=0 else x:=1;
+ s:=Text;
+ With bmv, Canvas do Begin
+  Brush.Style:=bsClear;
+  Font:=AFont;
+  With TextExtent(s) do Begin
+   w:=Width;
+   h:=Height;
+   r:=Rect(4,4,w-4,h-4);
+   if w>=h
+    then TextRect(r,(w-cx) div 2-x,(h-cy) div 2-x,s)
+    else Begin
+     Font.Handle:=CreateRotatedFont(Font,90);
+     x:=1-x;
+     TextRect(r,(w-cy) div 2+1,(h+cx) div 2+2+x,s);
+    End;
+   End;
+ End;
+end;
+
+procedure Turn90(bmp:TBitMap);
+Var
+ bm:TBitMap;
+ i,j:integer;
+ w,h:integer;
+ qt,qt1:TQuickPixels;
+begin
+ if bmp=nil then Exit;
+ if bmp.PixelFormat=pfDevice then bmp.PixelFormat:=pf24bit;
+ bm:=TBitmap.Create;
+ w:=bmp.Width;
+ h:=bmp.Height;
+ bm.Width:=h;
+ bm.Height:=w;
+ bm.PixelFormat:=pf24bit;
+ qt:=TQuickPixels.Create;
+ qt1:=TQuickPixels.Create;
+ qt.Attach(bm);
+ qt1.Attach(bmp);
+ For i:=0 to w-1 do
+  For j:=0 to h-1 do qt.Pixels[j,i]:=qt1.Pixels[i,h-j-1];
+ bmp.Width:=w;
+ bmp.Height:=h;
+ bmp.Canvas.Draw(0,0,bm);
+ bm.Free;
+ qt.Free;
+ qt1.Free;
+end;
+
+procedure Turn270(bmp:TBitMap);
+Var
+ bm:TBitMap;
+ i,j:integer;
+ w,h:integer;
+ qt,qt1:TQuickPixels;
+begin
+ if bmp=nil then Exit;
+ if bmp.PixelFormat=pfDevice then bmp.PixelFormat:=pf24bit;
+ bm:=TBitmap.Create;
+ bm.PixelFormat:=pf24bit;
+ w:=bmp.Width;
+ h:=bmp.Height;
+ bm.Width:=h;
+ bm.Height:=w;
+ qt:=TQuickPixels.Create;
+ qt1:=TQuickPixels.Create;
+ qt.Attach(bm);
+ qt1.Attach(bmp);
+ For i:=0 to w-1 do
+  For j:=0 to h-1 do qt.Pixels[j,i]:=qt1.Pixels[w-i-1,j];
+ bmp.Assign(bm);
+ bm.Free;
+ qt.Free;
+ qt1.Free;
+end;
+
+procedure Turn180(bmp:TBitMap);
+Var
+ bm:TBitMap;
+ i,j:integer;
+ w,h:integer;
+ qt,qt1:TQuickPixels;
+begin
+ if bmp=nil then Exit;
+ if bmp.PixelFormat=pfDevice then bmp.PixelFormat:=pf24bit;
+ bm:=TBitmap.Create;
+ bm.PixelFormat:=pf24bit;
+ w:=bmp.Width;
+ h:=bmp.Height;
+ bm.Width:=h;
+ bm.Height:=w;
+ qt:=TQuickPixels.Create;
+ qt1:=TQuickPixels.Create;
+ qt.Attach(bm);
+ qt1.Attach(bmp);
+ For i:=0 to w-1 do
+  For j:=0 to h-1 do qt.Pixels[i,j]:=qt1.Pixels[w-i-1,h-j-1];
+ bmp.Assign(bm);
+ bm.Free;
+ qt.Free;
+ qt1.Free;
+end;
+
+procedure CopyToPrinter;
+var
+ Info: PBitmapInfo;
+ InfoSize, ImageSize: DWord;
+ Image: Pointer;
+ w,h:Integer;
+begin
+ GetDIBSizes(Bitmap.Handle, InfoSize, ImageSize);
+ Info:=AllocMem(InfoSize);
+ w:=BitMap.Width;
+ h:=BitMap.Height;
+ try
+  Image:=AllocMem(ImageSize);
+  try
+   GetDIB(Bitmap.Handle,0,Info^,Image^);
+   StretchDIBits( Printer.Canvas.Handle,x,y,x+w,y+h,0,0,w,h,Image,Info^,
+                  DIB_RGB_COLORS,SRCCOPY);
+  finally
+   FreeMem(Image, ImageSize);
+  end;
+ finally
+   FreeMem(Info, InfoSize);
+ end;
+end;
+
+procedure ClearImage(Image:TImage);
+Var
+ bm:TBitmap;
+begin
+ bm:=TBitmap.Create;
+ Image.Picture.Bitmap.Assign(bm);
+ bm.Free;
+end;
+
+function RealCoord(Image:TImage; x,y:Integer):TPoint; overload;
+Var
+ kx,ky:Real;
+ cx,cy,iw,ih,pw,ph:Integer;
+begin
+ Result.x:=0;
+ Result.y:=0;
+ pw:=Image.Picture.Width;
+ ph:=Image.Picture.Height;
+ iw:=Image.Width;
+ ih:=Image.Height;
+ if (pw=0) or (ph=0) or (iw=0) or (ih=0) then Exit;
+ kx:=1;
+ ky:=1;
+ cx:=0;
+ cy:=0;
+ if Image.Stretch then Begin
+  kx:=pw/iw;
+  ky:=ph/ih;
+  if Image.Proportional then Begin
+   if kx<ky then Begin
+    kx:=ky;
+    pw:=Round(pw/kx);
+    ph:=ih;
+   End else Begin
+    ky:=kx;
+    pw:=iw;
+    ph:=Round(ph/ky);
+   End;
+  End;
+ End;
+ if Image.Center then Begin
+  cx:=(iw-pw) div 2;
+  cy:=(ih-ph) div 2;
+ End;
+ Result.x:=Round((x-cx)*kx);
+ Result.y:=Round((y-cy)*ky);
+end;
+
+function RealCoord(Image:TImage; p:TPoint):TPoint; overload;
+begin
+ With p do RealCoord(Image,x,y);
+end;
+{
+begin
+end;
+}
+end.
+

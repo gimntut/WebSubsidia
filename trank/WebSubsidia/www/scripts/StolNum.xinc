@@ -1,0 +1,8 @@
+FUNCTION StolNum(FAMILY)
+BUKVI := {"€ƒ","‚„…†‡ˆŠ‹","ŒŽ‘","’“”•–—˜™žŸ"}
+FOR I = 1 TO 4
+  IF AT(Left(FAMILY,1),BUKVI[I])>0 
+    RETURN I
+  ENDIF
+NEXT
+RETURN 0

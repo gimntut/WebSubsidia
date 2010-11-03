@@ -1,0 +1,20 @@
+#COMMAND ? [<x,...>] => WSH:Echo(<x>)
+#INCLUDE "DefineDebtor.xinc"
+#include "pathes.xinc"
+SET DATE TO FRENCH  
+pth:="..\"+files_db
+Set Default to &(pth)
+InputFile:="..\"+files_tmp+"\bashgaz2.csv"
+HeaderLine:='№;Лиц.счет;"Номер лиц. сч.плат.";ФИО;Адрес;"кол-во членов семьи";"оплата 1 мес";"оплата 2 мес";"начисления за прошл месяц";"посл дата оплаты";долг;Телефон'
+LCColumn:=0
+LCPColumn:=1
+DolgColumn:=7
+DateColumn:=8
+KoefDolg:=3 // Коэфициент привышения субсидии долгом
+
+/***********************************************/
+FindDebtor()
+/***********************************************/
+
+#INCLUDE "AnsiOEM.xinc"
+#INCLUDE "FindDebtor.xinc"

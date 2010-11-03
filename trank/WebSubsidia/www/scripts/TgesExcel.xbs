@@ -1,0 +1,15 @@
+#COMMAND ? [<x,...>] => WSH:Echo(<x>)
+#include "pathes.xinc"
+pth:="..\"+files_db
+Set Default to &(pth)
+
+Result:="..\"+files_tmp+"\tgesResult.csv"   // Файл из которого берётся подготовленая таблица
+XlsHead:="..\"+files_store+"\tgesHead.xls"  // Болванка в которую вставляются данные
+XlsOut:="..\"+files_download+"\ТГЭС.xls"    // Файл в который будет помещён результат
+LastColumn:="J"                // Буква последнего столбца таблицы
+SortColumns:={"B"}             // Список столбцов которые нужно отсортировать
+FormatColumns:={{"C","0"}}     // Список столцов и типов форматирования
+InsertLine:=5                  // Номер строки в которую будут вставлены данные
+
+#INCLUDE "MakeExcel_v2.xinc"
+#INCLUDE "AnsiOem.xinc"

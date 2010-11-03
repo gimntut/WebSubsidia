@@ -1,0 +1,76 @@
+#COMMAND ? [<x,...>] => WSH:Echo( <x> )
+#include "pathes.xinc"
+pth:="..\"+files_db
+Set Default to &(pth)
+SET DATE TO GERMAN
+REL := {;
+"Ребенок",;
+"Ребенок-кр.сирота",;
+"Бpат",;
+"Сестpа",;
+"Внук",;
+"Отец",;
+"Мать",;
+"Жена",;
+"Муж",;
+"Дед",;
+"Бабушка",;
+"Заявитель",;
+"Племянник",;
+"Сноха",;
+"Зять",;
+"Сын",;
+"Дочь",;
+"Племянница",;
+"Внучка",;
+"Свекровь",;
+"Свекор",;
+"Теща",;
+"Тесть",;
+"Другие"}
+
+oArgs := WScript:Arguments
+xLC :=VAL(oArgs:Item(0))
+// xLC := 9000159
+USE Bezrab.dbf NEW
+INDEX ON FIO TO bezIndex
+Area1 := SELECT()
+
+USE dohod_p NEW
+PACK
+INDEX ON PLCHET TO dohop
+Area2 := SELECT()
+
+seek xLC
+if found()
+  ? "<table border=1 bordercolor=0 cellspacing=0 width=100%>"
+  ? "<colgroup><col width=30%><col width=40%><col></colgroup>"
+  ? "<tr><th>ФИО члена семьи</th><th>По базе безработных</th><th>По базе субсидий</th></tr>"
+  do while PLCHET=xLC
+    xFIO=ToAnsi(AllTrim(FAMILY)+" "+AllTrim(NAME)+" "+AllTrim(FATHER))
+    xFIOu:=UpperCyr(xFIO)
+    xREL=REL[ROD_OT]
+    xDR:=DTOC(D_ROGD)
+    SELECT(Area1)
+    seek xFIOu
+    if found()
+      ? "<tr><td class='FIO' colspan=3 align=center>"+AllTrim(FIO)+" <br />(возможно "+xREL+;
+      ", проверьте дату рождения и адрес):</td></tr>",
+      ? "<tr><td>Паспорт:</td><td>", Passport,"</td><td>.</td></tr>",
+      ? "<tr><td>Период:</td><td>", period,"</td><td>.</td></tr>",
+      ? "<tr><td>Адрес:</td><td>", AllTrim(address),"</td><td>@@@ADDRESS@@@</td></tr>",
+      ? "<tr><td>Дата рождения:</td><td>", rogden,"</td><td>",xDR,"</td></tr>",
+      ? "<tr><td>Дата признания безработным:</td><td>", d_bezrab,"</td><td>.</td></tr>"
+    else
+      ? "<tr><td colspan=3></tr><tr><td class='FIO'>",xFIO+" ("+xREL+")</td>"+;
+        "<td align=center colspan=2>В числе безработных не числится</td></tr>"
+    endif
+    SELECT(Area2)
+    skip
+  enddo
+  ? "</table>"
+endif
+
+CLOSE dohod_p
+CLOSE bezrab
+#INCLUDE "AnsiOem.xinc"

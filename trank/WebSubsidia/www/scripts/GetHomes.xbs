@@ -1,0 +1,35 @@
+#COMMAND ? [<x,...>] => WSH:Echo(<x>)
+#include "pathes.xinc"
+pth:="..\"+files_db
+Set Default to &(pth)
+oArgs := WScript:Arguments
+nArgs := oArgs:Length - 1
+
+xStreetID :=oArgs:Item(0)
+USE subsid_p ALIAS "subsid"
+PACK
+INDEX ON Num TO LCNum
+
+USE register.dbf ALIAS "reg" new
+PACK
+INDEX ON STREET TO RegStreet
+? "<?php"
+? "$Homes=array();"
+Select("Reg")
+Seek(val(xStreetID))
+if found()
+  do while val(xStreetID)=STREET
+    xNum:=Num
+    sKorp:=ToAnsi(Trim(Korp))
+    sHouse:=IntToStr(House)
+    Select("subsid")
+    seek(xNum)
+    if found()
+      ? '$Homes[]=array("Num"=>'+sHouse+', "Korp"=>"'+sKorp+'");'
+    endif
+    Select("Reg")
+    skip
+  enddo
+endif
+? "?>"
+#INCLUDE "AnsiOem.xinc"

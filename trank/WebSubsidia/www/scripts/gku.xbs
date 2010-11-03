@@ -1,0 +1,110 @@
+#COMMAND ? [<x,...>] => WSH:Echo("_", <x> )
+//#INCLUDE "CodePage.xbs"
+
+nCounter := 0
+nCountern := 0
+IDx := 0
+
+ST := ""
+GKU :={;
+{1, "†“ 1"},;
+{2, "†“ 2"},;
+{3, "†“ 3"},;
+{4, "†“ 4"},;
+{5, "†“ 5"},;
+{6, "†“ 6 ‘“•€Š“‹Ž‚Ž"},;
+{7, "†“ 7 Š€„›"},;
+{8, "†“ 8 ˆ†…’Žˆ–Šˆ‰"},;
+{85, "Ž€Ž  èª¨à£ §"},;
+{86, " èª¨àí­¥à£® à ©®­"},;
+{87, " èª¨àí­¥à£® ’ã©¬ §ë"}}
+BUKVI := {"€ƒ","‚„…†‡ˆŠ‹","ŒŽ‘","’“”•–—˜™žŸ"}
+
+public stol[4]
+public stola[4]
+public stolb[4]
+FOR I = 1 TO 4
+    stol[I] := 0
+    stola[I] := 0
+    stolb[I] := 0
+NEXT
+
+USE Reg_gku NEW
+Pack
+Area1 := SELECT()
+INDEX ON NUM TO RegNumg
+
+USE sub_gku NEW
+Pack
+Area2 := SELECT()
+INDEX ON NUM TO SubNumg
+
+USE plat_gku NEW
+Pack
+Area3 := SELECT()
+
+DO WHILE !EOF()
+    N := NUM
+    LCh := LCP
+    Kod_GKU := PRED_LCP
+    SELECT(Area2)
+    SEEK N
+    IF FOUND() .AND. SV == 2
+        LC := LCHET
+        SELECT(Area1)
+        SEEK N
+        IF FOUND()
+            nI := 0
+            FOR I = 1 TO 11
+                IF Kod_GKU == GKU[I,1]
+                nI = I
+                EXIT
+                ENDIF
+            NEXT
+            US := .T.
+            DO CASE
+            CASE nI==1
+                US := (LCh>=100000 .AND. LCh<120000) .OR. (LCh>=910000 .AND. LCh<940000) .OR. (LCh>=1100000 .AND. LCh<1120000) .OR. (LCh>=1910000 .AND. LCh<1940000)
+            CASE nI==2
+                US := (LCh>=200000 .AND. LCh<300000) .OR. (LCh>=1200000 .AND. LCh<1300000)
+            CASE nI==3
+                US := (LCh>=300000 .AND. LCh<400000) .OR. (LCh>=1300000 .AND. LCh<1400000)
+            CASE nI==4
+                US := (LCh>=400000 .AND. LCh<500000) .OR. (LCh>=1400000 .AND. LCh<1500000)
+            CASE nI==5
+                US := (LCh>=500000 .AND. LCh<600000) .OR. (LCh>=1500000 .AND. LCh<1600000)
+            CASE nI==6
+                US := (LCh>=600000 .AND. LCh<700000) .OR. (LCh>=1600000 .AND. LCh<1700000)
+            CASE nI==7
+                US := (LCh>=700000 .AND. LCh<800000) .OR. (LCh>=1700000 .AND. LCh<1800000)
+            CASE nI==8
+                US := (LCh>=800000 .AND. LCh<900000) .OR. (LCh>=1800000 .AND. LCh<1900000)
+            CASE nI==9
+                US := (LCh>=18000000 .AND. LCh<18100000)
+            CASE nI==10
+                US := (LCh>=556000000000 .AND. LCh<556200000000) .OR. (LCh>=556400000000 .AND. LCh<556500000000)
+            CASE nI==11
+                US := (LCh>=556100000000 .AND. LCh<557000000000) .OR. (LCh=999999999999)
+            OTHERWISE
+                US := .T.
+            ENDCASE
+            IF .NOT. US
+                FOR I = 1 TO 4
+                    IF AT(Left(FAMILY,1),BUKVI[I])>0 
+                        ?  I, LC, ToANSI(FAMILY),' "'+ToANSI(GKU[nI,2])+'" -', LCh
+                        EXIT
+                    ENDIF
+                NEXT
+            ENDIF
+        ENDIF
+    ENDIF    
+    SELECT(Area3)
+    SKIP
+ENDDO
+CLOSE plat_gku
+CLOSE Reg_gku
+CLOSE sub_gku
+ERASE RegNumg.ntx
+ERASE SubNumg.ntx
+
+#INCLUDE "AnsiOem.inc"

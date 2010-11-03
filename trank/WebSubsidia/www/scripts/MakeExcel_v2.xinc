@@ -1,0 +1,120 @@
+#Define xlDown -4121
+#Define xlNone -4142
+#Define xlDiagonalDown 5
+#Define xlDiagonalUp 6
+#Define xlEdgeLeft 7
+#Define xlEdgeTop 8
+#Define xlEdgeBottom 9
+#Define xlEdgeRight 10
+#Define xlInsideVertical 11
+#Define xlInsideHorizontal 12
+#Define xlContinuous 1
+#Define xlThin 2
+#Define xlAutomatic -4105
+#Define xlCenter -4108
+#Define xlAscending 1
+#Define xlGuess 0
+#Define xlTopToBottom 1
+#Define xlSortTextAsNumbers 1
+#Define xlYes 1
+#Define xlColumns 2
+#Define xlRows 1
+#Define xlDay 1
+#Define xlLinear -4132
+#Define xlNormal -4143
+
+SInsLine:=IntToStr(InsertLine) 
+FirstCell:="A"+SInsLine
+SecondCell:="B"+SInsLine
+
+TRY
+  oExcel := CreateObject( "Excel.Application" )
+  oExcel:Visible := .T.
+CATCH oErr
+  ? "Error: " + oErr:Operation + " -> " + oErr:Description
+  Alert( "Sorry, Excel is not available!" )
+  RETURN
+END
+
+TRY
+  WshShell := CreateObject("WScript.Shell")
+  private CurrPath:=WshShell:CurrentDirectory+"\"
+  With Object oExcel
+    wb1:= :Workbooks:Open(CurrPath+Result)
+    :Range(:Selection, :Selection:End(xlDown)):Select
+    cnt := :Selection:Rows:count
+    /*!*/ sLastLine:=IntToStr(cnt+InsertLine-1)
+    LastCell:=LastColumn+sLastLine
+    sRange:="1:"+IntToStr(cnt)
+    :Rows(sRange):Select
+    :Selection:Copy
+    wb2:= :Workbooks:Open(CurrPath+XlsHead)
+    wb2:Activate
+    :Range(FirstCell):Select
+    :Selection:Insert(xlDown)
+    With Object :ActiveSheet:PageSetup
+        //:PrintTitleRows = "$"+SInsLine+":$"+SInsLine
+        :RightHeader = "Страница &P из &N"
+    End With
+    sRange:=FirstCell+":"+LastCell
+    :Range(sRange):Select
+    :Selection:WrapText = .T.
+    // :Selection:NumberFormat = "0.00"
+    With Object :Selection:Borders(xlEdgeLeft)
+        :LineStyle = xlContinuous
+        :Weight = xlThin
+        :ColorIndex = xlAutomatic
+    End With
+    With Object :Selection:Borders(xlEdgeTop)
+        :LineStyle = xlContinuous
+        :Weight = xlThin
+        :ColorIndex = xlAutomatic
+    End With
+    With Object :Selection:Borders(xlEdgeBottom)
+        :LineStyle = xlContinuous
+        :Weight = xlThin
+        :ColorIndex = xlAutomatic
+    End With
+    With Object :Selection:Borders(xlEdgeRight)
+        :LineStyle = xlContinuous
+        :Weight = xlThin
+        :ColorIndex = xlAutomatic
+    End With
+    With Object :Selection:Borders(xlInsideVertical)
+        :LineStyle = xlContinuous
+        :Weight = xlThin
+        :ColorIndex = xlAutomatic
+    End With
+    With Object :Selection:Borders(xlInsideHorizontal)
+        :LineStyle = xlContinuous
+        :Weight = xlThin
+        :ColorIndex = xlAutomatic
+    End With
+    sRange:=SecondCell+":"+LastCell
+    :Range(sRange):Select
+    for i=1 to Len(SortColumns)
+      :Selection:Sort(:Range(SortColumns[i]+IntToStr(InsertLine+1)))
+    next
+    for i=1 to Len(FormatColumns)
+      :Range(FormatColumns[i,1]+SInsLine+":"+FormatColumns[i,1]+sLastLine):Select
+      :Selection:NumberFormat=FormatColumns[i,2]
+      // Alert("")
+    next
+    // :Range("B:B"):Select
+    // :Selection:NumberFormat="0"
+    /****************/
+    :Range(SecondCell):Select
+    Erase &(CurrPath+XlsOut)
+    :ActiveWorkbook:SaveAs(CurrPath+XlsOut, xlNormal)
+    // Alert("")
+    wb1:close(.f.)
+    wb2:close(.f.)
+    oExcel:Application:Quit
+  End
+
+CATCH oErr
+  ? "Error: " + oErr:Operation + " -> " + oErr:Description
+  wb1:close(.f.)
+  wb2:close(.f.)
+  oExcel:Quit
+END

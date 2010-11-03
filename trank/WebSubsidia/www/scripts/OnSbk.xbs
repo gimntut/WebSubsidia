@@ -1,0 +1,48 @@
+#COMMAND ? [<x,...>] => WSH:Echo( <x> )
+#include "pathes.xinc"
+#Include "settings.xinc"
+pth:="..\"+files_db
+Set Default to &(pth)
+SET DATE TO GERMAN
+// ? "Current Path: ", CurDir()
+nCounter := 0
+nCounter2 := 0
+Summa := 0
+SumNedop := 0
+
+xPeopleOfLastMonth := val(PeopleOfLastMonth)
+Dat := CTOD(DateOfEndMonth)
+
+USE Subsid_p
+DO WHILE !EOF()
+  IF SV == 2
+    nCounter++ 
+    Summa := Summa + subsid
+    SumNedop := SumNedop + nedop
+    IF SUB_PO == Dat
+      nCounter2++
+    ENDIF
+  ENDIF
+  SKIP
+ENDDO
+? "<?php"
+? "$ResultOnSbk='"
+? "На сберкассе ", nCounter, " человек"
+? "Осталось набрать ", xPeopleOfLastMonth - nCounter, " человек до ", xPeopleOfLastMonth
+? "На сумму ", Transform(Summa, "### ### ###.##"), " рублей"
+? "Недополученая сумма ", Transform(SumNedop, "### ### ###.##"), " рублей"
+? "Итого ", Transform(Summa+SumNedop, "### ### ###.##"), " рублей"
+? "Прогноз с доплатами", Transform((Summa+SumNedop)/nCounter*xPeopleOfLastMonth, "### ### ###.##")
+? "Прогноз без доплат", Transform(Summa/nCounter*xPeopleOfLastMonth, "### ### ###.##")
+? "Уйдёт в этом месяце ", nCounter2, " человек"
+? "';"
+? "$PeopleOnSbk=",nCounter,';'
+? "$NeedPeoples=",xPeopleOfLastMonth - nCounter,';'
+? "$SummOnSbk=",Trim(Transform(Summa, "#########.##")),';'
+? "$DeltaSumm=",Trim(Transform(SumNedop, "#########.##")),';'
+? "$TotalOnSbk=",Trim(Transform(Summa+SumNedop, "#########.##")),';'
+? "$Prognoz1=",Trim(Transform((Summa+SumNedop)/nCounter*xPeopleOfLastMonth, "#########.##")),';'
+? "$Prognoz2=",Trim(Transform(Summa/nCounter*xPeopleOfLastMonth, "#########.##")),';'
+? "$LossPeople=",nCounter2,';'
+? '?>'
+CLOSE Subsid_p

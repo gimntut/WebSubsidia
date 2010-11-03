@@ -1,0 +1,10 @@
+#include "pathes.xinc"
+Result:="..\\"+files_tmp+"\\Result.csv"
+XlsHead:="..\\"+files_store+"\\Head.xls"
+LastColumn:="L"
+XlsOut:="..\\"+files_download+"\\Out.xls"
+SortColumns:={}
+InsertLine:=1
+SInsLine:=IntToStr(InsertLine)
+FirstCell:="A"+SInsLine
+SecondCell:="B"+SInsLine

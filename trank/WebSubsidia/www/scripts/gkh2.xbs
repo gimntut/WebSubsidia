@@ -1,0 +1,25 @@
+#COMMAND ? [<x,...>] => WSH:Echo(<x>)
+#define true .T.
+#define false .F.
+#INCLUDE "DefineDebtor.xinc"
+#include "pathes.xinc"
+pth:="..\"+files_db
+Set Default to &(pth)
+set date to GERMAN
+InputFile:="..\"+files_tmp+"\GkhResult.csv"
+HeaderLine:='1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;16'
+LCColumn:=0
+LCPColumn:=3
+DateColumn:=5
+DolgColumn:=6
+SoglachColumn:=7
+SoglachYes:="Есть"
+KoefDolg:=100  // Коэфициент привышения субсидии долгом
+
+/***********************************************/
+FindDebtor()
+/***********************************************/
+
+#INCLUDE "AnsiOEM.xinc"
+#INCLUDE "FindDebtor.xinc"
+

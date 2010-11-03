@@ -1,0 +1,9 @@
+AddType application/octet-stream .WebSubUnit
+Options -Indexes
+# Alias /download/ "/files/download/"
+php_value include_path .;./include;./lib;./files/tmp;./files/units
+php_value file_uploads On 
+php_value upload_tmp_dir ../files/upload/
+php_value upload_max_filesize 2M
+
+

@@ -1,0 +1,47 @@
+div.download {
+  border-width: 1;
+  border-color: gray;
+  border-style: solid;
+  background-color: #ddd;
+}
+td.emblem {
+  text-align:center; 
+  background-image:url(Images/bgEmblem.png);
+}
+div.help {
+  border:1px solid green; 
+  background:lightgreen;
+  font-weight:normal;
+  font-size:small;
+}
+img.help {
+  margin-left:5;
+  margin-right:5;
+}
+a.help {
+  font-size:80%;
+}
+div.title{
+  font-weight:bold;
+  font-size:200%;
+  text-align:center;
+  width:100%
+}
+div.subtitle{
+  font-size:90%;
+  font-weight:bold;
+  text-align:center;
+  width:100%;
+  margin-bottom:10;
+}
+.FIO {
+  color:white;
+  background-color:navy;
+  font-weight: bold;
+}
+form {
+  width: 95%;
+}
+.inText, .inFile {
+  width:95%;
+}

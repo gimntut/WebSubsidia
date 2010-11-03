@@ -1,0 +1,69 @@
+#COMMAND ? [<x,...>] => WSH:Echo(<x>)
+#include "pathes.xinc"
+pth:="..\"+files_db
+Set Default to &(pth)
+nCounter := 0
+nCountern := 0
+IDx := 0
+
+USE Reg NEW
+Pack
+public stol[4]
+public stola[4]
+public stolb[4]
+FOR I = 1 TO 4
+    stol[I] := 0
+    stola[I] := 0
+    stolb[I] := 0
+NEXT
+BUKVI := {"ЂЃѓЏ","‚„…†‡€Љ‹","ЊЌЋђ‘","’“”•–—™ќћџ"}
+Area2 := SELECT()
+INDEX ON NUM TO RegNum
+USE subsid NEW
+Pack
+Area1 := SELECT()
+DO WHILE !EOF()
+    IDx := NUM
+    SVx := SV
+    SELECT(Area2)
+    SEEK IDx
+    IF SVx == 2
+        nCounter++ 
+        IF subsid->DATEOBR>=Dat2
+        nCountern++
+        ENDIF
+        //SET FILTER TO NUM=IDx
+        IF FOUND()
+            FOR I = 1 TO 4
+                IF AT(Left(FAMILY,1),BUKVI[I])>0 
+                    stol[I]++
+                    IF subsid->DATEOBR>=Dat2
+                        Stola[I]++
+                    ENDIF
+                ENDIF
+            NEXT
+        ENDIF
+    ELSE
+        IF FOUND()
+            FOR I = 1 TO 4
+                IF AT(Left(FAMILY,1),BUKVI[I])>0 
+                    IF subsid->DATEOBR>=Dat2
+                        Stolb[I]++
+                    ENDIF
+                ENDIF
+            NEXT
+        ENDIF
+    ENDIF
+    SELECT(Area1)
+    SKIP
+ENDDO
+CLOSE Reg
+CLOSE subsid
+ERASE RegNum.ntx
+// Вывод информации
+? "На сберкассе", nCounter, "человек, из них", nCountern, "семей обратилось в этом месяце"
+? "Осталось набрать ", PeopleOfLastMonth - nCounter, " человек до ", PeopleOfLastMonth
+FOR I = 1 TO 4
+    ? "    По столу №",I,"(сбк):", Stol[I],
+    ? " В этом мясяце обратилось (сбк + не сбк):",Stola[I],"+",Stolb[I],"=",Stola[I]+Stolb[I],"семей"
+NEXT

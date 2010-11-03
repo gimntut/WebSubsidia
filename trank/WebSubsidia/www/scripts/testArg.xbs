@@ -1,0 +1,6 @@
+#COMMAND ? [<x,...>] => WSH:Echo( <x> )
+oArgs := WScript:Arguments
+? TIME()
+xLC :=oArgs:Item(0)
+SPEC :=oArgs:Item(1)
+? TIME()

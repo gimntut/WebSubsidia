@@ -1,0 +1,4 @@
+AddType application/octet-stream .WebSubUnit
+Options -Indexes
+Deny from all
+php_value include_path .;./include;./lib;./files/tmp;./files/units

@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2009.09.09 14:40:32.625.pas,C:\Documents and Settings\Пользователь\Мои документы\Borland Studio Projects\Unit9.pas=C:\Documents and Settings\Пользователь\Мои документы\Borland Studio Projects\Быстрый поиск\QFUnit.pas</Transaction>
+    <Transaction>2009.09.09 14:40:32.640.dfm,C:\Documents and Settings\Пользователь\Мои документы\Borland Studio Projects\Unit9.dfm=C:\Documents and Settings\Пользователь\Мои документы\Borland Studio Projects\Быстрый поиск\QFUnit.dfm</Transaction>
+    <Transaction>2009.09.09 14:40:45.187.bdsproj,C:\Documents and Settings\Пользователь\Мои документы\Borland Studio Projects\Project1.bdsproj=C:\Documents and Settings\Пользователь\Мои документы\Borland Studio Projects\Быстрый поиск\QuickFindString.bdsproj</Transaction>
+    <Transaction>2009.09.24 13:32:22.249.pas,C:\Documents and Settings\Пользователь\Мои документы\Borland Studio Projects\Быстрый поиск\Unit10.pas=C:\Documents and Settings\Пользователь\Мои документы\Borland Studio Projects\Быстрый поиск\QFLoadList.pas</Transaction>
+    <Transaction>2009.09.24 13:32:22.249.dfm,C:\Documents and Settings\Пользователь\Мои документы\Borland Studio Projects\Быстрый поиск\Unit10.dfm=C:\Documents and Settings\Пользователь\Мои документы\Borland Studio Projects\Быстрый поиск\QFLoadList.dfm</Transaction>
+    <Transaction>2009.09.24 13:32:34.530.pas,C:\Documents and Settings\Пользователь\Мои документы\Borland Studio Projects\Быстрый поиск\QFUnit.pas=C:\Documents and Settings\Пользователь\Мои документы\Borland Studio Projects\Быстрый поиск\QFMain.pas</Transaction>
+    <Transaction>2009.09.24 13:32:34.530.dfm,C:\Documents and Settings\Пользователь\Мои документы\Borland Studio Projects\Быстрый поиск\QFUnit.dfm=C:\Documents and Settings\Пользователь\Мои документы\Borland Studio Projects\Быстрый поиск\QFMain.dfm</Transaction>
+    <Transaction>2009.10.05 18:06:44.452.pas,C:\Documents and Settings\Пользователь\Мои документы\Borland Studio Projects\Быстрый поиск\Unit12.pas=C:\Documents and Settings\Пользователь\Мои документы\Borland Studio Projects\Быстрый поиск\Template.pas</Transaction>
+    <Transaction>2009.10.05 18:06:44.452.dfm,C:\Documents and Settings\Пользователь\Мои документы\Borland Studio Projects\Быстрый поиск\Unit12.dfm=C:\Documents and Settings\Пользователь\Мои документы\Borland Studio Projects\Быстрый поиск\Template.dfm</Transaction>
+    <Transaction>2009.10.05 18:07:00.186.pas,C:\Documents and Settings\Пользователь\Мои документы\Borland Studio Projects\Быстрый поиск\Template.pas=C:\Documents and Settings\Пользователь\Мои документы\Borland Studio Projects\Быстрый поиск\QFTemplate.pas</Transaction>
+    <Transaction>2009.10.05 18:07:00.186.dfm,C:\Documents and Settings\Пользователь\Мои документы\Borland Studio Projects\Быстрый поиск\Template.dfm=C:\Documents and Settings\Пользователь\Мои документы\Borland Studio Projects\Быстрый поиск\QFTemplate.dfm</Transaction>
+    <Transaction>2009.12.02 09:06:41.171.pas,C:\Documents and Settings\Пользователь\Мои документы\Borland Studio Projects\Быстрый поиск\Unit5.pas=C:\Documents and Settings\Пользователь\Мои документы\Borland Studio Projects\MyLib\CdbfInit.pas</Transaction>
+    <Transaction>2009.12.02 09:06:50.640.pas,C:\Documents and Settings\Пользователь\Мои документы\Borland Studio Projects\MyLib\CdbfInit.pas=</Transaction>
+    <Transaction>2009.12.28 18:16:27.278.pas,C:\Documents and Settings\Пользователь\Мои документы\Borland Studio Projects\Быстрый поиск\Unit15.pas=C:\Documents and Settings\Пользователь\Мои документы\Borland Studio Projects\Быстрый поиск\DateIntervalDlg.pas</Transaction>
+    <Transaction>2009.12.28 18:16:27.294.dfm,C:\Documents and Settings\Пользователь\Мои документы\Borland Studio Projects\Быстрый поиск\Unit15.dfm=C:\Documents and Settings\Пользователь\Мои документы\Borland Studio Projects\Быстрый поиск\DateIntervalDlg.dfm</Transaction>
+    <Transaction>2010.02.04 15:08:21.171.pas,C:\Documents and Settings\Пользователь\Мои документы\Borland Studio Projects\Быстрый поиск\Unit5.pas=C:\Documents and Settings\Пользователь\Мои документы\Borland Studio Projects\MyLib\cdbf.pas</Transaction>
+    <Transaction>2010.10.18 19:17:36.435.pas,C:\Documents and Settings\Пользователь\Мои документы\Borland Studio Projects\Быстрый поиск\Unit3.pas=C:\Documents and Settings\Пользователь\Мои документы\Borland Studio Projects\Быстрый поиск\Time.pas</Transaction>
+    <Transaction>2010.10.18 19:33:38.154.pas,C:\Documents and Settings\Пользователь\Мои документы\Borland Studio Projects\Быстрый поиск\Time.pas=C:\Documents and Settings\Пользователь\Мои документы\Borland Studio Projects\Быстрый поиск\uTime.pas</Transaction>
+  </Transactions>
+</BorlandProject>

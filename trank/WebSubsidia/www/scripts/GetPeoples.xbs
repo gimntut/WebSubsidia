@@ -1,0 +1,80 @@
+#COMMAND ? [<x,...>] => WSH:Echo(<x>)
+#include "pathes.xinc"
+pth:="..\"+files_db
+Set Default to &(pth)
+set date to german
+oArgs := WScript:Arguments
+nArgs := oArgs:Length - 1
+
+xStreetID :=oArgs:Item(0)
+xHome:=oArgs:Item(1)
+HomeNum:=ItemCSV(xHome,0,"/")
+HomeKorp:=ItemCSV(xHome,1,"/")
+
+USE subsid_p ALIAS "subsid"
+PACK
+INDEX ON Num TO LCNum
+
+USE register.dbf ALIAS "reg" new
+PACK
+INDEX ON PandAdr(STREET,house,ToAnsi(korp)) TO RegAdr
+
+USE Punkt NEW
+INDEX ON KOD TO Punkt
+
+? "<?php"
+? "$Peoples=array();"
+Select("Reg")
+xAddr:=PandAdr(xStreetID,HomeNum,HomeKorp)
+Seek(xAddr)
+if found()
+  do while xAddr=Trim(PandAdr(STREET,house,ToAnsi(korp)))
+    xNum:=Num
+    sKorp:=ToAnsi(Trim(Korp))
+    sHouse:=IntToStr(House)
+    sFamily:=ToAnsi(Trim(FAMILY))
+    sName:=ToAnsi(Trim(NAME))
+    sFather:=ToAnsi(Trim(FATHER))
+    sFlat:=Trim(FLAT)
+    xPunkt:=PUNKT
+    Select("punkt")
+    seek(xPunkt)
+    sPunkt:=""
+    if found()
+      sPunkt=Trim(ToAnsi(NM))
+    endif
+    Select("subsid")
+    seek(xNum)
+    if found()
+      sMan:='$Peoples[]=array('
+      sMan+='"Flat"=>"'+sFlat+'",'
+      sMan+='"LC"=>'+IntToStr(LCHET)+','
+      sMan+='"Family"=>"'+sFamily+'",'
+      sMan+='"Name"=>"'+sName+'",'
+      sMan+='"Father"=>"'+sFather+'",'
+      sMan+='"Num"=>'+sHouse+','
+      sMan+='"Korp"=>"'+sKorp+'",'
+      sMan+='"SV"=>'+IntToStr(SV)+','
+      // sMan+='"SV"=>'+IntToStr(SV)+','
+      sMan+='"SUB_C"=>"'+DTOC(SUB_C)+'",'
+      sMan+='"SUB_PO"=>"'+DTOC(SUB_PO)+'",'
+      sMan+='"DATEOBR"=>"'+DTOC(DATEOBR)+'",'
+      sMan+='"PUNKT"=>"'+sPunkt+'",'
+      //Последняя строчка без запятой на конце
+      sMan+='"SUBSID"=>"'+CurrToStr(SUBSID)+'"'
+      sMan+=');'
+      ? sMan
+    endif
+    Select("Reg")
+    skip
+  enddo
+endif
+? "?>"
+
+#INCLUDE "AnsiOem.xinc"
+
+function PandAdr
+PARAMETERS pStreetID, pHomeNum, pHomeKorp
+private s
+  s:=IntToStr(pStreetID)+"."+IntToStr(pHomeNum)+"."+UpperCyr(pHomeKorp)
+return s

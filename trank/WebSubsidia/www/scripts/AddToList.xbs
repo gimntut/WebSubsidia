@@ -1,0 +1,99 @@
+#COMMAND ? [<x,...>] => WSH:Echo( <x> )
+#include "pathes.xinc"
+pth:="..\"+files_db
+Set Default to &(pth)
+// oArgs := WScript:Arguments
+IDx := 0
+// xLC :=oArgs:Item(0)
+// SPEC :=oArgs:Item(1)
+
+Result := "$Journal[]="
+OtkazTxt := {"Не работает без уважительных причин",;
+"Нет опекунского удостоверения",;
+"Родители лишены родительских прав",;
+"СДД превышает пожиточный минимум",;
+"Не все доходы представлены"}
+SET DATE TO GERMAN
+USE sv7_p NEW
+Pack
+Area3 := SELECT()
+INDEX ON LCHET TO Sv7
+
+USE Register NEW
+Pack
+Area2 := SELECT()
+INDEX ON NUM TO RegNum
+
+USE subsid_p NEW
+Pack
+Area1 := SELECT()
+INDEX ON LCHET TO LCNum
+// ? OtkazTxt[1],"+"
+// ? xLC, SPEC,"*"
+// ? "<?php"
+// ? "$Journal=array()"
+SEEK xLC
+IF FOUND()
+  xNUM:=NUM
+  xSV:=SV
+  xSUM:=CurrToStrDot(SUBSID)
+  // xNEDOP:=CurrToStr(NEDOP)
+  xKV_FACT:=CurrToStrDot(KV_FACT)
+  // S:=DTOC(D_NAZN)
+  // if S="  .  .  "
+  S:=DTOC(DATEOBR)
+  // ENDIF
+  Result=Result+"array('DATEOBR'=>'"+S+"','LCHET'=>"+IntToStr(xLC)+","
+  SELECT(Area2)
+  SEEK xNUM
+  IF FOUND()
+    FIO:=ToAnsi(AllTrim(FAMILY)+" "+AllTrim(NAME)+" "+AllTrim(FATHER))
+    Result=Result+"'FIO'=>'"+FIO+"',"
+    ADDRESS:="д."+IntToStr(HOUSE)
+    IF AllTrim(KORP)+"!"<>"!"
+      ADDRESS:=ADDRESS+"/"+ToAnsi(AllTrim(KORP))
+    ENDIF
+    IF AllTrim(FLAT)+"!"<>"!"
+      ADDRESS:=ADDRESS+", кв."+AllTrim(FLAT)
+    ENDIF
+    xPUNKT:=PUNKT
+    xSTREET:=STREET
+    USE Street NEW
+    INDEX ON KOD TO Street
+    SEEK xStreet
+    IF FOUND()
+      ADDRESS:=ToAnsi(AllTrim(NM))+", "+ADDRESS
+    ELSE
+      ADDRESS:="--- "+ADDRESS
+    ENDIF
+    USE Punkt NEW
+    INDEX ON KOD TO Punkt
+    SEEK xPUNKT
+    IF FOUND()
+      ADDRESS:=ToAnsi(AllTrim(NM))+", "+ADDRESS
+    ELSE
+      ADDRESS:="--- "+ADDRESS
+    ENDIF
+    Result = Result+"'ADDRESS'=>'"+ADDRESS+"','SUMMA'=>"+xSUM+",'FACT'=>"+xKV_FACT+","
+    IF xSV=7
+      SELECT(Area3)
+      SEEK xLC
+      xOtkaz :=""
+      IF FOUND()
+        IF (REASON_S>0) .and. (REASON_S<6)
+          xOtkaz = OtkazTxt[REASON_S]
+        ELSE
+          xOtkaz = "Причина отказа не известна"
+        ENDIF
+      ENDIF
+      Result = Result+"'OTKAZ'=>'"+xOtkaz+"',"
+    ENDIF
+    Result = Result+"'SPEC'=>'"+SPEC+"','DateZap'=>'"+DTOC(DATE())+"');"
+    ? Result
+  ENDIF
+ENDIF
+// ? "?>"
+CLOSE Register
+CLOSE subsid_p
+
+#INCLUDE "AnsiOem.xinc"

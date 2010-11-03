@@ -1,0 +1,22 @@
+#COMMAND ? [<x,...>] => WSH:Echo(<x>)
+#include "pathes.xinc"
+#include "DefineDebtor.xinc"
+
+pth:="..\"+files_db
+Set Default to &(pth)
+
+SET DATE TO GERMAN
+InputFile:="..\"+files_tmp+"\tges2.csv"  // Полный список получателей субсидий
+HeaderLine:=""               // Строка заголовка выходного файла
+LCColumn:=0                  // Колонка в которой храняться лицевые счета по субсидиям
+LCPColumn:=1                 // Колонка в которой храняться лицевые счета по ЖКУ
+DolgColumn:=-1               // Столбец с долгами
+DateColumn:=7                // Столбец с датой последней оплаты
+KoefDolg:=1                  // Коэфициент привышения субсидии долгом
+
+/***********************************************/
+FindDebtor()
+/***********************************************/
+
+#INCLUDE "AnsiOEM.xinc"
+#INCLUDE "FindDebtor.xinc"

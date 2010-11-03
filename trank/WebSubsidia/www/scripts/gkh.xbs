@@ -1,0 +1,78 @@
+#COMMAND ? [<x,...>] => WSH:Echo(<x>)
+#define true .T.
+#define false .F.
+#include "pathes.xinc"
+pth:="..\"+files_db
+Set Default to &(pth)
+aSogl := {"Нет","Нет","Есть"}
+aGEU := {"ЖЭУ 1","ЖЭУ 2","ЖЭУ 3","ЖЭУ 4","ЖЭУ 5","ЖЭУ 6","ЖЭУ 7","ЖЭУ 8","ЖЭУ 9"}
+TRY
+  fso := CreateObject("Scripting.FileSystemObject")
+  a := fso:OpenTextFile("..\"+files_tmp+"\gkh2.csv", 1)
+  USE subsid_p ALIAS "Subs" NEW
+  PACK
+  INDEX ON LCHET TO LCNum
+  
+  USE Register ALIAS "Reg" NEW
+  PACK
+  INDEX ON NUM TO RegNum
+  
+  USE kvplat_p ALIAS "kvplat" NEW
+  PACK
+  INDEX ON LCHET TO KvLC
+  //? '№;"Лицевой счёт";ФИО;Адрес;"Счёт предприятия";Начисления;"Период задолжности";"Сумма долга";Телефон;Соглашение;ЖЭУ;Начислено по базе;Срок'
+  xPred:=0
+  xSUM:=0.0
+  xInd:=0
+  DO WHILE .NOT. a:AtEndOfLine
+    s:=a:ReadLine
+    sLC:=LEFT(s,7)
+    LC:=VAL(sLC)
+    sxLCP:=ItemCSV(s,3,";")
+    xLCP:=VAL(sxLCP)
+    SELECT("Subs")
+    SEEK LC
+    if ! found()
+      ? "[X]", LC, "- Нет счёта в нашей базе"
+      loop
+    endif
+    xSV:=SV
+    if xSV!=2 .and. xSV!=5
+      ? "[X]", LC, "- Не получает субсидию (",xSV,")"
+      loop
+    endif
+    xNUM:=NUM
+    xDOLG:=RE_DOLG
+    SELECT("Reg")
+    SEEK xNUM
+    SELECT("kvplat")
+    SEEK LC
+    us := .f.
+    do while LCHET==LC
+      us := xLCP==LCP 
+      if us 
+        xPred:=PRED_LCP
+        exit
+      endif
+      skip
+    end do
+    if ! us
+      ? "[X]", LCHET, "- Cчёт предприятия не совпадает"
+      loop
+    endif
+    Sogl:=aSogl[xDOLG+1]
+    sDolg:=ItemCSV(s,6,";")
+    sumDOLG:=VAL(STRTRAN(sDolg,",","."))
+    sPred:=aGEU[xPred]
+    ? s+";"+Sogl+";"+sPred//+";"+IntToStr(xDOLG)
+  ENDDO
+  a:CLOSE()
+CATCH oErr
+   ? "Error: " + oErr:Operation + " -> " + oErr:Description
+END
+// CLOSE subsid_p
+// CLOSE Register
+// CLOSE kvplat_p
+
+#INCLUDE "AnsiOEM.xinc"
+

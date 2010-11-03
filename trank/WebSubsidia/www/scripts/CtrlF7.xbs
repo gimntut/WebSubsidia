@@ -1,0 +1,22 @@
+#COMMAND ? [<x,...>] => WSH:Echo(<x>)
+#include "pathes.xinc"
+pth:="..\"+files_db
+Set Default to &(pth)
+USE SUBSID_P NEW
+INDEX ON LCHET TO S_LC UNIQUE
+SEEK "9007100"
+if found()
+  A := R_STS
+  B := POLUCH
+  C := K_LGOT
+  E := MIDSOULDOH
+  F := SDD_PRAVO
+  D := Round(E/F,-4)
+  IF D>1 
+    D=1
+  ENDIF
+  Otvet := A*B*C - E*D*B*0.22
+  ? Otvet
+else
+  ? "Ничего не найдено"
+endif
