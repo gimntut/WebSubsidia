@@ -36,11 +36,9 @@ type
     FOnEnum: TOnEnum;
     ValueIndex: Integer;
     FDescending: Boolean;
-    IsSettingText: Boolean;
     FMode: Integer;
     FHead: string;
-    isst: Boolean;
-    IsAbsIndFilter: Boolean;
+    FIsAbsIndexMode: Boolean;
     function GetAsTable: TStrings;
     function GetFieldNames: TStrings;
     function GetInnerDelimeter: Char;
@@ -81,6 +79,8 @@ type
     procedure DebugOut(fn:string = '');
     procedure AbsIndFilter;
     procedure RelIndFilter;
+    procedure SortFilter;
+    procedure SetIsAbsIndexMode(const Value: Boolean);
   protected
     function  Compare(Index1, Index2: Integer): Integer;
     function Get(Index: Integer): string; override;
@@ -88,6 +88,7 @@ type
     procedure Put(Index: Integer; const S: string); override;
     procedure SetTextStr(const Value: string); override;
     property XValues[Row,Col:Integer]:string read GetXValues write SetXValues;
+    property IsAbsIndexMode: Boolean read FIsAbsIndexMode write SetIsAbsIndexMode;
   public
     constructor Create;
     destructor Destroy; override;
@@ -107,7 +108,7 @@ type
     procedure AutoConfig;
     procedure DoEnum;
     procedure HideAll;
-    procedure Podstava(ChprList:TChprList; x,y,z:Integer);
+    procedure Podstava(ChprList:TChprList; LookupField,LookupSrc,LookupTrg:Integer);
     procedure ShowAll;
     //////////////////////////////////////////
     property Descending:Boolean read FDescending write SetDescending;
@@ -199,8 +200,8 @@ Uses PublStr, StrUtils, Printers, Graphics, SysUtils, DateUtils, PublFile;
 Var
   FieldStrings:TStringList;
   ValueStrings:TStringList;
-const
-  DebugMode=true;
+var
+  DebugMode:boolean=false;
   
 function Transform(Strings:TStrings; Delimeter: string; Filling:boolean): string;
 var
@@ -356,34 +357,36 @@ begin
     FTmpSts := TStringList.Create;
 end;
 
-procedure TChprList.Podstava(ChprList: TChprList; x, y, z: Integer);
+procedure TChprList.Podstava(ChprList: TChprList; LookupField, LookupSrc, LookupTrg: Integer);
 var
   I: Integer;
   s:string;
   J: Integer;
   us: Boolean;
 begin
-  FFields[x]:=ChprList.FieldNames[z];
+  FFields[LookupField]:=ChprList.FieldNames[LookupTrg];
   NeedTmpSts;
   FTmpSts.Clear;
-  for I := 0 to ChprList.Count - 2 do FTmpSts.Add(ChprList.Values[i][y]);
+  for I := 0 to ChprList.Count - 2 do FTmpSts.Add(ChprList.Values[i][LookupSrc]);
   for I := 0 to Count - 1 do begin
-    s:=XValues[I,x];
+    s:=XValues[I,LookupField];
     us:=false;
     for J := 0 to FTmpSts.Count - 1 do begin
       us:=SameText(s,FTmpSts[J]);
       if not us then Continue;
-      XValues[I,X]:=ChprList.Values[J][Z];
+      XValues[I,LookupField]:=ChprList.Values[J][LookupTrg];
       break;
     end;
     if us then Continue;
-    XValues[I,X]:='-*-*-*-';
+    XValues[I,LookupField]:='-*-*-*-';
   end;
 end;
 
 procedure TChprList.InitFilterCount;
 begin
-  FFilterCount := Count - 1;
+  // было FFilterCount := Count - 1;
+  // стало:
+  FFilterCount := Count;
   if FFilterCount = -1 then
     FFilterCount := 0;
 end;
@@ -392,7 +395,7 @@ procedure TChprList.Put(Index: Integer; const S: string);
 var
   Ind: Integer;
 begin
-  if IsSettingText
+  if IsAbsIndexMode
   then Ind:=Index
   else Ind:=Order[Index];
   if Ind=MaxInt then Exit;
@@ -425,7 +428,7 @@ end;
 
 constructor TChprList.Create;
 begin
-  IsSettingText:=false;
+  IsAbsIndexMode:=false;
   inherited;
   FFields:=TStringList.Create;
   FValues:=TStringList.Create;
@@ -442,7 +445,7 @@ procedure TChprList.DebugOut(fn: string);
 var
   i:integer;
   sts: TStringList;
-//  s:string;
+  s:string;
   isst:Boolean;
 begin
   if not DebugMode then Exit;
@@ -452,8 +455,8 @@ begin
   ////////////////////////////////////////////
   sts.Add('');
   sts.Add('* Порядок по умолчанию *');
-  isst:=IsSettingText;
-  IsSettingText:=true;
+  isst:=IsAbsIndexMode;
+  IsAbsIndexMode:=true;
   for I := 0 to Count - 1 do begin
     sts.Add(ToZeroStr(I,3)+': '+Strings[I]);
   end;
@@ -468,7 +471,8 @@ begin
   sts.Add('* Массив FilterArray *');
   for I := 0 to High(FilterArray) do begin
     if I>=FilterCount then break;
-    sts.Add(ToZeroStr(I,3)+': ['+ToZeroStr(FilterArray[I],3)+']');
+    s := format ('%s: [%s]->[%s]',[ToZeroStr(I,3),ToZeroStr(FilterArray[I],3),ToZeroStr(Order[FilterArray[I]],3)]);
+    sts.Add(s);
   end;
   ////////////////////////////////////////////
   sts.Add('');
@@ -482,10 +486,19 @@ begin
   for I := 0 to Count - 1 do begin
     sts.Add(ToZeroStr(I,3)+': ['+ToZeroStr(FAntiOrder[I],3)+']');
   end;
+  ////////////////////////////////////////////
+  sts.Add('');
+  sts.Add('* Массив AntiOrder *');
+  ////////////////////////////////////////////
+  IsAbsIndexMode:=isst;
+  ////////////////////////////////////////////
+  DebugMode:=false;
+  sts.AddStrings(AsTable);
+  DebugMode:=true;
+  ////////////////////////////////////////////
   if fn='' then fn:=ProgramPath+'DebugOut.txt';
   sts.SaveToFile(fn);
   sts.Free;
-  IsSettingText:=isst;
 end;
 
 destructor TChprList.Destroy;
@@ -500,7 +513,7 @@ function TChprList.Get(Index: Integer): string;
 var
   Ind: Integer;
 begin
-  if IsSettingText
+  if IsAbsIndexMode
   then Ind:=Index
   else Ind:=Order[Index];
   Result:='';
@@ -685,7 +698,7 @@ var
   Ind:Integer;
 begin
   Result:=false;
-  if IsSettingText
+  if IsAbsIndexMode
   then Ind:=Index
   else begin
     if OutSide(Index,Count-1) then Exit;
@@ -718,14 +731,14 @@ var
   isst:Boolean;
 begin
   if not Assigned(FOnCustomFilter) then Exit;
-  isst:=IsSettingText;
-  IsSettingText:=true;
+  isst:=IsAbsIndexMode;
+  IsAbsIndexMode:=true;
   for I := 0 to Count - 1 do begin
     Visible:=VisibleItems[I];
     FOnCustomFilter(self,I,Strings[I],Visible);
     VisibleItems[I]:=Visible;
   end;
-  IsSettingText:=isst;
+  IsAbsIndexMode:=isst;
 end;
 
 procedure TChprList.DoEnum;
@@ -763,9 +776,8 @@ var
   sts: TNumStrList;
   ist:Boolean;
 begin
-  AbsIndFilter;
-  ist:=IsSettingText;
-  IsSettingText:=true;
+  ist:=IsAbsIndexMode;
+  IsAbsIndexMode:=true;
   sts := TNumStrList.Create;
   sts.CaseSensitive:=false;
   sts.Duplicates:=dupAccept;
@@ -780,8 +792,7 @@ begin
     FAntiOrder[FOrder[I+1]]:=I+1;
   end;
   sts.Free;
-  IsSettingText:=ist;
-  RelIndFilter;
+  IsAbsIndexMode:=ist;
 end;
 
 procedure TChprList.SetDescending(const Value: Boolean);
@@ -837,7 +848,9 @@ begin
   SepSts.CustomSort(MinusCompare);
   TmpSts:=TStringList.Create;
   TmpSts.Assign(self);
-  if TmpSts.Count>1 then TmpSts.Delete(0);
+//  if TmpSts.Count>1 then TmpSts.Delete(0);
+//  isst:=IsAbsIndexMode;
+//  IsAbsIndexMode:=true;
   for I:=0 to FilterCount-1 do FilterArray[I]:=I;
   for I:=0 to SepSts.Count-1 do begin
     s1:=AnsiUpperCase(SepSts[i]);
@@ -874,20 +887,14 @@ begin
   end;
   TmpSts.Free;
   SepSts.Free;
-  for I := 0 to FilterCount-2 do begin
-    for J := I+1 to FilterCount-1 do begin
-      if FilterArray[I]>FilterArray[J] then begin
-        p:=FilterArray[I];
-        FilterArray[I]:=FilterArray[J];
-        FilterArray[J]:=p;
-      end;
-    end;
-  end;
+  SortFilter;
   HideAll;
-  isst:=IsSettingText;
-  IsSettingText:=true;
-  for I:=0 to FilterCount-1 do VisibleItems[FilterArray[I]]:=true;
-  IsSettingText:=isst;
+  for I:=0 to FilterCount-1 do begin
+    Ind:=FilterArray[I];
+//    Ind:=Order[Ind];
+    VisibleItems[Ind]:=true;
+  end;
+//  IsAbsIndexMode:=isst;
   DebugOut;
 end;
 
@@ -916,13 +923,13 @@ begin
     if Value[I]<>#0 then S:=S+Value[I];
   FOriginalText:=S;
   if IsOEMSource then S:=AsAnsi(S);
-  IsSettingText:=true;
+  IsAbsIndexMode:=true;
   inherited SetTextStr(S);
   SetLength(FOrder,Count);
   for I:=0 to Count-1 do FOrder[I]:=I;
   SetLength(FAntiOrder,Count);
   for I:=0 to Count-1 do FAntiOrder[I]:=I;
-  IsSettingText:=false;
+  IsAbsIndexMode:=false;
   if IsTransformed then begin
     GetHead;
     inherited SetTextStr(Transform(self,InnerDelimeter,FFilling));
@@ -941,7 +948,7 @@ procedure TChprList.SetVisible(Index: Integer; const Value: Boolean);
 var
   Ind: Integer;
 begin
-  if IsSettingText
+  if IsAbsIndexMode
   then Ind:=Index
   else begin
     if OutSide(Index,Count-1) then Exit;
@@ -966,12 +973,31 @@ begin
     FVisible[I]:=false;
 end;
 
+procedure TChprList.SortFilter;
+var
+  I: Integer;
+  J: Integer;
+  p: Integer;
+begin
+  for I := 0 to FilterCount - 2 do
+  begin
+    for J := I + 1 to FilterCount - 1 do
+    begin
+      if FilterArray[I] > FilterArray[J] then
+      begin
+        p := FilterArray[I];
+        FilterArray[I] := FilterArray[J];
+        FilterArray[J] := p;
+      end;
+    end;
+  end;
+end;
+
 procedure TChprList.AbsIndFilter;
 var
   I: Integer;
 begin
-  if IsAbsIndFilter then Exit;
-  IsAbsIndFilter:=True;
+  if IsAbsIndexMode then Exit;
   for I := 0 to High(FilterArray) do begin
     FilterArray[I]:=Order[FilterArray[I]];
   end;
@@ -980,19 +1006,13 @@ end;
 procedure TChprList.RelIndFilter;
 var
   I: Integer;
-  J: Integer;
 begin
-  if not IsAbsIndFilter then Exit;
-  IsAbsIndFilter:=False;
+  if not IsAbsIndexMode then Exit;
   for I := 0 to High(FilterArray) do begin
     FilterArray[I]:=FAntiOrder[FilterArray[I]];
   end;
   if High(FilterArray)=-1 then Exit;
-  for I := 0 to FilterCount-2 do begin
-    for J := I+1 to FilterCount - 1 do
-      if FilterArray[I]>FilterArray[J] then
-        publ.Exchange(FilterArray[I],FilterArray[J]);
-  end;
+  SortFilter;
 end;
 
 procedure TChprList.SimpleSort;
@@ -1054,6 +1074,14 @@ procedure TChprList.SetIsOEMSource(const Value: Boolean);
 begin
   FIsOEMSource := Value;
   SetTextStr(FOriginalText);
+end;
+
+procedure TChprList.SetIsAbsIndexMode(const Value: Boolean);
+begin
+  if Value
+    then AbsIndFilter
+    else RelIndFilter;
+  FIsAbsIndexMode := Value;
 end;
 
 procedure TChprList.SetIsTransformed(const Value: Boolean);
