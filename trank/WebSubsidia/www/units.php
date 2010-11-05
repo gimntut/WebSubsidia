@@ -42,15 +42,17 @@ set Description = ${v['Description']}";
       ` scripts\\GetUnitName.cmd "$filename"`;
       include "NewUnit.inc.php";
       unlink($files_tmp.'/NewUnit.inc.php');
-      ` scripts\\WebSubUpload.cmd "$filename"`;
       foreach ($units as $v) {
-        $url=iconv("cp1251","utf-8",$NewUnit['Name']);
-        // echo "$url <br />";
-        if ($url==$_REQUEST["unit"]){
+        if ($v['Name']==$NewUnit['Name']){
+          $s="
+set Name = ${NewUnit['Name']}
+set Description = ${v['Description']}";
+          file_put_contents($files_tmp.'/comment.tmp',$s);
           file_put_contents($files_tmp.'/unit.filelist.txt',$v['Files']);
           ` scripts\BackupUnit.cmd "${v['Name']}"`;
           unlink($files_tmp.'/unit.filelist.txt');
-          $url=rawurlencode($url);
+          unlink($files_tmp.'/comment.tmp');
+          break;
         }
       }
       ` scripts\\WebSubUpload.cmd "$filename"`;
