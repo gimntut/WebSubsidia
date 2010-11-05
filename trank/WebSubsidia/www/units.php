@@ -3,31 +3,58 @@
   include_once 'init.inc.php';
   include_once 'names.php';
   include_once 'pathes.inc.php'; 
-  if ($_REQUEST["action"]=='download') {
-    // echo "${_REQUEST["unit"]}<br />";
-    foreach ($units as $v) {
-      $url=iconv("cp1251","utf-8",$v['Name']);
-      // echo "$url <br />";
-      if ($url==$_REQUEST["unit"]){
-        file_put_contents($files_tmp.'/unit.filelist.txt',$v['Files']);
-        ` scripts\GenUnit.cmd "${v['Name']}"`;
-        unlink($files_tmp.'/unit.filelist.txt');
-        $url=rawurlencode($url);
-        echo "
-          <html>
-          <head>
-          <title>Перенаправление на закачку...</title>
-          <meta http-equiv=Refresh content=\"0; url=/files/download/$url.WebSubUnit\">
-          </head>
-          <body>
-            <a href=\"/$url.WebSubUnit\">Ссылка на закачивание </a>
-          </body>
-          </html>
-        ";
-        break;
+  switch ($_REQUEST["action"]) {
+    case 'download':
+      foreach ($units as $v) {
+        $url=iconv("cp1251","utf-8",$v['Name']);
+        // echo "$url <br />";
+        if ($url==$_REQUEST["unit"]){
+          $s="
+set Name = ${v['Name']}
+set Description = ${v['Description']}";
+          file_put_contents($files_tmp.'/comment.tmp',$s);
+          file_put_contents($files_tmp.'/unit.filelist.txt',$v['Files']);
+          ` scripts\GenUnit.cmd "${v['Name']}"`;
+          unlink($files_tmp.'/unit.filelist.txt');
+          unlink($files_tmp.'/comment.tmp');
+          $url=rawurlencode($url);
+          echo "
+            <html>
+            <head>
+            <title>Перенаправление на закачку...</title>
+            <meta http-equiv=Refresh content=\"0; url=/$files_download/$url.WebSubUnit\">
+            </head>
+            <body>
+              <a href=\"/$url.WebSubUnit\">Ссылка на закачивание </a>
+            </body>
+            </html>
+          ";
+          break;
+        }
       }
-    }
-    exit;
+      exit;
+      break;
+    case 'upload':
+      $fileID = 'uploadfile';
+      $uploaddir = $files_upload.'/';
+      $filename = $uploaddir.basename($_FILES[$fileID]['name']);
+      include "getfile.inc.php";
+      ` scripts\\GetUnitName.cmd "$filename"`;
+      include "NewUnit.inc.php";
+      unlink($files_tmp.'/NewUnit.inc.php');
+      ` scripts\\WebSubUpload.cmd "$filename"`;
+      foreach ($units as $v) {
+        $url=iconv("cp1251","utf-8",$NewUnit['Name']);
+        // echo "$url <br />";
+        if ($url==$_REQUEST["unit"]){
+          file_put_contents($files_tmp.'/unit.filelist.txt',$v['Files']);
+          ` scripts\BackupUnit.cmd "${v['Name']}"`;
+          unlink($files_tmp.'/unit.filelist.txt');
+          $url=rawurlencode($url);
+        }
+      }
+      ` scripts\\WebSubUpload.cmd "$filename"`;
+      break;
   }
   $FocusedElement="searchbox";
 ?>
@@ -38,6 +65,7 @@
   echo "
   <div class='download'>
     <form action='units.php' method=post enctype=multipart/form-data>
+      <input type='hidden' name='action' value='upload'>
       <input type='hidden' name='ID' value='$ID'>
       <input type='hidden' name='STOL' value='$STOL'>
       <input class='inFile' id='filename' type='file' name='uploadfile'><br />

@@ -1,0 +1,7 @@
+www\files\Settings.ini
+www\files\tmp\*.*
+www\files\db\*.*
+www\files\log\*.*
+www\files\journals\*.*
+www\files\upload\*.*
+www\names.php

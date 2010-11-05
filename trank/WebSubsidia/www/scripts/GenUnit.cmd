@@ -5,7 +5,6 @@
 @echo [%Date% %Time%] %0 %* | toAnsi >> ..\%files_log%\run.cmd.log
 
 cd ..\..
-set UnitFile=%~1.WebSubUnit
-rar a "%UnitFile%" @"www\%files_tmp%\unit.filelist.txt"
-copy "%UnitFile%" "www\%files_download%\%UnitFile%"
+set UnitFile=www\%files_download%\%~1.WebSubUnit
 del "%UnitFile%"
+rar a -z"www\%files_tmp%\comment.tmp" "%UnitFile%" @"www\%files_tmp%\unit.filelist.txt"

@@ -22,6 +22,7 @@
     SaveArrayToFile($file,$LCs,'IsValidLC');
     /* Часть 2 */
     ` scripts\\PrepareDBF.cmd "register.dbf" "full\\subsid_p.dbf" "sv7_p.dbf">$files_log\\prepare.log.txt`;
+    ` scripts\\FastPrepDBF.cmd "street.dbf" "punkt.dbf" "sv7_p.dbf">>$files_log\\prepare.log.txt`;
     ` scripts\\GetInfo.cmd $sid`;
     include "$file.tmp.php";
     /* Часть 3 */
@@ -31,15 +32,27 @@
     print "Классное соединение";
     mysql_select_db("websubsidia") or die("Нет связи с базой данных");
     /* Выполняем SQL-запрос */
+    // $Journal[]=array(
+    //'DATEOBR'=>'26.03.10','LCHET'=>9000100,'FIO'=>'Кузнецов Михаил Николаевич',
+    //'ADDRESS'=>'Субханкулово, Нефтяников, д.10, кв.2','SUMMA'=>0.00,'FACT'=>2931.09,
+    //'OTKAZ'=>'СДД превышает пожиточный минимум');
     foreach ($Journal as $rec){
-      $query = "SELECT $rec['LCHET'] FROM journal0";
-
+      $query = "SELECT ${rec['LCHET']} FROM journal0";
       $result = mysql_query($query) or die("Ошибка запроса : " . mysql_error());
-      if (mysql_num_rows($result)==0) {
-        
+      /* if (mysql_num_rows($result)==0) {
+        // num - вычисляется на основе dateobr
+        // dateobr - 
+        // SpecID - 
+        // RecDate - 
+        // DossierData - 
+        // DossierDataExt - 
+        $query = 
+        "INSERT 
+         INTO journal0 (num,dateobr,SpecID,RecDate,DossierData,DossierDataExt) 
+         VALUES(0,${rec['DATEOBR']})";
         $result = mysql_query($query) or die("Ошибка запроса : " . mysql_error());
       } else {
-      }
+      } */
       /* Выводим результаты в html */
       print "<table>\n";
       while ($line = mysql_fetch_array($result, MYSQL_BOTH)) {
