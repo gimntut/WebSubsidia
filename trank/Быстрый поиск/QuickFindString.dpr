@@ -1,7 +1,6 @@
 program QuickFindString;
 
 {%File 'QFMain.txt'}
-{%TogetherDiagram 'ModelSupport_QuickFindString\default.txaPackage'}
 
 uses
   Forms,
