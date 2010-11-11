@@ -1,3 +1,45 @@
+//{type
+//  TForm1 = class(TForm)
+//    ListBox1: TListBox;
+//    procedure FormCreate(Sender: TObject);
+//  protected
+//    procedure WMDROPFILES (var Msg: TMessage); message WM_DROPFILES;
+//  private
+//  public
+//  end;
+//
+//var
+//  Form1: TForm1;
+//
+//implementation
+//uses shellapi;
+//
+//{$R *.DFM}
+//
+//procedure TForm1.FormCreate(Sender: TObject);
+//begin
+//  DragAcceptFiles(Form1.Handle, true);
+//end;
+//
+//procedure TForm1.WMDROPFILES (var Msg: TMessage);
+//var
+//  i,
+//  amount,
+//  size: integer;
+//  Filename: PChar;
+//begin
+//  inherited;
+//  Amount := DragQueryFile(Msg.WParam, $FFFFFFFF, Filename, 255);
+//  for i := 0 to (Amount - 1) do
+//  begin
+//    size := DragQueryFile(Msg.WParam, i , nil, 0) + 1;
+//    Filename:= StrAlloc(size);
+//    DragQueryFile(Msg.WParam,i , Filename, size);
+//    listbox1.items.add(StrPas(Filename));
+//    StrDispose(Filename);
+//  end;
+//  DragFinish(Msg.WParam);
+//end;
 unit QFMain;
 
 interface
@@ -240,6 +282,7 @@ type
     procedure ShowSverka(Sender:TObject; Memo:StdCtrls.TMemo);
     procedure SolveF7(DateV: TDate; var LastOtvet: Extended; var Otvet: Extended);
   protected
+    procedure WMDropFiles(var Message: TMessage); message WM_DROPFILES;
     //procedure GenerateFile;
     property Detail:string read GetDetail;
   public
@@ -406,6 +449,7 @@ procedure TForm9.FormCreate(Sender: TObject);
 var
   FN:string;
 begin
+  DragAcceptFiles(Handle, true);
   HTTP:=THTTPSend.Create;
   HTTP.UserAgent:='WebSubsidii';
   PagePanel:=TPagePanel.Create(self);
@@ -1271,6 +1315,22 @@ procedure TForm9.ToolButton4Click(Sender: TObject);
 begin
   if FFontSize<=6 then Exit;
   FontSize:=FFontSize-1;
+end;
+
+procedure TForm9.WMDropFiles(var Message: TMessage);
+var
+  size: integer;
+  Filename: PChar;
+  S: string;
+begin
+  inherited;
+  Filename:=nil;
+  size := DragQueryFile(Message.WParam, 0 , nil, 0) + 1;
+  Filename:= StrAlloc(size);
+  DragQueryFile(Message.WParam, 0 , Filename, size);
+  S:=StrPas(Filename);
+  DragFinish(Message.WParam);
+  OpenFile(S);
 end;
 
 procedure TForm9.NewBtnClick(Sender: TObject);
