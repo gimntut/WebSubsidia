@@ -162,7 +162,7 @@ object ImportDlg: TImportDlg
         530
         41)
       object ExchangeBtn: TButton
-        Left = 227
+        Left = 187
         Top = 8
         Width = 75
         Height = 25
@@ -170,6 +170,17 @@ object ImportDlg: TImportDlg
         Caption = #1054#1073#1084#1077#1085
         TabOrder = 0
         OnClick = ExchangeBtnClick
+      end
+      object Button3: TButton
+        Left = 268
+        Top = 8
+        Width = 75
+        Height = 25
+        Anchors = []
+        Cancel = True
+        Caption = #1054#1090#1084#1077#1085#1072
+        TabOrder = 1
+        OnClick = Button3Click
       end
     end
     object ProgressBar1: TProgressBar

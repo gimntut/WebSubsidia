@@ -62,8 +62,10 @@ begin
     Path := FSourcePath + '\main\';
     DeltaPrc := 0;
     CreateTextBase(Path + 'db1.dbf', FTargetPath+'\base2.csv', 3, True, cbProcedure);
-    DeltaPrc := 50;
+    DeltaPrc := 33;
     CreateTextBase(Path + 'adb1.dbf', FTargetPath+'\base1.csv', 0, True, cbProcedure);
+    DeltaPrc := 66;
+    CreateTextBase(Path + 'Ras_sk.dbf', FTargetPath+'\base3.csv', 0, True, cbProcedure);
   finally
     PostMessage(FWinHandle,WM_ProgressStop,0,0);
   end;

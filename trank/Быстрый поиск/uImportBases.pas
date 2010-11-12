@@ -24,6 +24,7 @@ type
     ExchangeBtn: TButton;
     ApplicationEvents1: TApplicationEvents;
     ProgressBar1: TProgressBar;
+    Button3: TButton;
     procedure ToolButton1Click(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure ToolButton2Click(Sender: TObject);
@@ -38,17 +39,18 @@ type
     procedure Button2Click(Sender: TObject);
     procedure ApplicationEvents1Exception(Sender: TObject; E: Exception);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+    procedure Button3Click(Sender: TObject);
   private
     dir: string;
     Src: TStringList;
     Trg: TStringList;
-    procedure SaveOptions;
-    procedure LoadOptions;
-    function GetTabNumStr:string;
-    procedure CopyViplata;
-    procedure CopyEDK;
     function GetMode: Integer;
     function GetModeStr: string;
+    function GetTabNumStr:string;
+    procedure CopyEDK;
+    procedure CopyViplata;
+    procedure LoadOptions;
+    procedure SaveOptions;
   protected
     procedure WMProgressstop(var Message: TMessage); message WM_ProgressStop;
     procedure WMProgressprc(var Message: TMessage); message WM_ProgressPrc;
@@ -228,6 +230,12 @@ var
 begin
   if not SelectDirectory('Выберите папку с базой','',Dir,[sdNewUI,sdNewFolder]) then Exit;
   Edit2.Text:=Dir;
+end;
+
+procedure TImportDlg.Button3Click(Sender: TObject);
+begin
+  ModalResult:=mrCancel;
+  Close;
 end;
 
 procedure TImportDlg.ExchangeBtnClick(Sender: TObject);

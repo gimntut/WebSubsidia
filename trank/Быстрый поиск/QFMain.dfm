@@ -225,6 +225,7 @@ object Form9: TForm9
       Top = 0
       Caption = 'ToolButton9'
       ImageIndex = 15
+      OnClick = ToolButton9Click
     end
   end
   object pnHelp: TPanel

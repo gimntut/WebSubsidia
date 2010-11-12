@@ -167,6 +167,7 @@ type
     procedure sgJournalDrawCell(Sender: TObject; ACol, ARow: Integer;
       Rect: TRect; State: TGridDrawState);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure ToolButton9Click(Sender: TObject);
   private
     Chpr:TChprList;
     Chpr2:TChprList;
@@ -583,6 +584,7 @@ begin
   MemoModeBtn.Down:=false;
   MemoModeBtn.Click;
   SpravkaType:=sptFirstList;
+  PagePanel.ActivePageIndex:=0;
   ActList.Clear;
   Chpr.Mode:=mdCsv;
   sts:=TStringList.Create;
@@ -1278,6 +1280,11 @@ procedure TForm9.ToolButton4Click(Sender: TObject);
 begin
   if FFontSize<=6 then Exit;
   FontSize:=FFontSize-1;
+end;
+
+procedure TForm9.ToolButton9Click(Sender: TObject);
+begin
+  ImportDlg.Execute;
 end;
 
 procedure TForm9.WMDropFiles(var Message: TMessage);
@@ -2333,6 +2340,6 @@ end;
 //end;
 
 initialization
-  LogUnLock;
+  LogLock;
   LogWindowActivate;
 end.
