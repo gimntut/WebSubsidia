@@ -233,8 +233,9 @@ end;
 
 procedure LogWindowActivate;
 begin
- if LogWindow=nil then LogWindow:=tLogWindow.Create(nil);
- LogWindow.Show;
+  if FLock then Exit;
+  if LogWindow=nil then LogWindow:=tLogWindow.Create(nil);
+  LogWindow.Show;
 end;
 
 //procedure LogMemCount;
