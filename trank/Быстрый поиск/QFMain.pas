@@ -1,45 +1,3 @@
-//{type
-//  TForm1 = class(TForm)
-//    ListBox1: TListBox;
-//    procedure FormCreate(Sender: TObject);
-//  protected
-//    procedure WMDROPFILES (var Msg: TMessage); message WM_DROPFILES;
-//  private
-//  public
-//  end;
-//
-//var
-//  Form1: TForm1;
-//
-//implementation
-//uses shellapi;
-//
-//{$R *.DFM}
-//
-//procedure TForm1.FormCreate(Sender: TObject);
-//begin
-//  DragAcceptFiles(Form1.Handle, true);
-//end;
-//
-//procedure TForm1.WMDROPFILES (var Msg: TMessage);
-//var
-//  i,
-//  amount,
-//  size: integer;
-//  Filename: PChar;
-//begin
-//  inherited;
-//  Amount := DragQueryFile(Msg.WParam, $FFFFFFFF, Filename, 255);
-//  for i := 0 to (Amount - 1) do
-//  begin
-//    size := DragQueryFile(Msg.WParam, i , nil, 0) + 1;
-//    Filename:= StrAlloc(size);
-//    DragQueryFile(Msg.WParam,i , Filename, size);
-//    listbox1.items.add(StrPas(Filename));
-//    StrDispose(Filename);
-//  end;
-//  DragFinish(Msg.WParam);
-//end;
 unit QFMain;
 
 interface
@@ -48,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, Buttons, ExtCtrls, ComCtrls, StdCtrls, ToolWin,
   cgsCHPR, XPMan, ImgList, Menus, ActnList, AppEvnts, Contnrs, uPagePanel,
-  Grids, superobject, httpsend;
+  Grids, superobject, httpsend, ViewLog;
 
 type
   TListBox=class(StdCtrls.TListBox)
@@ -68,97 +26,98 @@ type
 
   TForm9 = class(TForm)
 
-    ToolBar1: TToolBar;
-    Panel1: TPanel;
-    Panel3: TPanel;
-    Edit1: TEdit;
-    lstMaster: TListBox;
-    lstDetails: TListBox;
-    OpenBtn: TToolButton;
-    Splitter1: TSplitter;
-    SpeedButton1: TSpeedButton;
-    OpenDialog1: TOpenDialog;
-    XPManifest1: TXPManifest;
+    acCopy: TAction;
+    acCopyParamValue1: TMenuItem;
+    acCopyParamValue: TAction;
+    acCopyTable: TAction;
+    acCopyValue: TAction;
+    ActionList1: TActionList;
+    ApplicationEvents1: TApplicationEvents;
     CheckBankBtn: TToolButton;
-    OpenFileMenu: TPopupMenu;
+    DetailListMenu: TPopupMenu;
+    Edit1: TEdit;
+    ExcelAsIsBtn: TToolButton;
+    ExcelFillBtn: TToolButton;
     ImageList1: TImageList;
-    PrintBtn: TToolButton;
+    JournalBtn: TToolButton;
+    Label1: TLabel;
+    lbReklama: TLabel;
+    leJournalPlus: TLabeledEdit;
+    lstDetails: TListBox;
+    lstMaster: TListBox;
+    Memo1: TMemo;
+    Memo3: TMemo;
+    MemoModeBtn: TToolButton;
+    MenuItem1: TMenuItem;
+    MenuItem2: TMenuItem;
+    mmHelp: TMemo;
+    mnANSI: TMenuItem;
+    mnComma: TMenuItem;
+    mnNull: TMenuItem;
+    mnOEM: TMenuItem;
+    mnOriginalText: TMenuItem;
+    mnPointComma: TMenuItem;
+    mnTab: TMenuItem;
+    mnTransformed: TMenuItem;
     N1: TMenuItem;
     N2: TMenuItem;
     N3: TMenuItem;
-    ToolButton3: TToolButton;
-    ExcelAsIsBtn: TToolButton;
-    ExcelFillBtn: TToolButton;
-    lbReklama: TLabel;
-    TopListMenu: TPopupMenu;
-    ActionList1: TActionList;
-    acCopy: TAction;
     N4: TMenuItem;
     N5: TMenuItem;
-    PrintDialog1: TPrintDialog;
-    ToolButton7: TToolButton;
-    TextModeBtn: TToolButton;
-    mnTransformed: TMenuItem;
-    mnOriginalText: TMenuItem;
-    N8: TMenuItem;
-    mnOEM: TMenuItem;
-    mnANSI: TMenuItem;
-    N11: TMenuItem;
-    mnComma: TMenuItem;
-    mnPointComma: TMenuItem;
-    mnTab: TMenuItem;
-    SortBtn: TToolButton;
-    SortMenu: TPopupMenu;
-    mnNull: TMenuItem;
+    N6: TMenuItem;
     N7: TMenuItem;
+    N8: TMenuItem;
     N9: TMenuItem;
     N10: TMenuItem;
-    MemoModeBtn: TToolButton;
-    Panel4: TPanel;
-    Memo1: TMemo;
-    ApplicationEvents1: TApplicationEvents;
-    mmHelp: TMemo;
-    pnHelp: TPanel;
-    DetailListMenu: TPopupMenu;
-    MenuItem1: TMenuItem;
-    acCopyValue: TAction;
-    acCopyParamValue: TAction;
-    acCopyParamValue1: TMenuItem;
-    acCopyTable: TAction;
+    N11: TMenuItem;
     N12: TMenuItem;
-    ToolButton11: TToolButton;
-    SpravkaBtn: TToolButton;
-    SpravkiMenu: TPopupMenu;
-    MenuItem2: TMenuItem;
-    Timer1: TTimer;
-    NewBtn: TToolButton;
     N13: TMenuItem;
-    Panel6: TPanel;
-    Memo3: TMemo;
-    ToolButton1: TToolButton;
-    ToolButton2: TToolButton;
-    ToolButton4: TToolButton;
-    pnFindList: TPanel;
-    pnMemo: TPanel;
-    N6: TMenuItem;
     N14: TMenuItem;
     N15: TMenuItem;
-    ToolButton5: TToolButton;
-    JournalBtn: TToolButton;
+    NewBtn: TToolButton;
+    OpenBtn: TToolButton;
+    OpenDialog1: TOpenDialog;
+    OpenFileMenu: TPopupMenu;
     PageControl1: TPageControl;
+    Panel1: TPanel;
+    Panel3: TPanel;
+    Panel4: TPanel;
+    Panel5: TPanel;
+    Panel6: TPanel;
+    pnFindList: TPanel;
+    pnHelp: TPanel;
+    pnJournal: TPanel;
+    pnMemo: TPanel;
+    PrintBtn: TToolButton;
+    PrintDialog1: TPrintDialog;
+    sgJournal: TStringGrid;
+    SortBtn: TToolButton;
+    SortMenu: TPopupMenu;
+    SpeedButton1: TSpeedButton;
+    Splitter1: TSplitter;
+    SpravkaBtn: TToolButton;
+    SpravkiMenu: TPopupMenu;
     TabSheet1: TTabSheet;
     TabSheet2: TTabSheet;
     TabSheet3: TTabSheet;
     TabSheet4: TTabSheet;
     TabSheet5: TTabSheet;
-    pnJournal: TPanel;
-    sgJournal: TStringGrid;
+    TextModeBtn: TToolButton;
+    Timer1: TTimer;
+    ToolBar1: TToolBar;
     ToolBar2: TToolBar;
-    Label1: TLabel;
+    ToolButton1: TToolButton;
+    ToolButton2: TToolButton;
+    ToolButton3: TToolButton;
+    ToolButton4: TToolButton;
+    ToolButton5: TToolButton;
     ToolButton6: TToolButton;
+    ToolButton7: TToolButton;
     ToolButton8: TToolButton;
-    Panel5: TPanel;
-    leJournalPlus: TLabeledEdit;
+    ToolButton9: TToolButton;
+    ToolButton11: TToolButton;
+    TopListMenu: TPopupMenu;
+    XPManifest1: TXPManifest;
     procedure OpenBtnClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -269,7 +228,6 @@ type
     function PrepareF5Result(s: string):boolean;
     function PrepareFindResult(s: string; Table2:string):boolean;
     procedure AddActToList(I: Integer;Event:TNotifyEvent);
-    procedure AddPage(Panel:TPanel);
     procedure AddToJournal(LCs:string='');
     procedure GetJournal(s: string; out json: ISuperObject);
     procedure InitColumns;
@@ -283,6 +241,7 @@ type
     procedure SolveF7(DateV: TDate; var LastOtvet: Extended; var Otvet: Extended);
   protected
     procedure WMDropFiles(var Message: TMessage); message WM_DROPFILES;
+    procedure SeparateDetail(Index:integer; out Parameter, Detail: string);
     //procedure GenerateFile;
     property Detail:string read GetDetail;
   public
@@ -314,7 +273,7 @@ const
 implementation
 uses Publ, PublFile, ShellAPI, ClipBrd, Printers, QFLoadList, ShFolder, Registry,
   StrUtils, PublStr, QFTemplate, IniFiles, DateIntervalDlg, DateUtils, Types,
-  cdbf, Math, uTime;
+  cdbf, Math, uTime, uImportBases;
 {$R *.dfm}
 
 procedure TForm9.acCopyExecute(Sender: TObject);
@@ -352,22 +311,20 @@ procedure TForm9.acCopyTableExecute(Sender: TObject);
 var
   I: Integer;
   S,S1: string;
-  P: Integer;
+  Param, Detail: string;
 begin
   S:='';
   for I := 0 to lstDetails.Count - 1 do begin
     S1:=PublStr.Trim(lstDetails.Items[I]);
-    P:=pos(': ',S1);
-    if P>0
-    then S:=ContStr(S,CRLF,LeftStr(S1,P-1)+#9+Copy(S1,P+2,MaxInt))
-    else S:=ContStr(S,CRLF,S1);
+    SeparateDetail(I,Param,Detail);
+    S:=ContStr(S,CRLF,Param+#9+Detail);
   end;
- Clipboard.AsText:=S;
+  Clipboard.AsText:=S;
 end;
 
 procedure TForm9.acCopyValueExecute(Sender: TObject);
 begin
- Clipboard.AsText:=Detail;
+  Clipboard.AsText:=Detail;
 end;
 
 procedure TForm9.ApplicationEvents1Hint(Sender: TObject);
@@ -452,14 +409,15 @@ begin
   DragAcceptFiles(Handle, true);
   HTTP:=THTTPSend.Create;
   HTTP.UserAgent:='WebSubsidii';
-  PagePanel:=TPagePanel.Create(self);
-  PagePanel.Name:='page';
-  PagePanel.Align:=alClient;
-  PagePanel.Parent:=self;
-  AddPage(pnFindList);
-  AddPage(pnMemo);
-  AddPage(pnJournal);
+  PagePanel:=Substitution(PageControl1);
   PagePanel.ActivePageIndex:=0;
+  LogObjectAsText(PagePanel);;
+//  PagePanel.Name:='page';
+//  PagePanel.Align:=alClient;
+//  PagePanel.Parent:=self;
+//  AddPage(pnFindList);
+//  AddPage(pnMemo);
+//  AddPage(pnJournal);
   RegQF;
   SpravkiSts := TStringList.Create;
   IntFavorFiles:=TStringList.Create;
@@ -881,6 +839,22 @@ begin
   ShellExecute(0, 'open', PAnsiChar(S), PAnsiChar(Dir), '', SW_NORMAL);
 end;
 
+procedure TForm9.SeparateDetail(Index:integer; out Parameter, Detail: string);
+var
+  Ind:Integer;
+begin
+  Detail:='';
+  Parameter:='';
+  if Index=-1
+  then Ind:=lstDetails.ItemIndex
+  else Ind:=Index;
+  if OutSide(Ind,lstDetails.Count-1) then Exit;
+  Detail:=lstDetails.Items[Ind];
+  Parameter:=Copy(Detail,1,MaxWidth);
+  System.Delete(Detail,1,MaxWidth+1);
+  Detail:=PublStr.Trim(Detail);
+end;
+
 procedure TForm9.SetFontSize(const Value: Integer);
 begin
   FFontSize := Value;
@@ -932,17 +906,6 @@ begin
     if SposV = 2 then break;
   end;
   if math.isNan(Otvet) then Otvet := LastOtvet;
-end;
-
-procedure TForm9.AddPage(Panel:TPanel);
-var
-  sht: TSheetPanel;
-begin
-  sht := TSheetPanel.Create(PagePanel);
-//  sht.Name := format('Sheet%d',[ControlCount]);
-  sht.PagePanel:=PagePanel;
-  Panel.Parent := sht;
-  Panel.Align := alClient;
 end;
 
 procedure TForm9.SetSpravkaType(const Value: Integer);
@@ -1324,7 +1287,6 @@ var
   S: string;
 begin
   inherited;
-  Filename:=nil;
   size := DragQueryFile(Message.WParam, 0 , nil, 0) + 1;
   Filename:= StrAlloc(size);
   DragQueryFile(Message.WParam, 0 , Filename, size);
@@ -2257,14 +2219,9 @@ end;
 
 function TForm9.GetDetail: string;
 var
-  Ind:Integer;
+  Param:string;
 begin
-  Result:='';
-  Ind:=lstDetails.ItemIndex;
-  if Ind=-1 then Exit;
-  Result:=lstDetails.Items[Ind];
-  System.Delete(Result,1,MaxWidth+1);
-  Result:=PublStr.Trim(Result);
+  SeparateDetail(-1,Param,Result);
 end;
 
 procedure TForm9.AddActToList(I: Integer;Event:TNotifyEvent);
@@ -2375,4 +2332,7 @@ end;
 //  Form9.Caption:='!';
 //end;
 
+initialization
+  LogUnLock;
+  LogWindowActivate;
 end.
