@@ -118,55 +118,52 @@ type
     ToolButton11: TToolButton;
     TopListMenu: TPopupMenu;
     XPManifest1: TXPManifest;
-    procedure OpenBtnClick(Sender: TObject);
-    procedure FormCreate(Sender: TObject);
-    procedure FormDestroy(Sender: TObject);
-    procedure ListBoxClick(Sender: TObject);
-    procedure SpeedButton1Click(Sender: TObject);
-    procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure Edit1KeyPress(Sender: TObject; var Key: Char);
-    procedure CheckBankBtnClick(Sender: TObject);
-    procedure N1Click(Sender: TObject);
-    procedure lbReklamaMouseEnter(Sender: TObject);
-    procedure lbReklamaMouseLeave(Sender: TObject);
-    procedure lbReklamaClick(Sender: TObject);
-    procedure FavorClick(Sender: TObject);
-    procedure Edit1KeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure acCopyExecute(Sender: TObject);
-    procedure ListBoxMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer);
-    procedure SpeedButton1MouseUp(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer);
-    procedure N5Click(Sender: TObject);
-    procedure PrintBtnClick(Sender: TObject);
-    procedure N3Click(Sender: TObject);
-    procedure ExcelAsIsBtnClick(Sender: TObject);
-    procedure ExcelFillBtnClick(Sender: TObject);
-    procedure mnStateClick(Sender: TObject);
-    procedure MemoModeBtnClick(Sender: TObject);
-    procedure N9Click(Sender: TObject);
-    procedure N10Click(Sender: TObject);
-    procedure ApplicationEvents1Hint(Sender: TObject);
-    procedure acCopyValueExecute(Sender: TObject);
     procedure acCopyParamValueExecute(Sender: TObject);
     procedure acCopyTableExecute(Sender: TObject);
-    procedure lstDetailsDblClick(Sender: TObject);
-    procedure Timer1Timer(Sender: TObject);
-    procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure lstMasterDblClick(Sender: TObject);
-    procedure mmHelpDblClick(Sender: TObject);
+    procedure acCopyValueExecute(Sender: TObject);
+    procedure ApplicationEvents1Hint(Sender: TObject);
+    procedure CheckBankBtnClick(Sender: TObject);
+    procedure DetailListMenuPopup(Sender: TObject);
     procedure Edit1Change(Sender: TObject);
-    procedure NewBtnClick(Sender: TObject);
-    procedure Panel2Resize(Sender: TObject);
-    procedure ToolButton2Click(Sender: TObject);
-    procedure ToolButton4Click(Sender: TObject);
+    procedure Edit1KeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure Edit1KeyPress(Sender: TObject; var Key: Char);
+    procedure ExcelAsIsBtnClick(Sender: TObject);
+    procedure ExcelFillBtnClick(Sender: TObject);
+    procedure FavorClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
+    procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure JournalBtnClick(Sender: TObject);
+    procedure lbReklamaClick(Sender: TObject);
+    procedure lbReklamaMouseEnter(Sender: TObject);
+    procedure lbReklamaMouseLeave(Sender: TObject);
+    procedure ListBoxClick(Sender: TObject);
+    procedure ListBoxMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure lstDetailsDblClick(Sender: TObject);
+    procedure lstMasterDblClick(Sender: TObject);
+    procedure MemoModeBtnClick(Sender: TObject);
+    procedure mmHelpDblClick(Sender: TObject);
+    procedure mnStateClick(Sender: TObject);
+    procedure N1Click(Sender: TObject);
+    procedure N3Click(Sender: TObject);
+    procedure N5Click(Sender: TObject);
+    procedure N9Click(Sender: TObject);
+    procedure N10Click(Sender: TObject);
     procedure N14Click(Sender: TObject);
     procedure N15Click(Sender: TObject);
-    procedure DetailListMenuPopup(Sender: TObject);
-    procedure JournalBtnClick(Sender: TObject);
-    procedure sgJournalDrawCell(Sender: TObject; ACol, ARow: Integer;
-      Rect: TRect; State: TGridDrawState);
-    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure NewBtnClick(Sender: TObject);
+    procedure OpenBtnClick(Sender: TObject);
+    procedure Panel2Resize(Sender: TObject);
+    procedure PrintBtnClick(Sender: TObject);
+    procedure sgJournalDrawCell(Sender: TObject; ACol, ARow: Integer; Rect: TRect; State: TGridDrawState);
+    procedure SpeedButton1Click(Sender: TObject);
+    procedure SpeedButton1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure Timer1Timer(Sender: TObject);
+    procedure ToolButton2Click(Sender: TObject);
+    procedure ToolButton4Click(Sender: TObject);
     procedure ToolButton9Click(Sender: TObject);
   private
     Chpr:TChprList;
@@ -363,7 +360,19 @@ begin
 end;
 
 procedure TForm9.Edit1Change(Sender: TObject);
+var
+  SelStart: Integer;
+  SelLength: Integer;
 begin
+  if pos(#9,Edit1.text)>0 then begin
+    Edit1.OnChange:=nil;
+    SelStart:=Edit1.SelStart;
+    SelLength:=Edit1.SelLength;
+    Edit1.Text:=AnsiReplaceStr(Edit1.Text,#9,' ');
+    Edit1.SelStart:=SelStart;
+    Edit1.SelLength:=SelLength;
+    Edit1.OnChange:=Edit1Change;
+  end;
   if FSpravkaType=sptNone then ;
   Exit;
   case SpravkaType of
@@ -732,7 +741,7 @@ begin
   if Table.Count=0 then begin
     lstMaster.Items.Text:=NoDataText;
     for I := 0 to lstMaster.Items.Count - 1 do
-      lstMaster.Items.Objects[I]:=Pointer(-2); 
+      lstMaster.Items.Objects[I]:=Pointer(-2);
   end;
   MxL:=0;
   for I := 0 to lstMaster.Items.Count - 1 do begin
@@ -763,6 +772,11 @@ begin
   lstMaster.ScrollWidth:=MaxPos;
   ShowScrollBar(Memo3.Handle,SB_HORZ,False);
   Panel2Resize(nil);
+//  Log('=== Значения таблицы ===');
+//  for i:=0 to 9 do begin
+//    if i>lstMaster.count-1 then break;
+//    LogFmt('%s:%s: %s',[ToZeroStr(i),ToZeroStr(i)]);
+//  end;
 end;
 
 procedure TForm9.RegQF;
@@ -1105,7 +1119,7 @@ begin
     sptEDK, sptChild:
       begin
         KeyPreview:=false;
-        Ind := Integer(lstMaster.Items.Objects[Ind]);
+        Ind := ChprIndex;
         if Ind = -1 then Exit;
         LC := Chpr.Values[Ind][10];
         PrepareEDKResult(LC);
@@ -1123,7 +1137,7 @@ begin
     sptF5:
       begin
         KeyPreview:=false;
-        Ind := Integer(lstMaster.Items.Objects[Ind]);
+        Ind := ChprIndex;
         if Ind = -1 then Exit;
         LC := Chpr.Values[Ind][0];
         PrepareF5Result(LC);
@@ -1353,7 +1367,7 @@ begin
  Ind:=lstMaster.ItemIndex;
  if OutSide(Ind,lstMaster.Items.Count-1) then Exit;
  lstDetails.Clear;
- Ind:=Integer(lstMaster.Items.Objects[Ind]);
+ Ind := ChprIndex;
  if OutSide(Ind,Chpr.Count-1) then Exit;
  sts:=Chpr.Values[Ind];
  FCnt:=Chpr.FieldNames.Count;
@@ -2170,7 +2184,7 @@ begin
   { TODO -oНаиль : Убрать привязку ЛистБокс1 }
   Ind := lstMaster.ItemIndex;
   if OutSide(Ind, lstMaster.Items.Count - 1) then Exit;
-  Ind := Integer(lstMaster.Items.Objects[Ind]);
+  Ind := ChprIndex;
   if Ind = -1 then Exit;
   TmpSts.Assign(Chpr.values[Ind]);
   FastBase := TFastFileStrList.Create;
