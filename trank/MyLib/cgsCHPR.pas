@@ -196,13 +196,14 @@ function CreateIndexForCSV(CSVFile,IndexFile:string; Cols:ai; CBProc:TIntProc=ni
 function CreateIndexForTxt(TxtFile,IndexFile:string; CBProcInt:TIntProc=nil; TimeOut:Integer=100):boolean;
 
 implementation
-Uses PublStr, StrUtils, Printers, Graphics, SysUtils, DateUtils, PublFile;
-Var
+uses PublStr, StrUtils, Printers, Graphics, SysUtils, DateUtils, PublFile;
+var
   FieldStrings:TStringList;
   ValueStrings:TStringList;
+
 var
-  DebugMode:boolean=false;
-  
+  DebugMode:boolean=1=2;
+
 function Transform(Strings:TStrings; Delimeter: string; Filling:boolean): string;
 var
   s, st: string;
@@ -528,6 +529,7 @@ var
   LW:Integer;
   TL:Integer;
   Ind:Integer;
+  N: Integer;
 begin
   DebugOut('do.txt');
   NeedTmpSts;
@@ -580,8 +582,9 @@ begin
     end;
   end else begin
     // Подсчёт ширины столбцов
+    N:=0;
     for I := 0 to FilterCount-1 do begin
-      if FTmpSts.Count>TL then break;
+      if N>TL then break;
       Ind:=FilterArray[I];
       {!}
       if not VisibleItems[Ind] then Continue;
@@ -594,6 +597,7 @@ begin
         L:=Length(FValues[J]);
         if L>W[J] then W[J]:=L;
       end;
+      inc(N);
     end;
 
     FTmpSts.Clear;
@@ -629,7 +633,7 @@ begin
         then S:=ContStr(S,'|',format('%-*s',[W[J],FValues[j]]))
         else S:=ContStr(S,'|',StringOfChar(' ',W[J]));
       end;
-      FTmpSts.AddObject(S,pointer(Ind));
+      FTmpSts.AddObject(S,pointer(Ind-1));
     end;
   end;
   Result:=FTmpSts;
@@ -917,10 +921,24 @@ procedure TChprList.SetTextStr(const Value: string);
 var
   S:string;
   I: Integer;
+  N: Integer;
 begin
-  S:='';
-  for I:=1 to Length(Value) do
-    if Value[I]<>#0 then S:=S+Value[I];
+  SetLength(S,Length(Value));
+  N:=1;
+  I:=0;
+  while I<Length(Value) do begin
+    inc(I);
+    if Value[I]=#0 then Continue;
+    if Value[I]=#27 then begin
+      inc(I);
+      case Value[I] of
+        'G','H': Continue;
+      end;
+    end;
+    S[N]:=Value[I];
+    inc(N);
+  end;
+  SetLength(S,N-1);
   FOriginalText:=S;
   if IsOEMSource then S:=AsAnsi(S);
   IsAbsIndexMode:=true;
