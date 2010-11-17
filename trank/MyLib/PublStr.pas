@@ -249,6 +249,8 @@ function AsOEM(s: string): string;
 // Преобразование строки в WinDOwS кодировку
 function AsAnsi(s: string): string;
 function ByteType(const S: string; Index: Integer): TMbcsByteType;
+// Проверка число-нечисло
+function IsNumber(s:string):boolean;
 
 /////////////////// x ///////////////////
 const
@@ -1369,6 +1371,17 @@ begin
     Result := ByteTypeTest(Pchar(S), Index - 1);
 end;
 
+function IsNumber(s:string):boolean;
+var
+  v:Extended;
+  c:integer;
+begin
+  s:=AnsiReplaceStr(s,DecimalSeparator,'.');
+  Val(s,V,c);
+  Result:=c=0;
+end;
+
+/////////////////// x ///////////////////
 function StrScan(const Str: Pchar; Chr: Char): Pchar;
 begin
   Result := Str;

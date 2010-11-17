@@ -202,7 +202,7 @@ var
   ValueStrings:TStringList;
 
 var
-  DebugMode:boolean=1=2;
+  DebugMode:boolean=1=1;
 
 function Transform(Strings:TStrings; Delimeter: string; Filling:boolean): string;
 var
@@ -489,7 +489,7 @@ begin
   end;
   ////////////////////////////////////////////
   sts.Add('');
-  sts.Add('* Массив AntiOrder *');
+  sts.Add('* Текст AsTable *');
   ////////////////////////////////////////////
   IsAbsIndexMode:=isst;
   ////////////////////////////////////////////
@@ -530,6 +530,8 @@ var
   TL:Integer;
   Ind:Integer;
   N: Integer;
+  V:string;
+  fs:string;
 begin
   DebugOut('do.txt');
   NeedTmpSts;
@@ -574,9 +576,14 @@ begin
       GetValues(I-1);
       S:='';
       for J := 0 to LW - 1 do begin
+        V:=FValues[J];
         if J<FValues.Count
-        then S:=ContStr(S,'|',format('%-*s',[W[J],FValues[j]]))
-        else S:=ContStr(S,'|',StringOfChar(' ',W[J]));
+        then begin
+          if IsNumber(V)
+          then fs:='%*s'
+          else fs:='%-*s';
+          S:=ContStr(S,'|',format(fs,[W[J],V]));
+        end else S:=ContStr(S,'|',StringOfChar(' ',W[J]));
       end;
       FTmpSts.AddObject(S,pointer(I-1));
     end;
@@ -617,7 +624,7 @@ begin
     end;
     FTmpSts.AddObject(S,pointer(-2));
     // * Таблица
-    for I := 0 to FilterCount-1 do begin
+    for I := 1 to FilterCount-1 do begin
       if FTmpSts.Count>TL then begin
         S:=format('Показаны только %d записей',[TL]);
         FTmpSts.AddObject(S,pointer(-2));
@@ -868,7 +875,7 @@ begin
      L:=Length(s1);
      if InnerDelimeter<>#0 then s1:=InnerDelimeter+s1+InnerDelimeter;
     end else L:=Length(s1);
-    for J:=FilterCount-1 downto 0 do begin
+    for J:=FilterCount-1 downto 1 do begin
       Ind:=FilterArray[J];
       try
         s2:=AnsiUpperCase(TmpSts[Ind]);
@@ -880,6 +887,7 @@ begin
          system.Delete(s2,p,L);
          TmpSts[Ind]:=s2;
         end else begin
+          {+}
           FilterArray[J]:=FilterArray[FilterCount-1];
           Dec(FFilterCount);
         end;

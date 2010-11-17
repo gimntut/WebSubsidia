@@ -175,6 +175,8 @@ function Into(bit: Byte; Value: Integer): Boolean;
 function CompressInt(Value: Integer): Integer;
 function DeCompressInt(Value: Integer): Integer;
 function CompressSize(Value: Integer): Byte;
+
+
 ////////////////////// SysUtils //////////////////////
 type
 { Type conversion records }
