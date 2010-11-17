@@ -6,6 +6,8 @@ test.csv|C:\test.csv
 Списки|*D:\Списки
 Список ЦРБ.csv|D:\Списки\Список ЦРБ.csv
 Суммы доплат Шаран|H:\Списки\Суммы доплат Шаран.csv
+Счета банков и филиалы|D:\Subsidii\!WORK\DBFW0001\TEXT\CHPR.135
 ТЕЛЕФОНЫ Туймазы.csv|C:\Documents and Settings\Пользователь\Мои документы\001) Упорядоченые\004) Списки\ТЕЛЕФОНЫ.TXT.csv
 Тест 2|C:\Documents and Settings\Гимаев Ильмир\Мои документы\Моя музыка\Radio Master\sky.f&m - Classical Guitar\x.csv
+Члены семьи|D:\!TEST\Члены семьи.csv
 ЭСКБ-Туймазы.csv|D:\Списки\ЭСКБ-Туймазы.csv

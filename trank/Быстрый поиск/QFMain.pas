@@ -25,7 +25,6 @@ type
 //  end;
 
   TForm9 = class(TForm)
-
     acCopy: TAction;
     acCopyParamValue1: TMenuItem;
     acCopyParamValue: TAction;
@@ -457,7 +456,6 @@ begin
   FN:=ExpandFileName(ParamStr(1));
   if ParamCount>0 then begin
     // MessageBox('Загрузка', 'Ждите. Идёт загрузка списка...');
-    OpenDialog1.FileName:=FN;
     OpenFile(FN);
   end else ShowFirstList;
   lbReklama.Caption:='Работа со списками [ версия '+GetFileVersion(ParamStr(0))+' ] '+lbReklama.Caption;
@@ -465,6 +463,7 @@ end;
 
 procedure TForm9.FormDestroy(Sender: TObject);
 begin
+  DragAcceptFiles(Handle, False);
   ActList.Free;
   Chpr.Free;
   Chpr2.Free;
@@ -696,6 +695,7 @@ var
   S:string;
   OldFileName: string;
 begin
+  OpenDialog1.FileName:=FileName;
   SpravkaType := sptNone;
   ResetEditMode;
   if SameText(ExtractFileExt(FileName),'.Dbf') then begin
@@ -807,7 +807,7 @@ begin
       if s = '' then
         s := ExtractFileName(OpenDialog1.FileName);
       if Edit1.Text <> '' then
-        s2 := format('. Поиск "%s" (%d/%d)', [Edit1.Text, Chpr.FilterCount, Chpr.Count-1]);
+        s2 := format('. Поиск "%s" (%d/%d)', [Edit1.Text, Chpr.FilterCount-1, Chpr.Count-1]);
       Caption := format('Работа со списком "%s"%s', [s, s2]);
       //Application.Title:=format('Работа со списком', [GetFileDate(ParamStr(0))]);
     end;
@@ -1543,7 +1543,6 @@ begin
     OpenDialog1.InitialDir:=S;
     OpenBtn.Click;
   end else begin
-    OpenDialog1.FileName:=S;
     CaptionName:=GetShortHint(FavoriteFiles[Ind]);
     OpenFile(S);
   end;
@@ -2286,6 +2285,10 @@ var
   st:string;
   Lines:TStrings;
   st1: string;
+  fn: string;
+  sts: TStringList;
+  TmpStr:string;
+  IsDbfReestr:Boolean;
 begin
   MaxLength:=0;
   if MemoModeBtn.Down
@@ -2299,24 +2302,48 @@ begin
     then Printer.Orientation:=poLandscape
     else Printer.Orientation:=poPortrait;
   if PrintDialog1.Execute then begin
-    s:=Lines.Text;
-    if not MemoModeBtn.Down then begin
-     st:=Memo3.Text;
-//     if Memo3.Lines[Memo3.Lines.Count-1]='' then;
-     
-     st1:=st;
-     for I := 1 to length(st) do
-       if st[i]<>'|' then st1[i]:='-';
-     s:=st+#13#10+st1+#13#10+s;
-     if n13.Enabled and n13.Checked then s:=Chpr.Head+#13#10+s;
-     if Edit1.Text<>'' then
-       s:=format('По поисковому запросу "%s" найдено %d из %d записей:'#13#10+
-       #13#10+
-       '%s',[Edit1.Text,Chpr.FilterCount,Chpr.Count,s]);
-    end;
+    IsDbfReestr:=false;
+    s:='';
+    if not MemoModeBtn.Down
+    then begin
+     fn:=AnsiUpperCase(ExtractFileName(OpenDialog1.FileName));
+     IsDbfReestr:=(fn<>'') and (fn[1] in ['F','T'])
+     and (ExtractFileExt(fn)='.DBF') and (Chpr.Filter='');
+     if IsDbfReestr then begin
+       sts := TStringList.Create;
+       sts.Assign(Chpr);
+       TmpStr:=sts.Text;
+       sts.Delete(0);
+       for I := 4 downto 0 do begin
+         s:=ContStr(AnsiReplaceStr(sts[i],';',' '),#13#10,s);
+         sts.Delete(I);
+       end;
+       Chpr.Text:=sts.Text;
+       Chpr.IsOEMSource:=false;
+       s:=ContStr(s,#13#10,Chpr.AsTable.Text);
+       sts.Free;
+       s:=s+ #13#10#13#10+
+             'Руководитель:___________________'#13#10#13#10+
+             'Проверил:_______________________';
+     end else begin
+       st:=Memo3.Text;
+       // if Memo3.Lines[Memo3.Lines.Count-1]='' then;
+       st1:=st;
+       for I := 1 to length(st) do
+         if st[i]<>'|' then st1[i]:='-';
+       s:=st+#13#10+st1+#13#10+s;
+       if n13.Enabled and n13.Checked then s:=Chpr.Head+#13#10+s;
+       if Edit1.Text<>'' then
+         s:=format('По поисковому запросу "%s" найдено %d из %d записей:'#13#10+
+         #13#10+
+         '%s',[Edit1.Text,Chpr.FilterCount-1,Chpr.Count-1,s]);
+     end;
+    end else s:=Lines.Text;
+
     if Pos('EPSON',AnsiUpperCase(Printer.Printers[Printer.PrinterIndex]))>0 then begin
       PrintToEpson(S);
     end else PrintToLaser(S);
+    if IsDbfReestr then Chpr.Text:=TmpStr;
   end;
 end;
 
