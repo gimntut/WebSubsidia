@@ -576,9 +576,9 @@ begin
       GetValues(I-1);
       S:='';
       for J := 0 to LW - 1 do begin
-        V:=FValues[J];
         if J<FValues.Count
         then begin
+          V:=FValues[J];
           if IsNumber(V)
           then fs:='%*s'
           else fs:='%-*s';
