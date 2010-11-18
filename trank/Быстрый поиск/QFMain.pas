@@ -1051,7 +1051,6 @@ var
   J: Integer;
 begin
   InitColumns;
-  sgJournal.RowCount:=json.AsArray.Length+1;
   if json=nil then exit;
   sgJournal.RowCount:=json.AsArray.Length+1;
   i:=0;
