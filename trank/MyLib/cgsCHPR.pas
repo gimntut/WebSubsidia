@@ -9,7 +9,32 @@ const
   mdChpr=0;
   mdCsv=1;
   mdText=2;
+  /////////////////////////////////
+  IntSize = SizeOf(Integer);
+  BitsPerInt = IntSize * 8;
 type
+  TBitEnum = 0..BitsPerInt - 1;
+  TBitSet = set of TBitEnum;
+  PBitArray = ^TBitArray;
+  TBitArray = array[0..4096] of TBitSet;
+
+  TBitsExt=class(TBits)
+  private
+    FSize: Integer;
+    FBits: Pointer;
+    procedure Error;
+    procedure SetSize(Value: Integer);
+    procedure SetBit(Index: Integer; Value: Boolean);
+    function GetBit(Index: Integer): Boolean;
+  public
+    destructor Destroy; override;
+    function OpenBit: Integer;
+    property Bits[Index: Integer]: Boolean read GetBit write SetBit; default;
+    property Size: Integer read FSize write SetSize;
+    procedure SaveToStream(Stream:TStream);
+    procedure LoadFromStream(Stream:TStream);
+  end;
+  ///////////////////////// x ///////////////////////////////
   TSetOfByte=set of byte;
   TOnCustomFilter = procedure (Sender:TObject; Index:Integer; S:string; var Show:boolean) of object;
   TOnEnum = procedure (Sender:TObject; Index:Integer; S:string) of object;
@@ -21,7 +46,6 @@ type
     FFilling: Boolean;
     FIsTransformed: Boolean;
     FTmpSts:TStringList;
-    S: string;
     FIsOEMSource: Boolean;
     FOriginalText: string;
     FTableLength: Integer;
@@ -39,6 +63,7 @@ type
     FMode: Integer;
     FHead: string;
     FIsAbsIndexMode: Boolean;
+    S: string;
     function GetAsTable: TStrings;
     function GetFieldNames: TStrings;
     function GetInnerDelimeter: Char;
@@ -110,6 +135,7 @@ type
     procedure HideAll;
     procedure Podstava(ChprList:TChprList; LookupField,LookupSrc,LookupTrg:Integer);
     procedure ShowAll;
+    procedure SaveAsFlat(FileName:string);
     //////////////////////////////////////////
     property Descending:Boolean read FDescending write SetDescending;
     property Filter:string read FFilter write SetFilter;
@@ -195,6 +221,9 @@ function CreateIndexForCSV(CSVFile,IndexFile:string; Col:Integer; CBProc:TIntPro
 function CreateIndexForCSV(CSVFile,IndexFile:string; Cols:ai; CBProc:TIntProc=nil; TimeOut:integer=100):boolean; overload;
 function CreateIndexForTxt(TxtFile,IndexFile:string; CBProcInt:TIntProc=nil; TimeOut:Integer=100):boolean;
 
+resourcestring
+  SBitsIndexError = 'Bits index out of range';
+
 implementation
 uses PublStr, StrUtils, Printers, Graphics, SysUtils, DateUtils, PublFile;
 var
@@ -202,7 +231,10 @@ var
   ValueStrings:TStringList;
 
 var
-  DebugMode:boolean=1=1;
+  DebugMode:boolean=1=10;
+
+type
+  MaxIntArr = array[0..MaxInt-1] of Byte;
 
 function Transform(Strings:TStrings; Delimeter: string; Filling:boolean): string;
 var
@@ -806,6 +838,43 @@ begin
   IsAbsIndexMode:=ist;
 end;
 
+procedure TChprList.SaveAsFlat(FileName: string);
+var
+  I: Integer;
+  FileStream:TFileStream;
+  crlf:string;
+  S,upS: string;
+  nsts:TNumStrList;
+  J: Integer;
+  MemoryStream: TMemoryStream;
+  Bits:TBitsExt;
+begin
+  nsts := TNumStrList.Create;
+  nsts.Sorted := True;
+  nsts.Duplicates := dupIgnore;
+  Insert(0,'');
+  crlf:=#13#10;
+  MemoryStream := TMemoryStream.Create;
+  Bits:=TBitsExt.Create;
+  for I := 0 to Count-2 do begin
+    GetValues(I);
+    S:=FValues.CommaText;
+    upS:=AnsiUpperCase(S);
+    Bits.Size:=Length(S);
+    for J := 1 to Length(S) do
+      Bits[J]:=S[J]<>upS[J];
+    Bits.SaveToStream(MemoryStream);
+    for J := 0 to FValues.Count - 1 do begin
+
+    end;
+  end;
+  MemoryStream.Free;
+  FileStream:=TFileStream.Create(FileName,fmCreate);
+  FileStream.Free;
+  Bits.Free;
+  nsts.Free;
+end;
+
 procedure TChprList.SetDescending(const Value: Boolean);
 begin
   FDescending := Value;
@@ -940,7 +1009,7 @@ begin
     if Value[I]=#27 then begin
       inc(I);
       case Value[I] of
-        'G','H': Continue;
+        'G','H','@': Continue;
       end;
     end;
     S[N]:=Value[I];
@@ -1722,6 +1791,143 @@ end;
 procedure TGlueCSV.SetSecondFields(const Value: TStrings);
 begin
   FSecondFields := Value;
+end;
+
+{ TBitsExt }
+
+destructor TBitsExt.Destroy;
+begin
+  SetSize(0);
+  inherited Destroy;
+end;
+
+procedure TBitsExt.Error;
+begin
+  raise EBitsError.CreateRes(@SBitsIndexError);
+end;
+
+function TBitsExt.GetBit(Index: Integer): Boolean;
+asm
+        CMP     Index,[EAX].FSize
+        JAE     TBits.Error
+        MOV     EAX,[EAX].FBits
+        BT      [EAX],Index
+        SBB     EAX,EAX
+        AND     EAX,1
+end;
+
+procedure TBitsExt.LoadFromStream(Stream: TStream);
+var
+  cnt:Integer;
+  Sz: byte;
+begin
+  Size:=0;
+  Stream.Read(Sz,1);
+  Size:=Sz;
+  Stream.Read(cnt,4);
+  Stream.Read(FBits^,cnt);
+end;
+
+function TBitsExt.OpenBit: Integer;
+var
+  I: Integer;
+  B: TBitSet;
+  J: TBitEnum;
+  E: Integer;
+begin
+  E := (Size + BitsPerInt - 1) div BitsPerInt - 1;
+  for I := 0 to E do
+    if PBitArray(FBits)^[I] <> [0..BitsPerInt - 1] then
+    begin
+      B := PBitArray(FBits)^[I];
+      for J := Low(J) to High(J) do
+      begin
+        if not (J in B) then
+        begin
+          Result := I * BitsPerInt + J;
+          if Result >= Size then Result := Size;
+          Exit;
+        end;
+      end;
+    end;
+  Result := Size;
+end;
+
+procedure TBitsExt.SaveToStream(Stream: TStream);
+var
+  cnt:Integer;
+  Sz: byte;
+begin
+  Sz:=Size;
+  Stream.Write(Sz,1);
+  cnt:=(Size+7) div 8;
+  Stream.Write(cnt,4);
+  Stream.Write(FBits^,cnt);
+end;
+
+procedure TBitsExt.SetBit(Index: Integer; Value: Boolean);
+asm
+        CMP     Index,[EAX].FSize
+        JAE     @@Size
+
+@@1:    MOV     EAX,[EAX].FBits
+        OR      Value,Value
+        JZ      @@2
+        BTS     [EAX],Index
+        RET
+
+@@2:    BTR     [EAX],Index
+        RET
+
+@@Size: CMP     Index,0
+        JL      TBits.Error
+        PUSH    Self
+        PUSH    Index
+        PUSH    ECX {Value}
+        INC     Index
+        CALL    TBits.SetSize
+        POP     ECX {Value}
+        POP     Index
+        POP     Self
+        JMP     @@1
+end;
+
+procedure TBitsExt.SetSize(Value: Integer);
+var
+  NewMem: Pointer;
+  NewMemSize: Integer;
+  OldMemSize: Integer;
+
+  function Min(X, Y: Integer): Integer;
+  begin
+    Result := X;
+    if X > Y then Result := Y;
+  end;
+
+begin
+  if Value <> Size then
+  begin
+    if Value < 0 then Error;
+    NewMemSize := ((Value + BitsPerInt - 1) div BitsPerInt) * SizeOf(Integer);
+    OldMemSize := ((Size + BitsPerInt - 1) div BitsPerInt) * SizeOf(Integer);
+    if NewMemSize <> OldMemSize then
+    begin
+      NewMem := nil;
+      if NewMemSize <> 0 then
+      begin
+        GetMem(NewMem, NewMemSize);
+        FillChar(NewMem^, NewMemSize, 0);
+      end;
+      if OldMemSize <> 0 then
+      begin
+        if NewMem <> nil then
+          Move(FBits^, NewMem^, Min(OldMemSize, NewMemSize));
+        FreeMem(FBits, OldMemSize);
+      end;
+      FBits := NewMem;
+    end;
+    FSize := Value;
+  end;
 end;
 
 initialization
