@@ -227,6 +227,13 @@ object Form9: TForm9
       ImageIndex = 15
       OnClick = ToolButton9Click
     end
+    object ToolButton10: TToolButton
+      Left = 375
+      Top = 0
+      Caption = 'ToolButton10'
+      ImageIndex = 16
+      OnClick = ToolButton10Click
+    end
   end
   object pnHelp: TPanel
     Left = 0

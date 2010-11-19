@@ -117,6 +117,7 @@ type
     ToolButton11: TToolButton;
     TopListMenu: TPopupMenu;
     XPManifest1: TXPManifest;
+    ToolButton10: TToolButton;
     procedure acCopyExecute(Sender: TObject);
     procedure acCopyParamValueExecute(Sender: TObject);
     procedure acCopyTableExecute(Sender: TObject);
@@ -164,6 +165,7 @@ type
     procedure ToolButton2Click(Sender: TObject);
     procedure ToolButton4Click(Sender: TObject);
     procedure ToolButton9Click(Sender: TObject);
+    procedure ToolButton10Click(Sender: TObject);
   private
     Chpr:TChprList;
     Chpr2:TChprList;
@@ -1034,6 +1036,7 @@ begin
       System.Delete(s,1,p);
       s:=PublStr.Trim(s);
     end;
+    Chpr.Clear;
     Chpr.Mode:=mdCsv;
     Chpr.Text:=FastBase.Text;
     if s<>'' then chpr.Filter:=s;
@@ -1042,6 +1045,8 @@ begin
     FastBase.Free;
   end;
   LastSearh:=Edit1.Text;
+  if lstMaster.Count>0 then
+    if Integer(lstMaster.Items[0])>0 then PrintSpravka;
 end;
 
 procedure TForm9.OutJournal(json: ISuperObject);
@@ -1145,9 +1150,7 @@ begin
         PeriodDlg.StartInterval:=D_Nazn;
         PeriodDlg.OnChangeInterval:=ShowSpravkaF5;
         PeriodDlg.TriggersOff;
-        PeriodDlg.TriggerVisible[1]:=true;
-        PeriodDlg.TriggerText[1]:='Бланк сверки (Ctrl+1)';
-        PeriodDlg.Trigger[1]:=true;
+        PeriodDlg.AddTriger('Бланк сверки',true);
         if PeriodDlg.Execute then
         begin
           ShowSpravkaF5(PeriodDlg, Memo1);
@@ -1282,6 +1285,11 @@ begin
  KeyPreview:=true;
  FKey:=0;
  //lstMaster.OnClick(lstMaster);
+end;
+
+procedure TForm9.ToolButton10Click(Sender: TObject);
+begin
+  chpr.SaveAsFlat('d:\!Test\test.flat');
 end;
 
 procedure TForm9.ToolButton2Click(Sender: TObject);
@@ -1486,7 +1494,7 @@ end;
 procedure TForm9.N15Click(Sender: TObject);
 begin
   ShellExecute(0,'open','explorer.exe',PChar('/select,"'+Detail+'"'),'',SW_NORMAL);
-  Caption:='/select,"'+Detail+'"';
+//  Caption:='/select,"'+Detail+'"';
 end;
 
 procedure TForm9.N1Click(Sender: TObject);
@@ -1856,116 +1864,118 @@ begin
   ChprTmp.Free;
 end;
 
-//procedure TForm9.ShowSpravkaF5_2(Sender: TObject; Memo: StdCtrls.TMemo);
-//var
-//  DateVipl: string;
-//  LC: string;
-//  FIO: string;
-//  D_Nazn: string;
-//  ResultStr: string;
-//  DateV: TDate;
-//  SumVipl: string;
-//  SV:Currency;
-//  Month: string;
-//  C_, Po_:string;
-//  RSts: TStringList;
-//  I: Integer;
-//  IntervalDlg:TPeriodDlg;
-//  ChprTmp: TChprList;
-//  Sum:Currency;
-//  Dopl: Extended;
-//  SumDopl: string;
-//  Adres: string;
-//begin
-//  IntervalDlg:=TPeriodDlg(Sender);
-//  LC := TmpSts[0];
-//  FIO := AnsiUpperCase(format('%s %s %s', [TmpSts[1], TmpSts[2], TmpSts[3]]));
-//  Adres := format('%s ул.%s, д.%s', [TmpSts[4], TmpSts[5], ContStr(ContStr(TmpSts[6], '/', TmpSts[7]), ' кв.', TmpSts[8])]);
-//  Adres := AnsiUpperCase(Adres);
-//  D_Nazn := TmpSts[10];
-//  C_:=DateToStr(IntervalDlg.StartInterval);
-//  Po_:=DateToStr(IntervalDlg.EndInterval);
-//  ResultStr := '';
-//  RSts := TStringList.Create;
-//  RSts.Add('');
-//  for I := 0 to Chpr2.Count - 2 do
-//  begin
-//    DateVipl := chpr2.Values[i][1];
-//    DateV := StrToDate(DateVipl);
-//    if not ((DateV > IntervalDlg.StartInterval - 0.5) and (DateV < IntervalDlg.EndInterval + 0.5)) then
-//      Continue;
-//    RSts.Add(Float2Str(DateV, 0) + chpr2[i + 1]);
-//  end;
-//  RSts.Sort;
-//  for I := 0 to RSts.Count - 1 do
-//    RSts[i] := Copy(RSts[i], 6, MaxInt);
-//  ChprTmp:= TChprList.Create;
-//  ChprTmp.Mode := mdCsv;
-//  ChprTmp.Text := RSts.Text;
-//  RSts.Clear;
-//  Sum:=0;
-//  ResultStr := '         СВЕРКА ФАКТИЧЕСКИХ РАСХОДОВ С РАЗМЕРОМ НАЗНАЧЕНОЙ СУБСИДИИ';
-//  ResultStr := ResultStr + #13#10;
-//  ResultStr := ResultStr + #13#10'№ личного дела   '+LC;
-//  ResultStr := ResultStr + #13#10'Ф.И.О.           '+FIO;
-//  ResultStr := ResultStr + #13#10'Адрес            '+Adres;
-//  ResultStr := ResultStr + #13#10'Дата обращения   '+D_Nazn;
-//  ResultStr := ResultStr + format(#13#10'Назначена субсидия на период с %s по %s',[C_, Po_]);
-//  ResultStr := ResultStr + #13#10;
-//  ResultStr := ResultStr + #13#10'|---|---------|------------|----------------|-------------------------------|-------------|';
-//  ResultStr := ResultStr + #13#10'| № | Месяц,  | Размер     | В том числе    | Фактические расходы по оплате | К удержанию |';
-//  ResultStr := ResultStr + #13#10'|   | год     | назначеной | доплачено,     | ЖКУ (содержание  жилья, газ,  |             |';
-//  ResultStr := ResultStr + #13#10'|   |         | субсидии   | удержено       | вода, эл.энергия, отопление)  |             |';
-//  ResultStr := ResultStr + #13#10'|   |         |            |                | за месяц                      |             |';
-//  ResultStr := ResultStr + #13#10'|---|---------|------------|----------------|-------------------------------|-------------|';
-//  for I := 0 to ChprTmp.Count - 2 do
-//  begin
-//    DateVipl := ChprTmp.Values[I][1];
-//    DateV := StrToDate(DateVipl);
-//    SumVipl := ChprTmp.Values[I][2];
-//    SV:=StrToCurr(AnsiReplaceStr(Sumvipl,'.',DecimalSeparator));
-//    Dopl:=StrToCurr(AnsiReplaceStr(ChprTmp.Values[I][15],'.',DecimalSeparator));
-//    SumDopl:='';
-//    if Dopl<>0 then
-//      if dopl<0
-//      then SumDopl:= format('удерж. %.2f',[Abs(dopl)])
-//      else SumDopl:= format('допл. %.2f',[Abs(dopl)]);
-//    Sum:=Sum+SV;
-//    Month := format('%s.%s',[ToZeroStr(MonthOf(DateV),2),IntToStr(YearOf(DateV))]);
-//    ResultStr := ResultStr + format(#13#10'| %d | %7s | %10s | %6s |--------|--------|--------|--------|--------|-------|------|',[I+1,Month,SumVipl,SumDopl]);
-//    if I=ChprTmp.Count-2
-//    then
-//      ResultStr := ResultStr + #13#10'|==========================================================================================|'
-//    else
-//      ResultStr := ResultStr + #13#10'|----|---------|------------|----------------|-------------------------------|-------------|';
-//  end;
-//  ResultStr := ResultStr + format(#13#10'| ИТОГО        | %10.2g |                |                               |             |',[Sum]);
-//  ResultStr := ResultStr + #13#10'============================================================================================';
-//  ResultStr := ResultStr + #13#10'|   РАСЧЁТЫ    |____________|________________|_______________________________|_____________|';
-//  ResultStr := ResultStr + #13#10'|              |            |                |                               |             |';
-//  ResultStr := ResultStr + #13#10'============================================================================================';
-//  ResultStr := ResultStr + #13#10'';
-//  ResultStr := ResultStr + #13#10'К удержанию __________________руб.';
-//  ResultStr := ResultStr + #13#10'';
-//  ResultStr := ResultStr + #13#10'Специалист ___________________';
-//  ResultStr := ResultStr + #13#10'';
-//  ResultStr := ResultStr + #13#10'Проверил   ___________________';
-//  ResultStr := ResultStr + #13#10'';
-//  ResultStr := ResultStr + #13#10'М.П.';
-//
-////  ResultStr := ResultStr +format(#13#10'  ИТОГО: %.2f'#13#10,[Sum]);
-////  ResultStr := ResultStr + format(SpravkaF5Niz, [DateToStr(Date)]);
-//  if Memo=Memo1 then begin
-//    MemoModeBtn.Down := True;
-//    Panel4.Visible := False;
-//  end;
-//  Memo.Text := ResultStr;
-//  RSts.Free;
-//  ChprTmp.Free;
-//end;
-
+{$REGION 'f5_2'}
+  //procedure TForm9.ShowSpravkaF5_2(Sender: TObject; Memo: StdCtrls.TMemo);
+  //var
+  //  DateVipl: string;
+  //  LC: string;
+  //  FIO: string;
+  //  D_Nazn: string;
+  //  ResultStr: string;
+  //  DateV: TDate;
+  //  SumVipl: string;
+  //  SV:Currency;
+  //  Month: string;
+  //  C_, Po_:string;
+  //  RSts: TStringList;
+  //  I: Integer;
+  //  IntervalDlg:TPeriodDlg;
+  //  ChprTmp: TChprList;
+  //  Sum:Currency;
+  //  Dopl: Extended;
+  //  SumDopl: string;
+  //  Adres: string;
+  //begin
+  //  IntervalDlg:=TPeriodDlg(Sender);
+  //  LC := TmpSts[0];
+  //  FIO := AnsiUpperCase(format('%s %s %s', [TmpSts[1], TmpSts[2], TmpSts[3]]));
+  //  Adres := format('%s ул.%s, д.%s', [TmpSts[4], TmpSts[5], ContStr(ContStr(TmpSts[6], '/', TmpSts[7]), ' кв.', TmpSts[8])]);
+  //  Adres := AnsiUpperCase(Adres);
+  //  D_Nazn := TmpSts[10];
+  //  C_:=DateToStr(IntervalDlg.StartInterval);
+  //  Po_:=DateToStr(IntervalDlg.EndInterval);
+  //  ResultStr := '';
+  //  RSts := TStringList.Create;
+  //  RSts.Add('');
+  //  for I := 0 to Chpr2.Count - 2 do
+  //  begin
+  //    DateVipl := chpr2.Values[i][1];
+  //    DateV := StrToDate(DateVipl);
+  //    if not ((DateV > IntervalDlg.StartInterval - 0.5) and (DateV < IntervalDlg.EndInterval + 0.5)) then
+  //      Continue;
+  //    RSts.Add(Float2Str(DateV, 0) + chpr2[i + 1]);
+  //  end;
+  //  RSts.Sort;
+  //  for I := 0 to RSts.Count - 1 do
+  //    RSts[i] := Copy(RSts[i], 6, MaxInt);
+  //  ChprTmp:= TChprList.Create;
+  //  ChprTmp.Mode := mdCsv;
+  //  ChprTmp.Text := RSts.Text;
+  //  RSts.Clear;
+  //  Sum:=0;
+  //  ResultStr := '         СВЕРКА ФАКТИЧЕСКИХ РАСХОДОВ С РАЗМЕРОМ НАЗНАЧЕНОЙ СУБСИДИИ';
+  //  ResultStr := ResultStr + #13#10;
+  //  ResultStr := ResultStr + #13#10'№ личного дела   '+LC;
+  //  ResultStr := ResultStr + #13#10'Ф.И.О.           '+FIO;
+  //  ResultStr := ResultStr + #13#10'Адрес            '+Adres;
+  //  ResultStr := ResultStr + #13#10'Дата обращения   '+D_Nazn;
+  //  ResultStr := ResultStr + format(#13#10'Назначена субсидия на период с %s по %s',[C_, Po_]);
+  //  ResultStr := ResultStr + #13#10;
+  //  ResultStr := ResultStr + #13#10'|---|---------|------------|----------------|-------------------------------|-------------|';
+  //  ResultStr := ResultStr + #13#10'| № | Месяц,  | Размер     | В том числе    | Фактические расходы по оплате | К удержанию |';
+  //  ResultStr := ResultStr + #13#10'|   | год     | назначеной | доплачено,     | ЖКУ (содержание  жилья, газ,  |             |';
+  //  ResultStr := ResultStr + #13#10'|   |         | субсидии   | удержено       | вода, эл.энергия, отопление)  |             |';
+  //  ResultStr := ResultStr + #13#10'|   |         |            |                | за месяц                      |             |';
+  //  ResultStr := ResultStr + #13#10'|---|---------|------------|----------------|-------------------------------|-------------|';
+  //  for I := 0 to ChprTmp.Count - 2 do
+  //  begin
+  //    DateVipl := ChprTmp.Values[I][1];
+  //    DateV := StrToDate(DateVipl);
+  //    SumVipl := ChprTmp.Values[I][2];
+  //    SV:=StrToCurr(AnsiReplaceStr(Sumvipl,'.',DecimalSeparator));
+  //    Dopl:=StrToCurr(AnsiReplaceStr(ChprTmp.Values[I][15],'.',DecimalSeparator));
+  //    SumDopl:='';
+  //    if Dopl<>0 then
+  //      if dopl<0
+  //      then SumDopl:= format('удерж. %.2f',[Abs(dopl)])
+  //      else SumDopl:= format('допл. %.2f',[Abs(dopl)]);
+  //    Sum:=Sum+SV;
+  //    Month := format('%s.%s',[ToZeroStr(MonthOf(DateV),2),IntToStr(YearOf(DateV))]);
+  //    ResultStr := ResultStr + format(#13#10'| %d | %7s | %10s | %6s |--------|--------|--------|--------|--------|-------|------|',[I+1,Month,SumVipl,SumDopl]);
+  //    if I=ChprTmp.Count-2
+  //    then
+  //      ResultStr := ResultStr + #13#10'|==========================================================================================|'
+  //    else
+  //      ResultStr := ResultStr + #13#10'|----|---------|------------|----------------|-------------------------------|-------------|';
+  //  end;
+  //  ResultStr := ResultStr + format(#13#10'| ИТОГО        | %10.2g |                |                               |             |',[Sum]);
+  //  ResultStr := ResultStr + #13#10'============================================================================================';
+  //  ResultStr := ResultStr + #13#10'|   РАСЧЁТЫ    |____________|________________|_______________________________|_____________|';
+  //  ResultStr := ResultStr + #13#10'|              |            |                |                               |             |';
+  //  ResultStr := ResultStr + #13#10'============================================================================================';
+  //  ResultStr := ResultStr + #13#10'';
+  //  ResultStr := ResultStr + #13#10'К удержанию __________________руб.';
+  //  ResultStr := ResultStr + #13#10'';
+  //  ResultStr := ResultStr + #13#10'Специалист ___________________';
+  //  ResultStr := ResultStr + #13#10'';
+  //  ResultStr := ResultStr + #13#10'Проверил   ___________________';
+  //  ResultStr := ResultStr + #13#10'';
+  //  ResultStr := ResultStr + #13#10'М.П.';
+  //
+  ////  ResultStr := ResultStr +format(#13#10'  ИТОГО: %.2f'#13#10,[Sum]);
+  ////  ResultStr := ResultStr + format(SpravkaF5Niz, [DateToStr(Date)]);
+  //  if Memo=Memo1 then begin
+  //    MemoModeBtn.Down := True;
+  //    Panel4.Visible := False;
+  //  end;
+  //  Memo.Text := ResultStr;
+  //  RSts.Free;
+  //  ChprTmp.Free;
+  //end;
+  
+{$ENDREGION}
 const
-  Golova1:string = 
+  Golova1:string =
           '         СВЕРКА ФАКТИЧЕСКИХ РАСХОДОВ С РАЗМЕРОМ НАЗНАЧЕНОЙ СУБСИДИИ'
   + #13#10
   + #13#10'№ личного дела   %s'
@@ -2213,6 +2223,18 @@ begin
     FastBase.Free;
 //    ShowMessage('Log2.csv');
 //    chpr3.SaveToFile('Log2.csv');
+  end;
+  if Table2='base1' then begin
+    FastBase := TFastFileStrList.Create;
+    FastBase.ShowFields.CommaText:=FieldsF7_DB1;
+    FastBase.BaseName := FSpravkaPath + 'base3' + '.csv';
+    FastBase.BaseIndexFile := FSpravkaPath + 'base3' +'.Index';
+    FastBase.Filter := s;
+    Chpr3.Clear;
+    Chpr3.Mode := mdCsv;
+    Chpr3.Text := FastBase.Text;
+    //Chpr3.CustomSort(F7Sort);
+    FastBase.Free;
   end;
   Result:=true;
 end;

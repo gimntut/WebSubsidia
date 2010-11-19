@@ -74,6 +74,7 @@ type
     property TriggerVisible[Index:Integer]:Boolean read GetTriggerVisible write SetTriggerVisible;
     property TriggerText[Index:Integer]:string read GetTriggerText write SetTriggerText;
     procedure TriggersOff;
+    procedure AddTriger(Name:string; Checked:Boolean);
     function Execute:boolean;
   end;
 
@@ -92,6 +93,27 @@ uses
 procedure TPeriodDlg.TriggerClick(Sender: TObject);
 begin
   ShowInfo;
+end;
+
+procedure TPeriodDlg.AddTriger(Name: string; Checked: Boolean);
+var
+  I:integer;
+  chb: TCheckBox;
+  cntrl:TControl;
+begin
+  chb:=nil;
+  for I := 1 to 3 do begin
+    cntrl:=Panel2.FindChildControl('CheckBox'+IntToStr(I));
+    if cntrl is TCheckBox
+    then chb:=cntrl as TCheckBox
+    else Continue;
+    if chb.Visible then Continue;
+    chb.Caption:=Name+' (Ctrl+'+IntToStr(I)+')';
+    chb.Checked:=Checked;
+    chb.Visible:=True;
+    chb.Top:=1000;
+    break;
+  end;
 end;
 
 procedure TPeriodDlg.Button2Click(Sender: TObject);
