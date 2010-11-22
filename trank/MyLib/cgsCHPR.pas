@@ -589,11 +589,12 @@ begin
     FTmpSts.Clear;
     S:='';
     for J := 0 to LW - 1 do begin
-      L:=length(FieldNames[J]);
-      W2:=(W[J]-L) div 2;
       if J<FieldNames.Count
-      then S:=ContStr(S,'|',format('%*s%-*s',[W2,'',W[J]-W2,FieldNames[j]]))
-      else S:=ContStr(S,'|',StringOfChar(' ',W[J]));
+      then begin
+        L:=length(FieldNames[J]);
+        W2:=(W[J]-L) div 2;
+        S:=ContStr(S,'|',format('%*s%-*s',[W2,'',W[J]-W2,FieldNames[j]]));
+      end else S:=ContStr(S,'|',StringOfChar(' ',W[J]));
     end;
     FTmpSts.AddObject(S,pointer(-1));
     S:='';
@@ -647,11 +648,12 @@ begin
     // * Заголовок
     S:='';
     for J := 0 to LW - 1 do begin
-      L:=length(FieldNames[J]);
-      W2:=(W[J]-L) div 2;
       if J<FieldNames.Count
-      then S:=ContStr(S,'|',format('%*s%-*s',[W2,'',W[J]-W2,FieldNames[j]]))
-      else S:=ContStr(S,'|',StringOfChar(' ',W[J]));
+      then begin
+        L:=length(FieldNames[J]);
+        W2:=(W[J]-L) div 2;
+        S:=ContStr(S,'|',format('%*s%-*s',[W2,'',W[J]-W2,FieldNames[j]]));
+      end else S:=ContStr(S,'|',StringOfChar(' ',W[J]));
     end;
     FTmpSts.AddObject(S,pointer(-2));
     // * Линия под заголовком
