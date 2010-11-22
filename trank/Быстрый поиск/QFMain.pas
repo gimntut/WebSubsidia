@@ -223,6 +223,7 @@ type
     function GetFileNameForExcel: string;
     function GetFloatValue(J: Integer; S: string):Extended;
     function GetValidLS(s: string): string;
+    function MaxStringLength(S:string):Integer;
     function PrepareEDKResult(s: string):boolean;
     function PrepareF5Result(s: string):boolean;
     function PrepareFindResult(s: string; Table2:string):boolean;
@@ -2297,11 +2298,26 @@ begin
     Result := TempPath + ExtractFileName(OpenDialog1.FileName) + '.csv';
 end;
 
+function TForm9.MaxStringLength(S:string):Integer;
+var
+  Lines: TStringList;
+  I: Integer;
+  L: Integer;
+begin
+  Lines := TStringList.Create;
+  Lines.Text:=S;
+  Result:=0;
+  for I := 0 to Lines.Count - 1 do begin
+    L:=Length(TrimRight(Lines[i]));
+    if L>Result then Result:=L;
+  end;
+  Lines.Free;
+end;
+
 procedure TForm9.PrintBtnClick(Sender: TObject);
 var
   I: Integer;
   MaxLength: Integer;
-  L: Integer;
   s:string;
   st:string;
   Lines:TStrings;
@@ -2311,60 +2327,65 @@ var
   TmpStr:string;
   IsDbfReestr:Boolean;
 begin
-  MaxLength:=0;
-  if MemoModeBtn.Down
+  fn:=AnsiUpperCase(ExtractFileName(OpenDialog1.FileName));
+  IsDbfReestr:=(fn<>'') and (fn[1] in ['F','T'])
+  and (ExtractFileExt(fn)='.DBF') and (Chpr.Filter='');
+
+  if MemoModeBtn.Down or IsDbfReestr
   then Lines:=Memo1.Lines
   else Lines:=lstMaster.Items;
-  for I := 0 to Lines.Count - 1 do begin
-    L:=Length(TrimRight(Lines[i]));
-    if L>MaxLength then MaxLength:=L;
+
+  if IsDbfReestr then begin
+    Lines.BeginUpdate;
+    sts := TStringList.Create;
+    sts.Assign(Chpr);
+    TmpStr:=sts.Text;
+    sts.Delete(0);
+    Lines.Clear;
+    for I := 4 downto 0 do begin
+      Lines.add(AnsiReplaceStr(sts[i],';',' '));
+      sts.Delete(I);
+    end;
+    Chpr.Text:=sts.Text;
+    sts.Free;
+    Chpr.IsOEMSource:=false;
+    Lines.AddStrings(Chpr.AsTable);
+    Lines.Add('');
+    Lines.Add('Руководитель:___________________');
+    Lines.Add('');
+    Lines.Add('Проверил:_______________________');
+    Lines.EndUpdate;
+    // PagePanel.ActivePageIndex:=1
   end;
+
+  MaxLength:=MaxStringLength(Lines.Text);
   if MaxLength>=100
     then Printer.Orientation:=poLandscape
     else Printer.Orientation:=poPortrait;
+
   if PrintDialog1.Execute then begin
-    IsDbfReestr:=false;
-    s:='';
-    if not MemoModeBtn.Down
+    s:=Lines.Text;
+    if not MemoModeBtn.Down and not IsDbfReestr
     then begin
-     fn:=AnsiUpperCase(ExtractFileName(OpenDialog1.FileName));
-     IsDbfReestr:=(fn<>'') and (fn[1] in ['F','T'])
-     and (ExtractFileExt(fn)='.DBF') and (Chpr.Filter='');
-     if IsDbfReestr then begin
-       sts := TStringList.Create;
-       sts.Assign(Chpr);
-       TmpStr:=sts.Text;
-       sts.Delete(0);
-       for I := 4 downto 0 do begin
-         s:=ContStr(AnsiReplaceStr(sts[i],';',' '),#13#10,s);
-         sts.Delete(I);
-       end;
-       Chpr.Text:=sts.Text;
-       Chpr.IsOEMSource:=false;
-       s:=ContStr(s,#13#10,Chpr.AsTable.Text);
-       sts.Free;
-       s:=s+ #13#10#13#10+
-             'Руководитель:___________________'#13#10#13#10+
-             'Проверил:_______________________';
-     end else begin
-       st:=Memo3.Text;
-       // if Memo3.Lines[Memo3.Lines.Count-1]='' then;
-       st1:=st;
-       for I := 1 to length(st) do
-         if st[i]<>'|' then st1[i]:='-';
-       s:=st+#13#10+st1+#13#10+s;
-       if n13.Enabled and n13.Checked then s:=Chpr.Head+#13#10+s;
-       if Edit1.Text<>'' then
-         s:=format('По поисковому запросу "%s" найдено %d из %d записей:'#13#10+
-         #13#10+
-         '%s',[Edit1.Text,Chpr.FilterCount-1,Chpr.Count-1,s]);
-     end;
-    end else s:=Lines.Text;
+      st:=Memo3.Text;
+      // if Memo3.Lines[Memo3.Lines.Count-1]='' then;
+      st1:=st;
+      for I := 1 to length(st) do
+        if st[i]<>'|' then st1[i]:='-';
+      s:=st+#13#10+st1+#13#10+s;
+      if n13.Enabled and n13.Checked then s:=Chpr.Head+#13#10+s;
+      if Edit1.Text<>'' then
+        s:=format('По поисковому запросу "%s" найдено %d из %d записей:'#13#10+
+        #13#10+
+        '%s',[Edit1.Text,Chpr.FilterCount-1,Chpr.Count-1,s]);
+    end;
 
     if Pos('EPSON',AnsiUpperCase(Printer.Printers[Printer.PrinterIndex]))>0 then begin
       PrintToEpson(S);
     end else PrintToLaser(S);
-    if IsDbfReestr then Chpr.Text:=TmpStr;
+    if IsDbfReestr then begin
+      Chpr.Text:=TmpStr;
+    end;
   end;
 end;
 
