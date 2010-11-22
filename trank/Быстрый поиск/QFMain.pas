@@ -239,6 +239,8 @@ type
     procedure ShowSpravkaEDK(Sender:TObject; Memo:StdCtrls.TMemo);
     procedure ShowSverka(Sender:TObject; Memo:StdCtrls.TMemo);
     procedure SolveF7(DateV: TDate; var LastOtvet: Extended; var Otvet: Extended);
+    procedure SetMemoMode(const Value: Boolean);
+    function GetMemoMode: Boolean;
   protected
     procedure WMDropFiles(var Message: TMessage); message WM_DROPFILES;
     procedure SeparateDetail(Index:integer; out Parameter, Detail: string);
@@ -247,6 +249,7 @@ type
   public
     property SpravkaType:Integer read FSpravkaType write SetSpravkaType;
     property FontSize:Integer read FFontSize write SetFontSize;
+    property MemoMode:Boolean read GetMemoMode write SetMemoMode;
     { Public declarations }
   end;
 
@@ -592,8 +595,7 @@ var
   IsDir, flagFirst: Boolean;
   S: string;
 begin
-  MemoModeBtn.Down:=false;
-  MemoModeBtn.Click;
+  MemoMode:=false;
   SpravkaType:=sptFirstList;
   PagePanel.ActivePageIndex:=0;
   ActList.Clear;
@@ -795,8 +797,7 @@ end;
 
 procedure TForm9.ResetEditMode;
 begin
-  MemoModeBtn.Down:=false;
-  MemoModeBtn.Click;
+  MemoMode:=false;
 end;
 
 procedure TForm9.OutCaption;
@@ -884,6 +885,19 @@ begin
   SaveIni;
 end;
 
+procedure TForm9.SetMemoMode(const Value: Boolean);
+begin
+  if Value
+  then begin
+    Memo1.Lines:=Chpr;
+    PagePanel.ActivePageIndex:=1;
+  end
+  else begin
+    PagePanel.ActivePageIndex:=0;
+  end;
+  MemoModeBtn.Down := Value;
+end;
+
 procedure TForm9.SetNewFontSize(WinControl: TWinControl; const Value: Integer);
 begin
   THackWinControl(WinControl).Font.Size := Value;
@@ -967,8 +981,7 @@ var
   p:Integer;
   message:string;
 begin
-  MemoModeBtn.Down:=false;
-  MemoModeBtn.Click;
+  MemoMode:=false;
   FastBase:=TFastFileStrList.Create;
   try
     FastBase.ShowFields.CommaText:=FieldsEDK_DB1;
@@ -1020,8 +1033,7 @@ var
   FastBase:TFastFileStrList;
   p:Integer;
 begin
-  MemoModeBtn.Down:=false;
-  MemoModeBtn.Click;
+  MemoMode:=false;
   FastBase:=TFastFileStrList.Create;
   try
     //FastBase.ShowFields.CommaText:=FieldsEDK_DB1;
@@ -1073,6 +1085,11 @@ begin
   HTTP.Clear;
   HTTP.HTTPMethod('GET', s);
   json := TSuperObject.ParseStream(HTTP.Document, true);
+end;
+
+function TForm9.GetMemoMode: Boolean;
+begin
+  Result:=MemoModeBtn.Down;
 end;
 
 procedure TForm9.InitColumns;
@@ -1134,8 +1151,7 @@ begin
         begin
           ShowSpravkaEDK(PeriodDlg,Memo1);
         end else begin
-          MemoModeBtn.Down:=false;
-          MemoModeBtn.Click;
+          MemoMode:=false;
         end;
         KeyPreview:=true;
       end;
@@ -1156,8 +1172,7 @@ begin
         begin
           ShowSpravkaF5(PeriodDlg, Memo1);
         end else begin
-          MemoModeBtn.Down:=false;
-          MemoModeBtn.Click;
+          MemoMode:=false;
         end;
         KeyPreview:=true;
       end;
@@ -1191,7 +1206,7 @@ begin
       end;
     sptEDK, sptChild:
       begin
-        if not ChangedFindStr and not MemoModeBtn.Down
+        if not ChangedFindStr and not MemoMode
         then PrintSpravka
         else OutFoundEDK(s);
       end;
@@ -1202,7 +1217,7 @@ begin
         (Chpr.FilterCount <> 0)
         and
         (lstMaster.ItemIndex <> -1) and
-        not MemoModeBtn.Down
+        not MemoMode
       then PrintSpravka
       else begin
         s:=Edit1.Text;
@@ -1590,10 +1605,7 @@ end;
 
 procedure TForm9.MemoModeBtnClick(Sender: TObject);
 begin
-  PagePanel.ActivePageIndex:=ord(MemoModeBtn.Down);
-  //Panel4.Visible:=not MemoModeBtn.Down;
-  if not MemoModeBtn.Down then Exit;
-  Memo1.Lines:=Chpr;
+  MemoMode:=MemoModeBtn.Down;
 end;
 
 procedure TForm9.OpenBtnClick(Sender: TObject);
@@ -1765,8 +1777,7 @@ begin{ TODO -oНаиль : Убрать привязку ЛистБокс1 }
     ResultStr := ResultStr +#13#10'Суммы по периодам:'#13#10+ RSts.Text;
   if RSts.Count>1 then
     ResultStr := ResultStr+format(#13#10'ИТОГО: %.2f'#13#10,[TotalSum]);
-  MemoModeBtn.Down:=true;
-//  Panel4.Visible:=false;
+  MemoMode:=true;
   Memo.Text:=ResultStr;
   RSts.Free;
 end;
@@ -1857,8 +1868,7 @@ begin
     ResultStr := ResultStr +format(#13#10'  ИТОГО: %.2f'#13#10,[Sum]);
   ResultStr := ResultStr + format(SpravkaF5Niz, [DateToStr(Date)]);
   if Memo=Memo1 then begin
-    MemoModeBtn.Down := True;
-//    Panel4.Visible := False;
+    MemoMode := True;
   end;
   Memo.Text := ResultStr;
   RSts.Free;
@@ -2103,8 +2113,7 @@ begin
   ResultStr := ResultStr + Hvost;
   //ResultStr := ResultStr + #13#10+Chpr3.Text;
   if Memo=Memo1 then begin
-    MemoModeBtn.Down := True;
-//    Panel4.Visible := False;
+    MemoMode := True;
   end;
   Memo.Text := ResultStr;
   RSts.Free;
@@ -2227,7 +2236,7 @@ begin
   end;
   if Table2='base1' then begin
     FastBase := TFastFileStrList.Create;
-    FastBase.ShowFields.CommaText:=FieldsF7_DB1;
+    //FastBase.ShowFields.CommaText:=FieldsF7_DB1;
     FastBase.BaseName := FSpravkaPath + 'base3' + '.csv';
     FastBase.BaseIndexFile := FSpravkaPath + 'base3' +'.Index';
     FastBase.Filter := s;
@@ -2331,7 +2340,7 @@ begin
   IsDbfReestr:=(fn<>'') and (fn[1] in ['F','T'])
   and (ExtractFileExt(fn)='.DBF') and (Chpr.Filter='');
 
-  if MemoModeBtn.Down or IsDbfReestr
+  if MemoMode or IsDbfReestr
   then Lines:=Memo1.Lines
   else Lines:=lstMaster.Items;
 
@@ -2365,7 +2374,7 @@ begin
 
   if PrintDialog1.Execute then begin
     s:=Lines.Text;
-    if not MemoModeBtn.Down and not IsDbfReestr
+    if not MemoMode and not IsDbfReestr
     then begin
       st:=Memo3.Text;
       // if Memo3.Lines[Memo3.Lines.Count-1]='' then;
