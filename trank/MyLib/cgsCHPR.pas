@@ -564,6 +564,7 @@ var
   N: Integer;
   V:string;
   fs:string;
+  W2: Integer;
 begin
   DebugOut('do.txt');
   NeedTmpSts;
@@ -588,8 +589,10 @@ begin
     FTmpSts.Clear;
     S:='';
     for J := 0 to LW - 1 do begin
+      L:=length(FieldNames[J]);
+      W2:=(W[J]-L) div 2;
       if J<FieldNames.Count
-      then S:=ContStr(S,'|',format('%-*s',[W[J],FieldNames[j]]))
+      then S:=ContStr(S,'|',format('%*s%-*s',[W2,'',W[J]-W2,FieldNames[j]]))
       else S:=ContStr(S,'|',StringOfChar(' ',W[J]));
     end;
     FTmpSts.AddObject(S,pointer(-1));
@@ -644,8 +647,10 @@ begin
     // * Заголовок
     S:='';
     for J := 0 to LW - 1 do begin
+      L:=length(FieldNames[J]);
+      W2:=(W[J]-L) div 2;
       if J<FieldNames.Count
-      then S:=ContStr(S,'|',format('%-*s',[W[J],FieldNames[j]]))
+      then S:=ContStr(S,'|',format('%*s%-*s',[W2,'',W[J]-W2,FieldNames[j]]))
       else S:=ContStr(S,'|',StringOfChar(' ',W[J]));
     end;
     FTmpSts.AddObject(S,pointer(-2));
