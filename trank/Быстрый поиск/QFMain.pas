@@ -1627,6 +1627,11 @@ begin
   Chpr.Filling:=OldFilling;
 end;
 
+const
+  FieldsTab:string =
+  ('LCHET=LCHET,SUM=SUM,C=C,DO=DO,NOMER=NOMER,METKA=METKA,IST=IST,DATA=DATA,'+
+  'SUM_DOUB=SUM_DOUB,SUM_NAZN=SUM_NAZN,NAZ_DOUB=NAZ_DOUB,ORGAN=ORGAN');
+
 procedure TForm9.ShowSpravkaEDK(Sender: TObject; Memo: StdCtrls.TMemo);
 var
   LC:string;
@@ -1773,12 +1778,13 @@ begin{ TODO -oНаиль : Убрать привязку ЛистБокс1 }
     eee:=EndOfTheMonth(DateV);
     OutPeriod;
   end;
-  if RSts.Count>0 then
+  if RSts.Count>2 then
     ResultStr := ResultStr +#13#10'Суммы по периодам:'#13#10+ RSts.Text;
   if RSts.Count>1 then
     ResultStr := ResultStr+format(#13#10'ИТОГО: %.2f'#13#10,[TotalSum]);
   MemoMode:=true;
   Memo.Text:=ResultStr;
+  Memo.Lines.AddStrings(Chpr3.asTable);
   RSts.Free;
 end;
 
@@ -2032,7 +2038,6 @@ const
                     'SDD_PRAVO=SDD_PRAVO,MIDSOULDOH=MIDSOULDOH,OLD_SUB=OLD_SUB,'+
                     'SUBSID=SUBSID,SV=SV,SOS_FAM=SOS_FAM,SOV_DOHL=SOV_DOHL,'+
                     'SUM_POTR=SUM_POTR');
-
 procedure TForm9.ShowSverka(Sender: TObject; Memo: StdCtrls.TMemo);
 var
   DateVipl: string;
@@ -2197,6 +2202,7 @@ var
   Ind: Integer;
   FastBase: TFastFileStrList;
   I: integer;
+  J: Integer;
 begin
   Result:=false;
   { TODO -oНаиль : Убрать привязку ЛистБокс1 }
@@ -2209,6 +2215,18 @@ begin
   FastBase.BaseName := FSpravkaPath + Table2 + '.csv';
   FastBase.BaseIndexFile := FSpravkaPath + Table2 +'.Index';
   FastBase.Filter := s;
+  if Table2='base1' then begin
+    for I := 0 to FastBase.Count - 1 do begin
+      if I = 0
+      then FastBase[I] := FastBase[I]+';DO'
+      else FastBase[I] := FastBase[I]+';';
+    end;
+    for I := 1 to FastBase.Count - 1 do begin
+      for !J := 1 to FastBase.Count - 1 do begin
+
+      end;
+    end;
+  end;
   Chpr2.Clear;
   Chpr2.Mode := mdCsv;
   Chpr2.Text := {ResultStr;} FastBase.Text;
@@ -2222,7 +2240,7 @@ begin
     for I := 0 to FastBase.Count - 1 do begin
       if I = 0
       then FastBase[I] := 'N;' + FastBase[I]
-      else FastBase[I] := IntToHex(I,8) + ';' + FastBase[I]
+      else FastBase[I] := IntToHex(I,8) + ';' + FastBase[I];
     end;
     Chpr3.Clear;
     Chpr3.Mode := mdCsv;
@@ -2236,7 +2254,7 @@ begin
   end;
   if Table2='base1' then begin
     FastBase := TFastFileStrList.Create;
-    //FastBase.ShowFields.CommaText:=FieldsF7_DB1;
+    FastBase.ShowFields.CommaText:=FieldsTab;
     FastBase.BaseName := FSpravkaPath + 'base3' + '.csv';
     FastBase.BaseIndexFile := FSpravkaPath + 'base3' +'.Index';
     FastBase.Filter := s;
