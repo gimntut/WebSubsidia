@@ -194,34 +194,12 @@ type
     Widths: ISuperObject;
     WebProtocol: string;
     WebSite: string;
-    procedure CheckBank(Sender:TObject; Index:Integer; S:string; var Show:boolean);
-    procedure JournalClick(Sender: TObject);
-    procedure LinkChild;
-    procedure LinkEDK;
-    procedure LoadIni;
-    procedure OpenFile(FileName: string);
-    procedure OutCaption;
-    procedure OutFoundEDK(s:string);
-    procedure OutFoundF5(s: string);
-    procedure OutTable(NoDataText:string='Нет данных');
-    procedure PrintSpravka;
-    procedure RegQF;
-    procedure ResetEditMode;
-    procedure ReturnClick;
-    procedure SaveIni;
-    procedure SaveToTmpCsv;
-    procedure SetSpravkaType(const Value: Integer);
-    procedure ShowFavorite;
-    procedure ShowSpravkaF5(Sender:TObject; Memo:StdCtrls.TMemo);
-    procedure ShowSpravkaF5_1(Sender:TObject; Memo:StdCtrls.TMemo);
-    procedure SortClick(Sender: TObject);
-    procedure SpravkaClick(Sender: TObject);
-    procedure TextState;
     //procedure ShowSpravkaF5_2(Sender:TObject; Memo:StdCtrls.TMemo);
     function ChprIndex:Integer;
     function GetDetail: string;
     function GetFileNameForExcel: string;
     function GetFloatValue(J: Integer; S: string):Extended;
+    function GetMemoMode: Boolean;
     function GetValidLS(s: string): string;
     function MaxStringLength(S:string):Integer;
     function PrepareEDKResult(s: string):boolean;
@@ -229,18 +207,40 @@ type
     function PrepareFindResult(s: string; Table2:string):boolean;
     procedure AddActToList(I: Integer;Event:TNotifyEvent);
     procedure AddToJournal(LCs:string='');
+    procedure CheckBank(Sender:TObject; Index:Integer; S:string; var Show:boolean);
     procedure GetJournal(s: string; out json: ISuperObject);
     procedure InitColumns;
+    procedure JournalClick(Sender: TObject);
+    procedure LinkChild;
+    procedure LinkEDK;
     procedure LoadExternalList(FileName:string);
+    procedure LoadIni;
+    procedure OpenFile(FileName: string);
+    procedure OutCaption;
+    procedure OutFoundEDK(s:string);
+    procedure OutFoundF5(s: string);
     procedure OutJournal(json:ISuperObject);
+    procedure OutTable(NoDataText:string='Нет данных');
+    procedure PrintSpravka;
+    procedure RegQF;
+    procedure ResetEditMode;
+    procedure ReturnClick;
+    procedure SaveIni;
+    procedure SaveToTmpCsv;
     procedure SetFontSize(const Value: Integer);
+    procedure SetMemoMode(const Value: Boolean);
     procedure SetNewFontSize(WinControl: TWinControl; const Value: Integer);
+    procedure SetSpravkaType(const Value: Integer);
+    procedure ShowFavorite;
     procedure ShowFirstList;
     procedure ShowSpravkaEDK(Sender:TObject; Memo:StdCtrls.TMemo);
+    procedure ShowSpravkaF5(Sender:TObject; Memo:StdCtrls.TMemo);
+    procedure ShowSpravkaF5_1(Sender:TObject; Memo:StdCtrls.TMemo);
     procedure ShowSverka(Sender:TObject; Memo:StdCtrls.TMemo);
     procedure SolveF7(DateV: TDate; var LastOtvet: Extended; var Otvet: Extended);
-    procedure SetMemoMode(const Value: Boolean);
-    function GetMemoMode: Boolean;
+    procedure SortClick(Sender: TObject);
+    procedure SpravkaClick(Sender: TObject);
+    procedure TextState;
   protected
     procedure WMDropFiles(var Message: TMessage); message WM_DROPFILES;
     procedure SeparateDetail(Index:integer; out Parameter, Detail: string);
@@ -272,6 +272,22 @@ const
   'SUMMA', 'FACT', 'OTKAZ', 'SPEC', 'DateZap');
   jrnHeaders = ('"№ п/п","№ дела","Дата обращения","ФИО","Адрес","Сумма",'
   +'"Факт.оплата","Причина отказа","Специалист","Дата записи"');
+  
+  FieldsEDK_DB1: string
+                 =( 'FAMILY=Фамилия,NAME=Имя,FATHER=Отчество,PN=Нас.Пункт,'+
+                    'ST=Улица,HOUSE=Дом,KORP=Корп,FLAT=Квартира,'+
+                    'KODPEN=КодПенс,IST=Источ.,LCHET=Л/С');
+
+  FieldsTab:string =
+  ('LCHET=LCHET,SUM=SUM,C=C,DO=DO,NOMER=NOMER,METKA=METKA,IST=IST,DATA=DATA,'+
+  'SUM_DOUB=SUM_DOUB,SUM_NAZN=SUM_NAZN,NAZ_DOUB=NAZ_DOUB,ORGAN=ORGAN');
+
+  FieldsF7_DB1: string
+                 =( 'LCHET=LCHET,SUB_C=SUB_C,DATMP_F=DATMP_F,R_STS=R_STS,'+
+                    'POLUCH=POLUCH,K_LGOT=K_LGOT,MIDSOULDOH=MIDSOULDOH,'+
+                    'SDD_PRAVO=SDD_PRAVO,MIDSOULDOH=MIDSOULDOH,OLD_SUB=OLD_SUB,'+
+                    'SUBSID=SUBSID,SV=SV,SOS_FAM=SOS_FAM,SOV_DOHL=SOV_DOHL,'+
+                    'SUM_POTR=SUM_POTR');
 
 implementation
 uses Publ, PublFile, ShellAPI, ClipBrd, Printers, QFLoadList, ShFolder, Registry,
@@ -969,12 +985,6 @@ begin
 //  Caption:=Widths.AsString;
 end;
 
-const
-  FieldsEDK_DB1: string
-                 =( 'FAMILY=Фамилия,NAME=Имя,FATHER=Отчество,PN=Нас.Пункт,'+
-                    'ST=Улица,HOUSE=Дом,KORP=Корп,FLAT=Квартира,'+
-                    'KODPEN=КодПенс,IST=Источ.,LCHET=Л/С');
-
 procedure TForm9.OutFoundEDK(s:string);
 var
   FastBase:TFastFileStrList;
@@ -1020,10 +1030,10 @@ SpravkaEDK=
 '                    Код пенсии(пособия) - %s Источник -  %s'#13#10+
 '              История выплаты за период с %s по %s';
 Title:array[0..3,0..4] of string=(
- (('-------------------------'),('------------------------'),('-------------'),('-----------'),('--------------------------------------------')),
- (('Месяц        Сумма к     '),('1 раздел    Дата С      '),('Орган        '),(' Удержания '),('Разовые     С          По          N списка ')),
- (('выплаты      выплате     '),('тек.мес     1-го разд.  '),('выплаты.     '),('           '),('выплаты                                     ')),
- (('-------------------------'),('------------------------'),('-------------'),('-----------'),('--------------------------------------------')));
+ (('-------------------------'),('----------------------------------'),('-------------'),('-----------'),('--------------------------------------------')),
+ (('Месяц        Сумма к     '),('1 раздел    Период 1-го разд.     '),('Орган        '),(' Удержания '),('Разовые     С          По          N списка ')),
+ (('выплаты      выплате     '),('тек.мес                           '),('выплаты.     '),('           '),('выплаты                                     ')),
+ (('-------------------------'),('----------------------------------'),('-------------'),('-----------'),('--------------------------------------------')));
 
 type
   TStolbi=set of (std, R1, raz, ud);
@@ -1627,11 +1637,6 @@ begin
   Chpr.Filling:=OldFilling;
 end;
 
-const
-  FieldsTab:string =
-  ('LCHET=LCHET,SUM=SUM,C=C,DO=DO,NOMER=NOMER,METKA=METKA,IST=IST,DATA=DATA,'+
-  'SUM_DOUB=SUM_DOUB,SUM_NAZN=SUM_NAZN,NAZ_DOUB=NAZ_DOUB,ORGAN=ORGAN');
-
 procedure TForm9.ShowSpravkaEDK(Sender: TObject; Memo: StdCtrls.TMemo);
 var
   LC:string;
@@ -1753,7 +1758,9 @@ begin{ TODO -oНаиль : Убрать привязку ЛистБокс1 }
     if R1 in Stolbi then begin
       R1Sum:=ChprTmp.Values[I][3];
       R1Date:=ChprTmp.Values[I][4];
-      ResultStr:=ResultStr+format('%11s %-11s ',[R1Sum,R1Date]);
+      if R1Date<>''
+      then R1Date:=format('%s-%s',[R1Date,ChprTmp.Values[I][14]]);
+      ResultStr:=ResultStr+format('%11s %-21s ',[R1Sum,R1Date]);
     end;
     ResultStr:=ResultStr+format('%-12s ',[Bank]);
     if ud in Stolbi then begin
@@ -1784,7 +1791,8 @@ begin{ TODO -oНаиль : Убрать привязку ЛистБокс1 }
     ResultStr := ResultStr+format(#13#10'ИТОГО: %.2f'#13#10,[TotalSum]);
   MemoMode:=true;
   Memo.Text:=ResultStr;
-  Memo.Lines.AddStrings(Chpr3.asTable);
+//  Memo.Lines.AddStrings(Chpr2.asTable);
+//  Memo.Lines.AddStrings(Chpr3.asTable);
   RSts.Free;
 end;
 
@@ -2032,12 +2040,6 @@ const
 
   Itog:string = #13#10'| ИТОГО        | %11s | %11.2g |                |        |        |        |        |        |        |        |        |';
 
-  FieldsF7_DB1: string
-                 =( 'LCHET=LCHET,SUB_C=SUB_C,DATMP_F=DATMP_F,R_STS=R_STS,'+
-                    'POLUCH=POLUCH,K_LGOT=K_LGOT,MIDSOULDOH=MIDSOULDOH,'+
-                    'SDD_PRAVO=SDD_PRAVO,MIDSOULDOH=MIDSOULDOH,OLD_SUB=OLD_SUB,'+
-                    'SUBSID=SUBSID,SV=SV,SOS_FAM=SOS_FAM,SOV_DOHL=SOV_DOHL,'+
-                    'SUM_POTR=SUM_POTR');
 procedure TForm9.ShowSverka(Sender: TObject; Memo: StdCtrls.TMemo);
 var
   DateVipl: string;
@@ -2203,6 +2205,9 @@ var
   FastBase: TFastFileStrList;
   I: integer;
   J: Integer;
+  DateX: string;
+  DateDo: string;
+  sts: TStringList;
 begin
   Result:=false;
   { TODO -oНаиль : Убрать привязку ЛистБокс1 }
@@ -2220,11 +2225,6 @@ begin
       if I = 0
       then FastBase[I] := FastBase[I]+';DO'
       else FastBase[I] := FastBase[I]+';';
-    end;
-    for I := 1 to FastBase.Count - 1 do begin
-      for !J := 1 to FastBase.Count - 1 do begin
-
-      end;
     end;
   end;
   Chpr2.Clear;
@@ -2253,6 +2253,13 @@ begin
 //    chpr3.SaveToFile('Log2.csv');
   end;
   if Table2='base1' then begin
+    for I := 0 to chpr2.Count - 2 do begin
+      DateX:=chpr2.Values[I][4];
+      if DateX<>'' then begin
+        DateDo:=DateToStr(StrToDateDef(chpr2.Values[I][1],1)-1);
+        chpr2[I+1]:=chpr2[I+1]+DateDo;
+      end;
+    end;
     FastBase := TFastFileStrList.Create;
     FastBase.ShowFields.CommaText:=FieldsTab;
     FastBase.BaseName := FSpravkaPath + 'base3' + '.csv';
