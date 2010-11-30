@@ -166,6 +166,7 @@ type
     procedure ToolButton4Click(Sender: TObject);
     procedure ToolButton9Click(Sender: TObject);
     procedure ToolButton10Click(Sender: TObject);
+    procedure FormShow(Sender: TObject);
   private
     Chpr:TChprList;
     Chpr2:TChprList;
@@ -554,6 +555,11 @@ begin
   Key:=0;
 end;
 
+procedure TForm9.FormShow(Sender: TObject);
+begin
+  ToolBar1.Width:=1;
+end;
+
 procedure TForm9.lbReklamaClick(Sender: TObject);
 begin
   ShellExecute(0,'open','mailto:gimntut@list.ru','','',SW_SHOWNORMAL);
@@ -618,10 +624,10 @@ begin
   Chpr.Mode:=mdCsv;
   sts:=TStringList.Create;
   sts.Text:='Наименование;Тип;Клавиша';
-  sts.Add('Журнал регистрации;;');
-  AddActToList(0,JournalClick);
-  sts.Add('--------------;-----;------------');
-  ActList.Add(nil);
+//  sts.Add('Журнал регистрации;;');
+//  AddActToList(0,JournalClick);
+//  sts.Add('--------------;-----;------------');
+//  ActList.Add(nil);
   for I := 0 to SpravkiSts.Count - 1 do begin
     sts.Add(SpravkiSts.Names[I]+';Справка;F2, '+IntToStr(I+1));
     AddActToList(I,SpravkaClick);
@@ -1661,7 +1667,8 @@ var
   bbb,eee:TDate;
   TotalSum:Currency;
   UdSum: string;
-
+  sts:TStrings;
+  Value: Integer;
   procedure OutPeriod;
   var
     s, sy:string;
@@ -1778,6 +1785,15 @@ begin{ TODO -oНаиль : Убрать привязку ЛистБокс1 }
         RazNum:=AnsiReplaceStr(RazNum,'  ',' ');
       until Length(RazNum)=L;
       ResultStr:=ResultStr+format('%11s %-10s %-11s %-15s',[RazSum,RazFrom,RazTo,RazNum]);
+    end;
+    for J := 0 to Chpr3.Count - 2 do begin
+      sts:=Chpr3.Values[J];
+      Value:=StrToInt(sts[0]);
+      if Trunc(Value-DayOf(Value)+1)=Trunc(DateV) then begin
+        ResultStr:=ResultStr+#13#10+format('         * Раз.с/к. (код выплаты - %s): '#13#10+
+        '         * %13s'#13#10+
+        '         * %s-%s Список №%s',[sts[7],sts[2],sts[3],sts[4],sts[5]]);
+      end;
     end;
     ResultStr:=ResultStr+#13#10;
   end;
@@ -2204,10 +2220,8 @@ var
   Ind: Integer;
   FastBase: TFastFileStrList;
   I: integer;
-  J: Integer;
   DateX: string;
   DateDo: string;
-  sts: TStringList;
 begin
   Result:=false;
   { TODO -oНаиль : Убрать привязку ЛистБокс1 }
@@ -2265,11 +2279,16 @@ begin
     FastBase.BaseName := FSpravkaPath + 'base3' + '.csv';
     FastBase.BaseIndexFile := FSpravkaPath + 'base3' +'.Index';
     FastBase.Filter := s;
+    FastBase[0] := 'DateC;'+FastBase[0];
     Chpr3.Clear;
     Chpr3.Mode := mdCsv;
     Chpr3.Text := FastBase.Text;
     //Chpr3.CustomSort(F7Sort);
     FastBase.Free;
+    for I := 0 to Chpr3.Count - 2 do begin
+      Chpr3[I+1] := IntToStr(Trunc(StrToDateDef(Chpr3.Values[I][7],0)))+';'+Chpr3[I+1];
+    end;
+    chpr3.SortedField:=0;
   end;
   Result:=true;
 end;

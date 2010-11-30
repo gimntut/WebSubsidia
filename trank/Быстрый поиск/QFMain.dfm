@@ -19,6 +19,7 @@ object Form9: TForm9
   OnKeyDown = FormKeyDown
   OnKeyPress = Edit1KeyPress
   OnKeyUp = FormKeyUp
+  OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
   object lbReklama: TLabel
@@ -117,7 +118,6 @@ object Form9: TForm9
         #1089#1082#1077' '#1086#1089#1090#1072#1102#1090#1089#1103' '#1090#1086#1083#1100#1082#1086' '#1090#1077' '#1079#1072#1087#1080#1089#1080', '#1082#1086#1090#1086#1088#1099#1077' '#1089#1086#1076#1077#1088#1078#1072#1090' '#1086#1096#1080#1073#1082#1080' '#1074' '#1073#1072#1085#1082#1086#1074#1089 +
         #1082#1080#1093' '#1089#1095#1077#1090#1072#1093
       Caption = 'CheckBankBtn'
-      Enabled = False
       ImageIndex = 3
       OnClick = CheckBankBtnClick
     end
