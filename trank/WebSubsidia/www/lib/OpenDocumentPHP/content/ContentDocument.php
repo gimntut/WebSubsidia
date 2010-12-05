@@ -8,7 +8,8 @@
  */
 
 /**
- * OpenDocumentAbstract class file. 
+ * ContentDocument class file. 
+ * Файл класса ContentDocument. 
  * 
  * PHP versions 5
  *   
@@ -50,6 +51,7 @@ require_once 'OpenDocumentPHP/util/AbstractDocument.php';
 
 /**
  * ContentDocument class.
+ * Класс ContentDocument.
  *  
  * @category    File Formats
  * @package     OpenDocumentPHP
@@ -88,21 +90,26 @@ class ContentDocument extends AbstractDocument {
 	private $body;
 	/**
 	 * Constructor method.
+	 * Конструктор.
 	 * 
 	 * @since 		0.5.0 - 08. Feb. 2007
 	 */
 	function __construct() {
 		parent :: __construct('office:document-content');
 		// append ScriptFragment
+		// добавить ScriptFragment
 		$this->scripts = new ScriptsFragment($this);
 		$this->root->appendChild($this->scripts->getDocumentFragment());
 		// append FontFaceDeclFragment
+		// добавить FontFaceDeclFragment
 		$this->fontfacedecl = new FontFaceDeclFragment($this);
 		$this->root->appendChild($this->fontfacedecl->getDocumentFragment());
 		// append AutomaticStylesFragment
+		// добавить AutomaticStylesFragment
 		$this->automaticstyles = new AutomaticStylesFragment($this);
 		$this->root->appendChild($this->automaticstyles->getDocumentFragment());
 		// append BodyFramgent
+		// добавить BodyFramgent
 		$this->body = new BodyFragment($this);
 		$this->root->appendChild($this->body->getDocumentFragment());
 	}
@@ -149,6 +156,7 @@ class ContentDocument extends AbstractDocument {
 	}
 	/**
 	 * Loads a content document into this ContentDocument.
+	 * Загрузить содержимое документа в ContentDocument.
 	 * 
 	 * @access 	public
 	 * @since 	0.5.2 - 26. Feb. 2007
@@ -192,6 +200,7 @@ class ContentDocument extends AbstractDocument {
 				}
 			} else {
 				// This should never happend!
+				// Этого ни когда не должно случиться!
 				$ret = FALSE;
 			}
 		}

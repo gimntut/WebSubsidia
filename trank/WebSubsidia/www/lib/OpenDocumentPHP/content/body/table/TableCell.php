@@ -26,6 +26,7 @@
  */
 /**
  * TableCell class.
+ * Êëàññ TableCell.
  * 
  * @author 		Norman Markgraf (nmarkgraf(at)user.sourceforge.net)
  * @copyright 	Copyright in 2006, 2007 by The OpenDocumentPHP Team
@@ -77,30 +78,33 @@ class TableCell {
 	}
 	/**
 	 * @todo NOT IMPLEMENTED NOW
+	 * @todo ÏÎÊÀ ÍÅ ĞÅÀËÈÇÎÂÀÍÎ
 	 */
 	function setFontBold() {
 	}
 	/**
 	 * @todo NOT IMPLEMENTED NOW
+	 * @todo ÏÎÊÀ ÍÅ ĞÅÀËÈÇÎÂÀÍÎ
 	 */
 	function setFontItalic() {
 	}
 	/**
 	 * @todo NOT IMPLEMENTED NOW
+	 * @todo ÏÎÊÀ ÍÅ ĞÅÀËÈÇÎÂÀÍÎ
 	 */
 	function setTextCenter() {
 	}
 	/**
 	 *
 	 * @access 	public
-	 * @return 	integer						
+	 * @return 	integer
 	 */
 	public function getSpannedRows() {
 		return $this->spannedRows;
 	}
 	/**
 	 * @access 	public
-	 * @return 	integer								
+	 * @return 	integer
 	 */
 	public function getSpannedCols() {
 		return $this->spannedCols;

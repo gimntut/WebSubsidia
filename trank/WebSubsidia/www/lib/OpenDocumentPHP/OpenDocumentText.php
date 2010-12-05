@@ -43,6 +43,7 @@
 
 /**
  * Include basic class  
+ * Подключение базового класса
  */
 require_once 'OpenDocumentPHP/OpenDocumentAbstract.php';
 
@@ -50,32 +51,47 @@ require_once 'OpenDocumentPHP/OpenDocumentAbstract.php';
  * OpenDocumentText class.
  *   
  * You could uses this class as follows:
+ * Вы должны использовать этот класс следующим образом:
  * 
  * <code>
  * 		$text = new OpenDocumentText( 'YourFavoriteTextDocument.odt' );
  * 		// do some thing with it
+ * 		// Делаем здесь что-нибудь
  * 		...
  * 		// And write it back
+ * 		// Выполняем запись
  * 		$text->close();
  * </code>
  * 
  * If you want to revert all modifications and do not write anything back to the archive you can
  * use the first parameter of this function and set it to <b>false</b>.
  *
+ * Если выхотите закрыть документ без сохранения выполненых изменений,
+ * то установите значение первого параметра функции в <b>false</b>.
+ *
  * <code>
  * $text = new OpenDocumentText($fullpath);
  * //... do something ...
  * // But we do not want to write it back to the archive
+ * //... Делаем что-нибудь ...
+ * // Но не хотим записывать обратно в архив
  * $text->close( false );
  * </code>
  *
- * Be aware that even if <b>you</b> do not modifiy the OpenDocument, the library will! 
+ * Be aware that even if <b>you</b> do not modify the OpenDocument, the library will! 
  * So do not expect the that the file is absolute the same after you run the close method.
+ * 
+ * Помните, что даже если вы ничего в ОпенДокументе не меняли, то библиотека меняет!
+ * Поэтому не ожидайте, что документ останется прежним после выполнения $text->close();
  * 
  * You can use the setDefaultMeta() method to set up some meta datas. Also you can use the
  * setDefaultFontFace() and setDefaultStyles() methods to bring in some fonts, so you can 
  * write a short text. You should take a look at this methods and write your own methods to
  * match your needs.  
+ * 
+ * Вы должны использовать метод setDefaultMeta(), чтобы задать метаданные. Также вы должны 
+ * использовать методы setDefaultFontFace() и setDefaultStyles() для определения в документе, 
+ * некоторых шрифтов. Посмотрите код этих методов, и напишите свои под ваши потребности.
  * 
  * @category    File Formats
  * @package    	OpenDocumentPHP
@@ -89,34 +105,43 @@ require_once 'OpenDocumentPHP/OpenDocumentAbstract.php';
 class OpenDocumentText extends OpenDocumentAbstract {
 	/**
 	 * Namespace TEXT
+	 * Пространство имён TEXT
 	 */
 	const odmTextNamespace = 'application/vnd.oasis.opendocument.text';
 	/**
 	 * Constructor method.
+	 * Конструктор.
 	 * 
 	 * Read (and if not exists create) an OpenDocument text file.
+	 * Читает (а если не существует, то создаёт) текстовый ОпенДокумент.
 	 * 
 	 * @param 		string $fullpath Full path and name of the document
 	 * @since 		0.5.0 - 08. Feb. 2007
 	 */
 	function __construct($fullpath=null) {
 		// Construct a text document
+		// Создаётся текстовый документ
 		parent :: __construct(self :: odmTextNamespace);
 		// Is the variable $fullpath given?
+		// Если передана переменная $fullpath, то ...
 		if (isset($fullpath) && is_string($fullpath)) {			
 			if (file_exists($fullpath)) {
 				// File does exist, so we can load it via open.
+				// ... если Файл существует, то загружаем его, ...
 				parent :: open($fullpath);
 			} else {
 				// File does not exist, so we can create it.		
+				// ... а если не существует, то создаём ...
 				parent :: open($fullpath, self :: CREATE, self :: odmTextNamespace);
-				// Clean it, with a fresh init call.				
+				// Вызываем метод инициализации, для очистки.
 				$this->init();				
 				// Set everything to a OpenDocument TEXT file.
+				// Задаём всё в файле текстового ОпенДокумента.
 				$this->content->setText();
 			}
 		} else {
 		    // JUST A CLEAN FILE WITH NO FILE NAME JET!!!! DANGER!!!!
+		    // Чистый файл без имени файла!!!! ОПАСНО!!!!
 			$this->init();
 			$this->content->setText();
 		}
@@ -124,12 +149,18 @@ class OpenDocumentText extends OpenDocumentAbstract {
 
 	/**
 	 * Setup some default data for the meta.xml.
+	 * Установка некоторых данных по умолчанию для meta.xml.
 	 * 
 	 * We will setup some data for the meta.xml document. You can use this method and
 	 * overwrite even the static given data in this method by calling the MetaFragment
 	 * or DublinCoreFragment methods again.
 	 * 
+	 * Мы установим некоторые данные для документ meta.xml. Вы можете использовать этот метод,
+	 * а потом переписать статически заданные данные вызовом методов MetaFragment
+	 * или DublinCoreFragment.
+	 * 
 	 * Currently we set the following meta datas:
+	 * По умолчанию мы задаём следующие метаданные:
 	 * 
 	 * <i>DublinCore:</i>
 	 * * The subject is set to 'A generated subject by OpenDocumentPHP.'.
@@ -137,22 +168,36 @@ class OpenDocumentText extends OpenDocumentAbstract {
 	 * * The description is set to 'This is a short description by OpenDocumentPHP.'.
 	 * * The language is set up 'en' for an english text.
 	 * 
+	 * <i>Дублинское ядро:</i>
+	 * * Тема устанавливается в 'A generated subject by OpenDocumentPHP.'.
+	 * * Заголовок устанавливается в 'This is a generated title by OpenDocumentPHP.'.
+	 * * Описание устанавливается в 'This is a short description by OpenDocumentPHP.'.
+	 * * Описание устанавливается как 'en'.
+	 * 
 	 * <i>(OpenDocument-)Meta:</i>
 	 * <b>currently nothing is set here.</b>
 	 * 
+	 * <i>(ОпенДокумент-)Meta:</i>
+	 * <b>Здесь ни чего не задаём.</b>
+	 * 
 	 * In your own code you can change the value very simple:
+	 * В собственом коде можем поменять значения очень просто:
 	 * <code>
 	 * $doc = new OpenDocumentText('YourFavoriteText.odt');
 	 * ...
 	 * // Retreive the DublinCoreFragment to change dublin core meta data
+	 * // Вызываем DublinCoreFragment для изменения данных Дублинского ядра
 	 * $dc = $doc->getMeta()->getDublinCoreFragment();
 	 * // Change title to new title
-	 * $dc->setTitle( 'This is a new title of the document.' );
+	 * // Изменяем заголовок документа на другой
+	 * $dc->setTitle( 'This is a new title of the document (Это новый заголовок документа).' );
 	 * ...
 	 * // Retreive the MetaFragment to change OpenDocument meta data
+	 * // Вызываем MetaFragment для изменения метаданных ОпенДокумента
 	 * $meta = $doc->getMeta()->getMetaFragment();
 	 * // Change the initial creator of the document
-	 * $meta->setInitialCreator( 'Robert Duck' );
+	 * // Изменить имя создателя документа
+	 * $meta->setInitialCreator( 'Robert Duck (Роберт Дак)' );
 	 * ...	
 	 * </code>
 	 * 
@@ -173,24 +218,34 @@ class OpenDocumentText extends OpenDocumentAbstract {
 	}
 	/**
 	 * We set up some default font face declarations here.
+	 * Здесь мы задаём шрифт по умолчанию.
 	 * 
 	 * We put the same font face declarations in the styles.xml and content.xml
 	 * document. 
 	 * 
+	 * Мы помещаем описание некоторых шрифтов в документы styles.xml и content.xml
+	 * 
 	 * There are two font faces declared by this method:
 	 * <i>Tahoma1</i> and <i>Arial Unicode MS</i>.
+	 * 
+	 * В этом методе описаны два шрифта:
+	 * <i>Tahoma1</i> и <i>Arial Unicode MS</i>.
 	 * 
 	 * @access 		public
 	 * @since		0.5.3 - 10. Jul. 2007
 	 */
 	function setDefaultFontFaces() {
 		// Get the StylesDocument object
+		// Получение объекта StylesDocument
 		$styles = $this->getStyles();
-		// Retrieve the FontFaceDeclarations object
+		// Получение объекта FontFaceDeclarations
 		$ffd = $styles->getFontFaceDeclarations();
 		/*
 		 * Create a new font face.
 		 * We will call it 'Tahoma1' which depends on the 'Tahoma' font family.
+		 * 
+		 * Определение параметров нового шрифта
+		 * Мы будем называть его "Tahoma1", которая зависит от шрифта "Tahoma".
 		 */
 		$fontface_Tahoma = $ffd->nextFontFace();
 		$fontface_Tahoma->setStyleName('Tahoma1');
@@ -199,6 +254,10 @@ class OpenDocumentText extends OpenDocumentAbstract {
 		 * Create a new font face.
 		 * We will call it 'Arial Unicode MS' which depends on the 'Arial Unicode MS' font family
 		 * and we set the font pitch to 'variable'.		 
+		 * 
+		 * Определение параметров нового шрифта
+		 * Мы будем называть его "Arial Unicode MS", который зависит от шрифта "Arial Unicode MS",
+		 * с переменным шагом шрифта.
 		 */
 		$fontface_Arial = $ffd->nextFontFace();
 		$fontface_Arial->setStyleName('Arial Unicode MS');
@@ -209,6 +268,10 @@ class OpenDocumentText extends OpenDocumentAbstract {
 		 * So we make a copy of the font face declaration and import this 
 		 * to the font face declaration part of the content.xml
 		 * 
+		 * Мы должны записать FontFaceDecl также в content.xml.
+		 * Для этого мы просто импортируем декларацию шрифтов
+		 * в файл content.xml
+		 * 
 		 */
 		$content = $this->getContent();
 		$cffd = $content->getFontFaceDeclarations();
@@ -217,8 +280,10 @@ class OpenDocumentText extends OpenDocumentAbstract {
 	
 	/**
 	 * Set up some default styles.
+	 * Задаём стили по умолчанию.
 	 * 
 	 * We define the 'Standart' and 'Heading_20_1' fonts in this method.
+	 * Пусть в этом методе это будут стили 'Standart' и 'Heading_20_1'.
 	 * 
 	 * @access 		public
 	 * @since		0.5.3 - 10. Jul. 2007
@@ -228,6 +293,7 @@ class OpenDocumentText extends OpenDocumentAbstract {
 		$default_style->setFamily('paragraph');
 		
 		// Set paragraph properties:
+		// Свойства абзаца:
 
 		$paragraph_properties = $default_style->getParagraphProperties();
 		$paragraph_properties->setHyphenationLadderCount('no-limit');
@@ -238,6 +304,7 @@ class OpenDocumentText extends OpenDocumentAbstract {
 		$paragraph_properties->setWritingMode('page');
 		
 		// Set text properties:
+		// Свойства текста:
 
 		$text_properties = $default_style->getTextProperties();
 		$text_properties->setLanguage('de');
@@ -273,6 +340,7 @@ class OpenDocumentText extends OpenDocumentAbstract {
 		$style_Heading_20_1->setDefaultOutlineLevel(1);
 		
 		// Set paragraph properties:
+		// Свойства абзаца:
 
 		$style_Heading_20_1_paragraph_properties = $style_Heading_20_1->getParagraphProperties();
 		$style_Heading_20_1_paragraph_properties->setMarginTop('0.423cm');
@@ -280,6 +348,7 @@ class OpenDocumentText extends OpenDocumentAbstract {
 		$style_Heading_20_1_paragraph_properties->setKeepWithNext('always');
 		
 		//	Set text properties:
+		//	Свойства текста:
 
 		$style_Heading_20_1_text_properties = $style_Heading_20_1->getTextProperties();
 		$style_Heading_20_1_text_properties->setFontName('Arial');

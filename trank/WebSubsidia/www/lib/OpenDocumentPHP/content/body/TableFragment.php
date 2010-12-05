@@ -27,6 +27,7 @@ require_once 'OpenDocumentPHP/content/body/table/TableCell.php';
 require_once 'OpenDocumentPHP/util/Fragment.php';
 /**
  * TableFragment class.
+ * Класс TableFragment.
  *  
  * @author 		Norman Markgraf (nmarkgraf(at)user.sourceforge.net)
  * @copyright 	Copyright in 2006, 2007 by The OpenDocumentPHP Team 
@@ -43,6 +44,7 @@ class TableFragment extends Fragment {
 	private $maxy = 0;
 	/**
 	 * Constructor method.
+	 * Конструктор.
 	 * 
 	 * @since 		0.5.0 - 08.02.2007
 	 */

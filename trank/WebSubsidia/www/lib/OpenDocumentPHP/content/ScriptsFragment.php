@@ -9,6 +9,7 @@
 
 /**
  * ScriptsFragment class file.
+ * Файл класса ScriptsFragment.
  *  
  * PHP versions 5
  *   
@@ -49,6 +50,7 @@ require_once 'OpenDocumentPHP/util/Fragment.php';
  * ScriptsFragment class.
  * 
  * This class is very empty. Please feel free to add some functionality.
+ * Этот класс совершено пустой. Наполните его функционалом сами.
  *  
  * @category    File Formats
  * @package     OpenDocumentPHP
@@ -63,6 +65,7 @@ require_once 'OpenDocumentPHP/util/Fragment.php';
 class ScriptsFragment extends Fragment {
 	/**
 	 * Constructor method.
+	 * Конструктор.
 	 * 
 	 * @since 		0.5.0 - 08. Feb. 2007
 	 */

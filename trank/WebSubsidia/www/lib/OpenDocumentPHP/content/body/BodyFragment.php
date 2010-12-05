@@ -30,6 +30,7 @@ require_once 'OpenDocumentPHP/content/body/text/TextFragment.php';
 require_once 'OpenDocumentPHP/util/Fragment.php';
 /**
  * BodyFragment class. 
+ * Êëàññ BodyFragment. 
  *  
  * @author 		Norman Markgraf (nmarkgraf(at)user.sourceforge.net)
  * @copyright 	Copyright in 2006, 2007 by The OpenDocumentPHP Team 
@@ -54,6 +55,7 @@ class BodyFragment extends Fragment {
 	private $root2 = null;
 	/**
 	 * Constructor method.
+	 * Êîíñòðóêòîð.
 	 * 
 	 * @since 		0.5.0 - 08.02.2007
 	 */
@@ -69,6 +71,7 @@ class BodyFragment extends Fragment {
 	 */
 	function setSpreadsheet() {
 		//*** FIX ME ***
+		//*** ÈÑÏÐÀÂÜ ÌÅÍß ***
 		// $this->root2 = $this->createOfficeElement('spreadsheet');
 		//$this->root->appendChild($this->root2);
 	}
