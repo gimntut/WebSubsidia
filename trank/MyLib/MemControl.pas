@@ -287,8 +287,10 @@ end;
 
 procedure Diagnoz;
 Var
- i,j,x,n,t:integer;
+ i,j,x,nObj,nDat,t:integer;
  s:string;
+ sResultObj:string;
+ sResultDat:string;
 begin
  if Count=0 then Exit;
  t:=Round(xTime*MSecsPerDay);
@@ -306,18 +308,25 @@ begin
 // +'Îñâîáîæäåíî áëîêîâ / Çàõâà÷åíî áëîêîâ -    '
 // +IntToStr(FreeMemCount)+'/'+IntToStr(GetMemCount)+#13#10
 // +'Âğåìÿ MemControl -   '+IntToStr(t)+' ìñ';
- n:=0;
+ nObj:=0;
+ nDat:=0;
+ sResultObj:='';
+ sResultDat:='';
  For i:=0 to Count-1 do Begin
   x:=PInteger(p[i].obj)^;
-  if (x>=$400000) and (x<$500000) then begin
-   inc(n);
+  if (x>=$400000) and (x<$500000) and (nObj<=10) then begin
+   inc(nObj);
    s:=p[i].obj.ClassName;
-   MessageBox('Îáúåêò ¹'+IntToStr(n)+': ',s);
-   if n=500 then Exit;
+   sResultObj:=sResultObj+#13#10'¹'+IntToStr(nObj)+': '+s;
+   if nObj=500 then Exit;
   End else begin
-   MessageBox('Äàííûå','Äàííûå ïî àäğåñó: '+IntToHex(Integer(p[i].obj),6)); 
+   inc(nDat);
+   if nDat<=10 then
+     sResultDat:=sResultDat+#13#10'¹'+IntToStr(nDat)+': '+IntToHex(Integer(p[i].obj),6);
   end;
  End;
+ MessageBox('Îáúåêòû: ',sResultObj);
+ MessageBox('Äàííûå: ',sResultDat);
 end;
 
 initialization

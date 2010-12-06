@@ -64,6 +64,7 @@ type
     FHead: string;
     FIsAbsIndexMode: Boolean;
     S: string;
+    FCurrentValue: Integer;
     function GetAsTable: TStrings;
     function GetFieldNames: TStrings;
     function GetInnerDelimeter: Char;
@@ -472,6 +473,7 @@ begin
   FTableLength := 100;
   FSortedField:=-1;
   FDescending:=false;
+  FCurrentValue:=-1;
 end;
 
 procedure TChprList.DebugOut(fn: string);
@@ -539,6 +541,7 @@ begin
   FFields.Free;
   FValues.Free;
   FVisible.Free;
+  FTmpSts.Free;
   inherited;
 end;
 
@@ -721,11 +724,13 @@ end;
 
 function TChprList.GetValues(Index: Integer): TStrings;
 begin
+  if Index=FCurrentValue then Exit;
   FValues.OnChange:=nil;
   ValueIndex:=Index+1;
   FValues.DelimitedText:=Strings[ValueIndex];
   FValues.OnChange:=ValueChange;
   Result:=FValues;
+  FCurrentValue:=Index;
 end;
 
 function TChprList.GetValuesWithNames(Index: Integer): TStrings;
@@ -871,8 +876,9 @@ begin
     for J := 1 to Length(S) do
       Bits[J]:=S[J]<>upS[J];
     Bits.SaveToStream(MemoryStream);
+    GetValues(I);
     for J := 0 to FValues.Count - 1 do begin
-
+      nsts.Add(FValues[I])
     end;
   end;
   MemoryStream.Free;
