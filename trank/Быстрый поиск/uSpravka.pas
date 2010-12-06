@@ -102,5 +102,5 @@ end;
 
 initialization
 finalization
-
+  FSpravki.Free;
 end.

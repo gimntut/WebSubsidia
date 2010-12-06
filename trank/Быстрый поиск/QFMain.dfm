@@ -226,7 +226,6 @@ object Form9: TForm9
       Top = 0
       Caption = 'ToolButton9'
       ImageIndex = 15
-      Visible = False
       OnClick = ToolButton9Click
     end
     object ToolButton10: TToolButton
@@ -277,7 +276,11 @@ object Form9: TForm9
     TabOrder = 2
     Visible = False
     object TabSheet1: TTabSheet
-      Caption = 'TabSheet1'
+      Caption = #1055#1086#1080#1089#1082
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object pnFindList: TPanel
         Left = 0
         Top = 0
@@ -487,8 +490,12 @@ object Form9: TForm9
       end
     end
     object TabSheet2: TTabSheet
-      Caption = 'TabSheet2'
+      Caption = #1056#1077#1076#1072#1082#1090#1086#1088
       ImageIndex = 1
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object pnMemo: TPanel
         Left = 0
         Top = 0
@@ -521,8 +528,12 @@ object Form9: TForm9
       end
     end
     object TabSheet3: TTabSheet
-      Caption = 'TabSheet3'
+      Caption = #1046#1091#1088#1085#1072#1083
       ImageIndex = 2
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object pnJournal: TPanel
         Left = 0
         Top = 0
@@ -616,10 +627,18 @@ object Form9: TForm9
     object TabSheet4: TTabSheet
       Caption = 'TabSheet4'
       ImageIndex = 3
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
     end
     object TabSheet5: TTabSheet
       Caption = 'TabSheet5'
       ImageIndex = 4
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
     end
   end
   object OpenDialog1: TOpenDialog
@@ -634,8 +653,8 @@ object Form9: TForm9
     Top = 342
   end
   object OpenFileMenu: TPopupMenu
-    Left = 136
-    Top = 310
+    Left = 16
+    Top = 334
     object N5: TMenuItem
       Caption = #1054#1090#1082#1088#1099#1090#1100' '#1092#1072#1081#1083
       OnClick = N5Click
@@ -1328,8 +1347,8 @@ object Form9: TForm9
       000000000000}
   end
   object TopListMenu: TPopupMenu
-    Left = 168
-    Top = 310
+    Left = 48
+    Top = 334
     object N4: TMenuItem
       Action = acCopy
       Hint = 
@@ -1369,8 +1388,8 @@ object Form9: TForm9
   end
   object TextParamsMenu: TPopupMenu
     Images = ImageList1
-    Left = 136
-    Top = 342
+    Left = 16
+    Top = 366
     object mnTransformed: TMenuItem
       Tag = 11
       Caption = #1055#1088#1077#1086#1073#1088#1072#1079#1086#1074#1072#1085#1099#1081' '#1090#1077#1082#1089#1090
@@ -1474,8 +1493,8 @@ object Form9: TForm9
   end
   object SortMenu: TPopupMenu
     Images = ImageList1
-    Left = 168
-    Top = 342
+    Left = 48
+    Top = 366
   end
   object ApplicationEvents1: TApplicationEvents
     OnHint = ApplicationEvents1Hint
@@ -1484,8 +1503,8 @@ object Form9: TForm9
   end
   object DetailListMenu: TPopupMenu
     OnPopup = DetailListMenuPopup
-    Left = 200
-    Top = 310
+    Left = 80
+    Top = 334
     object MenuItem1: TMenuItem
       Action = acCopyValue
     end
@@ -1509,8 +1528,8 @@ object Form9: TForm9
   end
   object SpravkiMenu: TPopupMenu
     Images = ImageList1
-    Left = 200
-    Top = 342
+    Left = 80
+    Top = 366
     object MenuItem2: TMenuItem
       Caption = #1057#1087#1088#1072#1074#1082#1080': '#1044#1077#1090#1089#1082#1086#1077' '#1087#1086#1089#1086#1073#1080#1077
       ImageIndex = 8
