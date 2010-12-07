@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, Buttons, ExtCtrls, ComCtrls, StdCtrls, ToolWin,
   cgsCHPR, XPMan, ImgList, Menus, ActnList, AppEvnts, Contnrs, uPagePanel,
-  Grids, superobject, httpsend, ViewLog;
+  Grids, superobject, httpsend, ViewLog{, uOpenOffice};
 
 type
   TListBox=class(StdCtrls.TListBox)
@@ -2435,7 +2435,7 @@ begin
 
     if Pos('EPSON',AnsiUpperCase(Printer.Printers[Printer.PrinterIndex]))>0 then begin
       PrintToEpson(S);
-    end else PrintToLaser(S);
+    end else PrintToLaser(S,OpenDialog1.FileName,Memo1.Font.Name);
     if IsDbfReestr then begin
       Chpr.Text:=TmpStr;
     end;
