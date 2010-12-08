@@ -1311,6 +1311,31 @@ end;
 function PrintStringsToLaser(FontName: string; var sts: TStringList; StartLine:Integer=0; LastLine:Integer=-1):boolean;
 var
   I: Integer;
+  PageClientHeight: Integer;
+  HighLine: Integer;
+  LinesPerPage: Integer;
+  n: Integer;
+begin
+  if LastLine=-1 then LastLine:=sts.Count-1;
+  Result:=LastLine-StartLine>=0;
+  if not Result then Exit;
+  n := 0;
+  for i := StartLine to LastLine do
+  begin
+    if OutSide(i,sts.Count-1) then break;
+    PageClientHeight := Printer.PageHeight * 9 div 10;
+    HighLine := Printer.Canvas.TextHeight('рЁ');
+    LinesPerPage := PageClientHeight div HighLine;
+    Printer.Canvas.TextOut(Printer.PageWidth div 20, PageClientHeight div 18 + n * HighLine, Sts[i]);
+    Cycle(n, LinesPerPage);
+    if (n = 0) and (I<LastLine) then
+      Printer.NewPage;
+  end;
+end;
+
+function GetDPI(FontName: string; var sts: TStringList; StartLine:Integer=0; LastLine:Integer=-1):Integer;
+var
+  I: Integer;
   MaxLength: Integer;
   CharWidth: Integer;
   PageWidth: Integer;
@@ -1319,8 +1344,8 @@ var
   DPIc: Integer;
   HighLine: Integer;
   LinesPerPage: Integer;
+  LineCount: Integer;
   K: Real;
-  n: Integer;
 begin
   MaxLength := 0;
   if LastLine=-1 then LastLine:=sts.Count-1;
@@ -1331,8 +1356,8 @@ begin
     if length(Sts[i]) > MaxLength then
       MaxLength := length(Sts[i]);
   end;
-  Result:=MaxLength<>0;
-  if not Result then Exit;
+  Result:=96;
+  if MaxLength=0 then Exit;
   Printer.Canvas.Font.Name := FontName;
   Printer.Canvas.Font.Pitch := fpFixed;
   Printer.Canvas.Font.Size := 10;
@@ -1349,7 +1374,10 @@ begin
   end;
   HighLine := Printer.Canvas.TextHeight('рЁ');
   LinesPerPage := PageClientHeight div HighLine;
-  K := Sts.Count / LinesPerPage;
+  LineCount:=LastLine-StartLine+1;
+  K := LineCount / LinesPerPage;
+
+
   while (K > 1) and (Frac(K) < 0.3) do
   begin
     DPIc := DPIc + 10;
@@ -1357,17 +1385,9 @@ begin
     UpdateFont;
     HighLine := Printer.Canvas.TextHeight('рЁ');
     LinesPerPage := PageClientHeight div HighLine;
-    K := Sts.Count / LinesPerPage;
+    K := LineCount / LinesPerPage;
   end;
-  n := 0;
-  for i := StartLine to LastLine do
-  begin
-    if OutSide(i,sts.Count-1) then break;
-    Printer.Canvas.TextOut(PageWidth div 20, PageClientHeight div 18 + n * HighLine, Sts[i]);
-    Cycle(n, LinesPerPage);
-    if n = 0 then
-      Printer.NewPage;
-  end;
+  result:=Printer.Canvas.Font.PixelsPerInch;
 end;
 
 procedure PrintToLaser(S:string; Title:string='Без названия'; FontName:string='Courier New');
@@ -1377,10 +1397,12 @@ Var
   I: Integer;
   StartLine: Integer;
   IsPrinted: Boolean;
+  DPI: Integer;
 begin
   if S='' then Exit;
   sts:=TStringList.Create;
   Sts.Text:=S;
+
   for i := Sts.Count - 1 downto 0 do
     if PublStr.Trim(Sts[I]) = '' then
       sts.Delete(I)
@@ -1388,19 +1410,28 @@ begin
       break;
   IsFirstPage:=true;
   StartLine:=0;
+  Printer.Title := Title;
+  Printer.BeginDoc;
   IsPrinted:=false;
+  DPI := 96;
   for I := 0 to sts.Count - 1 do begin
-    if (I<sts.Count-1) and (sts[i]<>'') and (sts[i][1]<>#12) then Continue;
+    if (I<sts.Count-1) and not((sts[i]<>'') and (sts[i][1]=#12)) then Continue;
+    DPI:=Max(DPI, GetDPI(FontName, sts, StartLine, I-1));
+    StartLine:=I+1;
+  end;
+  StartLine:=0;
+  for I := 0 to sts.Count - 1 do begin
+    if (I<sts.Count-1) and not((sts[i]<>'') and (sts[i][1]=#12)) then Continue;
     if IsFirstPage then begin
-      Printer.Title := Title;
-      Printer.BeginDoc;
+      Printer.Canvas.Font.PixelsPerInch := DPI;
+      UpdateFont;
       IsFirstPage:=false;
     end;
     if IsPrinted then Printer.NewPage;
     IsPrinted:=PrintStringsToLaser(FontName, sts, StartLine, I-1);
     StartLine:=I+1;
   end;
-  if not IsFirstPage then Printer.EndDoc;
+  if not IsFirstPage then Printer.EndDoc else Printer.Abort;
   sts.Free;
 end;
 
