@@ -118,13 +118,13 @@ begin
     end;
     Chpr.Mode:=mdCsv;
     Chpr.Text:=FastBase.Text;
-    FastBase.Free;
     if s<>'' then chpr.Filter:=s;
     if length(s)<3
     then message:='Введите фамилию для поиска (не меньше 2х букв)'
     else message:='Ничего не найдено';
 //    OutTable(message);
   finally
+    FastBase.Free;
   end;
 end;
 
@@ -133,13 +133,16 @@ var
   FastBase: TFastFileStrList;
 begin
   FastBase := TFastFileStrList.Create;
-  FastBase.BaseName := Path + Table2 + '.csv';
-  FastBase.BaseIndexFile := Path + Table2 +'.Index';
-  FastBase.Filter := s;
-  Chpr2.Clear;
-  Chpr2.Mode := mdCsv;
-  Chpr2.Text := {ResultStr;} FastBase.Text;
-  FastBase.Free;
+  try
+    FastBase.BaseName := Path + Table2 + '.csv';
+    FastBase.BaseIndexFile := Path + Table2 +'.Index';
+    FastBase.Filter := s;
+    Chpr2.Clear;
+    Chpr2.Mode := mdCsv;
+    Chpr2.Text := {ResultStr;} FastBase.Text;
+  finally
+    FastBase.Free;
+  end;
 end;
 
 procedure TSpravkaEDK.SetMemo(const Value: TMemo);

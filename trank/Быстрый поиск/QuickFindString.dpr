@@ -1,8 +1,5 @@
 program QuickFindString;
 
-{%File 'QFMain.txt'}
-{%TogetherDiagram 'ModelSupport_QuickFindString\default.txaPackage'}
-
 uses
   MemControl,
   Forms,
@@ -15,8 +12,6 @@ uses
   uTime in 'uTime.pas',
   uImportBases in 'uImportBases.pas' {ImportDlg},
   Unit17 in 'Unit17.pas' {FioDlg};
-
-
 
 {$R *.res}
 

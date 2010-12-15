@@ -1015,13 +1015,13 @@ begin
     end;
     Chpr.Mode:=mdCsv;
     Chpr.Text:=FastBase.Text;
-    FastBase.Free;
     if s<>'' then chpr.Filter:=s;
     if length(s)<3
     then message:='Введите фамилию для поиска (не меньше 2х букв)'
     else message:='Ничего не найдено';
     OutTable(message);
   finally
+    FastBase.Free;
   end;
   LastSearh:=Edit1.Text;
 end;
@@ -1343,16 +1343,14 @@ end;
 procedure TForm9.WMDropFiles(var Message: TMessage);
 var
   size: integer;
-  Filename: PChar;
-  S: string;
+  Filename: string;
 begin
   inherited;
   size := DragQueryFile(Message.WParam, 0 , nil, 0) + 1;
-  Filename:= StrAlloc(size);
-  DragQueryFile(Message.WParam, 0 , Filename, size);
-  S:=StrPas(Filename);
+  SetLength(Filename,size);
+  DragQueryFile(Message.WParam, 0 , PChar(Filename), size);
   DragFinish(Message.WParam);
-  OpenFile(S);
+  OpenFile(Filename);
 end;
 
 procedure TForm9.NewBtnClick(Sender: TObject);
@@ -1810,6 +1808,7 @@ begin{ TODO -oНаиль : Убрать привязку ЛистБокс1 }
 //  Memo.Lines.AddStrings(Chpr2.asTable);
 //  Memo.Lines.AddStrings(Chpr3.asTable);
   RSts.Free;
+  ChprTmp.Free;
 end;
 
 procedure TForm9.ShowSpravkaF5(Sender: TObject; Memo: StdCtrls.TMemo);
@@ -2231,38 +2230,45 @@ begin
   if Ind = -1 then Exit;
   TmpSts.Assign(Chpr.values[Ind]);
   FastBase := TFastFileStrList.Create;
-  FastBase.BaseName := FSpravkaPath + Table2 + '.csv';
-  FastBase.BaseIndexFile := FSpravkaPath + Table2 +'.Index';
-  FastBase.Filter := s;
-  if Table2='base1' then begin
-    for I := 0 to FastBase.Count - 1 do begin
-      if I = 0
-      then FastBase[I] := FastBase[I]+';DO'
-      else FastBase[I] := FastBase[I]+';';
+  try
+    FastBase.BaseName := FSpravkaPath + Table2 + '.csv';
+    FastBase.BaseIndexFile := FSpravkaPath + Table2 +'.Index';
+    FastBase.Filter := s;
+    if Table2='base1' then begin
+      for I := 0 to FastBase.Count - 1 do begin
+        if I = 0
+        then FastBase[I] := FastBase[I]+';DO'
+        else FastBase[I] := FastBase[I]+';';
+      end;
     end;
+    Chpr2.Clear;
+    Chpr2.Mode := mdCsv;
+    Chpr2.Text := {ResultStr;} FastBase.Text;
+  finally
+    FastBase.Free;
   end;
-  Chpr2.Clear;
-  Chpr2.Mode := mdCsv;
-  Chpr2.Text := {ResultStr;} FastBase.Text;
-  FastBase.Free;
+
   if Table2='f5' then begin
     FastBase := TFastFileStrList.Create;
-    FastBase.ShowFields.CommaText:=FieldsF7_DB1;
-    FastBase.BaseName := FSpravkaPath + 'f7' + '.csv';
-    FastBase.BaseIndexFile := FSpravkaPath + 'f7' +'.Index';
-    FastBase.Filter := s;
-    for I := 0 to FastBase.Count - 1 do begin
-      if I = 0
-      then FastBase[I] := 'N;' + FastBase[I]
-      else FastBase[I] := IntToHex(I,8) + ';' + FastBase[I];
+    try
+      FastBase.ShowFields.CommaText:=FieldsF7_DB1;
+      FastBase.BaseName := FSpravkaPath + 'f7' + '.csv';
+      FastBase.BaseIndexFile := FSpravkaPath + 'f7' +'.Index';
+      FastBase.Filter := s;
+      for I := 0 to FastBase.Count - 1 do begin
+        if I = 0
+        then FastBase[I] := 'N;' + FastBase[I]
+        else FastBase[I] := IntToHex(I,8) + ';' + FastBase[I];
+      end;
+      Chpr3.Clear;
+      Chpr3.Mode := mdCsv;
+      Chpr3.Text := {ResultStr;} FastBase.Text;
+      //    ShowMessage('Log1.csv');
+      //    chpr3.SaveToFile('Log1.csv');
+      Chpr3.CustomSort(F7Sort);
+    finally
+      FastBase.Free;
     end;
-    Chpr3.Clear;
-    Chpr3.Mode := mdCsv;
-    Chpr3.Text := {ResultStr;} FastBase.Text;
-//    ShowMessage('Log1.csv');
-//    chpr3.SaveToFile('Log1.csv');
-    Chpr3.CustomSort(F7Sort);
-    FastBase.Free;
 //    ShowMessage('Log2.csv');
 //    chpr3.SaveToFile('Log2.csv');
   end;
@@ -2274,17 +2280,22 @@ begin
         chpr2[I+1]:=chpr2[I+1]+DateDo;
       end;
     end;
+
     FastBase := TFastFileStrList.Create;
-    FastBase.ShowFields.CommaText:=FieldsTab;
-    FastBase.BaseName := FSpravkaPath + 'base3' + '.csv';
-    FastBase.BaseIndexFile := FSpravkaPath + 'base3' +'.Index';
-    FastBase.Filter := s;
-    FastBase[0] := 'DateC;'+FastBase[0];
-    Chpr3.Clear;
-    Chpr3.Mode := mdCsv;
-    Chpr3.Text := FastBase.Text;
-    //Chpr3.CustomSort(F7Sort);
-    FastBase.Free;
+    try
+      FastBase.ShowFields.CommaText:=FieldsTab;
+      FastBase.BaseName := FSpravkaPath + 'base3' + '.csv';
+      FastBase.BaseIndexFile := FSpravkaPath + 'base3' +'.Index';
+      FastBase.Filter := s;
+      FastBase[0] := 'DateC;'+FastBase[0];
+      Chpr3.Clear;
+      Chpr3.Mode := mdCsv;
+      Chpr3.Text := FastBase.Text;
+    finally
+      //Chpr3.CustomSort(F7Sort);
+      FastBase.Free;
+    end;
+
     for I := 0 to Chpr3.Count - 2 do begin
       Chpr3[I+1] := IntToStr(Trunc(StrToDateDef(Chpr3.Values[I][7],0)))+';'+Chpr3[I+1];
     end;
@@ -2435,7 +2446,7 @@ begin
 
     if Pos('EPSON',AnsiUpperCase(Printer.Printers[Printer.PrinterIndex]))>0 then begin
       PrintToEpson(S);
-    end else PrintToLaser(S,OpenDialog1.FileName,Memo1.Font.Name);
+    end else PrintToLaser2(S,OpenDialog1.FileName,Memo1.Font.Name);
     if IsDbfReestr then begin
       Chpr.Text:=TmpStr;
     end;
