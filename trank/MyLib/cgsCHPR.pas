@@ -216,7 +216,8 @@ function GetValueByName(Strings: TStrings; RowNum: Integer; FieldName:string; De
 function GetValueByColumn(Strings: TStrings; Row, Col: Integer; Delimeter: string = ';'):string;
 function CheckBankNum(st:string):boolean;
 procedure PrintToEpson(S:string);
-procedure PrintToLaser(S:string; Title:string='Без названия'; FontName:string='Courier New');
+procedure PrintToLaser(S:string);
+procedure PrintToLaser2(S:string; Title:string='Без названия'; FontName:string='Courier New');
 function Analiz(Text:string;TestLength:Integer):TChprStat;
 function CreateIndexForCSV(CSVFile,IndexFile:string; Col:Integer; CBProc:TIntProc=nil; TimeOut:integer=100):boolean; overload;
 function CreateIndexForCSV(CSVFile,IndexFile:string; Cols:ai; CBProc:TIntProc=nil; TimeOut:integer=100):boolean; overload;
@@ -569,6 +570,7 @@ var
   fs:string;
   W2: Integer;
 begin
+  FCurrentValue:=-1;
   DebugOut('do.txt');
   NeedTmpSts;
   LW:=FieldNames.Count;
@@ -708,6 +710,7 @@ end;
 function TChprList.GetInnerDelimeter: Char;
 begin
   Result := FFields.Delimiter;
+  FCurrentValue:=-1;
 end;
 
 function TChprList.GetOrder(Index: Integer): Integer;
@@ -724,13 +727,16 @@ end;
 
 function TChprList.GetValues(Index: Integer): TStrings;
 begin
-  Result:=nil;
+  Result:=FValues;
+  if OutSide(Index,Count-2) then begin
+    FValues.Clear;
+    Exit;
+  end;
   if Index=FCurrentValue then Exit;
   FValues.OnChange:=nil;
   ValueIndex:=Index+1;
   FValues.DelimitedText:=Strings[ValueIndex];
   FValues.OnChange:=ValueChange;
-  Result:=FValues;
   FCurrentValue:=Index;
 end;
 
@@ -1014,6 +1020,7 @@ var
   I: Integer;
   N: Integer;
 begin
+  FCurrentValue:=-1;
   SetLength(S,Length(Value));
   N:=1;
   I:=0;
@@ -1308,6 +1315,61 @@ begin
   Printer.Canvas.Pixels[0,0]:=clWhite;
 end;
 
+procedure PrintToLaser(S:string);
+Var
+  I:integer;
+  MaxLength,CharWidth,DPIc,PageWidth,HighLine:Integer;
+  PageClientWidth,PageClientHeight,LinesPerPage:Integer;
+  n: Integer;
+  sts:TStringList;
+  K: Real;
+begin
+ if S='' then Exit;
+ sts:=TStringList.Create;
+ Sts.Text:=S;
+ For i:=Sts.Count-1 downto 0 do
+   if PublStr.Trim(Sts[I])='' then sts.Delete(I) else break;
+ MaxLength:=0;
+ For i:=0 to Sts.Count-1 do begin
+   Sts[i]:=TrimRight(Sts[i]);
+   if length(Sts[i])>MaxLength then MaxLength:=length(Sts[i]);
+ end;
+ if MaxLength=0 then Exit;
+ Printer.Canvas.Font.Name:='Courier New';
+ Printer.Canvas.Font.Pitch:=fpFixed;
+ Printer.Canvas.Font.Size:=10;
+ CharWidth:=Printer.Canvas.TextWidth('W');
+ PageWidth:=Printer.PageWidth;
+ PageClientWidth:=PageWidth*9 div 10;
+ PageClientHeight:=Printer.PageHeight*9 div 10;
+ Printer.Title:='Расчёт субсидий';
+ Printer.BeginDoc;
+ DPIc:=Printer.Canvas.Font.PixelsPerInch;
+ if PageClientWidth<CharWidth*MaxLength then begin
+   DPIc:=DPIc*(CharWidth*MaxLength) div PageClientWidth;
+   Printer.Canvas.Font.PixelsPerInch:=DPIc;
+   UpdateFont;
+ end;
+ HighLine:=Printer.Canvas.TextHeight('рЁ');
+ LinesPerPage:=PageClientHeight div HighLine;
+ K:=Sts.Count/LinesPerPage;
+ while (K>1) and (Frac(K)<0.3) do begin
+   DPIc:=DPIc+10;
+   Printer.Canvas.Font.PixelsPerInch:=DPIc;
+   UpdateFont;
+   HighLine:=Printer.Canvas.TextHeight('рЁ');
+   LinesPerPage:=PageClientHeight div HighLine;
+   K:=Sts.Count/LinesPerPage;
+ end;
+ n:=0;
+ For i:=0 to Sts.Count-1 do begin
+   Printer.Canvas.TextOut(PageWidth div 20, PageClientHeight div 18 + n*HighLine,Sts[i]);
+   Cycle(n,LinesPerPage);
+   if n=0 then Printer.NewPage;
+ end;
+ Printer.EndDoc;
+end;
+
 function PrintStringsToLaser(FontName: string; var sts: TStringList; StartLine:Integer=0; LastLine:Integer=-1):boolean;
 var
   I: Integer;
@@ -1390,7 +1452,7 @@ begin
   result:=Printer.Canvas.Font.PixelsPerInch;
 end;
 
-procedure PrintToLaser(S:string; Title:string='Без названия'; FontName:string='Courier New');
+procedure PrintToLaser2(S:string; Title:string='Без названия'; FontName:string='Courier New');
 Var
   sts:TStringList;
   IsFirstPage:boolean;
