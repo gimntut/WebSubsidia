@@ -1409,7 +1409,7 @@ begin
   end;
 end;
 
-function GetDPI(FontName: string; var sts: TStringList; StartLine:Integer=0; LastLine:Integer=-1):Integer;
+function GetDPI(FontName: string; var sts: TStringList; StartDPI:Integer=96; StartLine:Integer=0; LastLine:Integer=-2):Integer;
 var
   I: Integer;
   MaxLength: Integer;
@@ -1424,7 +1424,7 @@ var
   K: Real;
 begin
   MaxLength := 0;
-  if LastLine=-1 then LastLine:=sts.Count-1;
+  if LastLine=-2 then LastLine:=sts.Count-1;
   for i := StartLine to LastLine do
   begin
     if OutSide(i,sts.Count-1) then break;
@@ -1432,7 +1432,7 @@ begin
     if length(Sts[i]) > MaxLength then
       MaxLength := length(Sts[i]);
   end;
-  Result:=96;
+  Result:=StartDPI;
   if MaxLength=0 then Exit;
   Printer.Canvas.Font.Name := FontName;
   Printer.Canvas.Font.Pitch := fpFixed;
@@ -1441,7 +1441,9 @@ begin
   PageWidth := Printer.PageWidth;
   PageClientWidth := PageWidth * 9 div 10;
   PageClientHeight := Printer.PageHeight * 9 div 10;
+  Printer.Canvas.Font.PixelsPerInch:=StartDPI;
   DPIc := Printer.Canvas.Font.PixelsPerInch;
+  UpdateFont;
   if PageClientWidth < CharWidth * MaxLength then
   begin
     DPIc := DPIc * (CharWidth * MaxLength) div PageClientWidth;
@@ -1452,8 +1454,6 @@ begin
   LinesPerPage := PageClientHeight div HighLine;
   LineCount:=LastLine-StartLine+1;
   K := LineCount / LinesPerPage;
-
-
   while (K > 1) and (Frac(K) < 0.3) do
   begin
     DPIc := DPIc + 10;
@@ -1463,7 +1463,7 @@ begin
     LinesPerPage := PageClientHeight div HighLine;
     K := LineCount / LinesPerPage;
   end;
-  result:=Printer.Canvas.Font.PixelsPerInch;
+  result:=DPIc;
 end;
 
 procedure PrintToLaser2(S:string; Title:string='Без названия'; FontName:string='Courier New');
@@ -1476,7 +1476,6 @@ Var
   DPI: Integer;
 begin
   if S='' then Exit;
-  Log(S);
   sts:=TStringList.Create;
   Sts.Text:=S;
   for i := Sts.Count - 1 downto 0 do
@@ -1489,12 +1488,13 @@ begin
   Printer.Title := Title;
   Printer.BeginDoc;
   IsPrinted:=false;
-  DPI := 96;
+  DPI := Printer.Canvas.Font.PixelsPerInch;
   for I := 0 to sts.Count - 1 do begin
-    if (I<sts.Count-1) and not((sts[i]<>'') and (sts[i][1]=#12)) then Continue;
-    DPI:=Max(DPI, GetDPI(FontName, sts, StartLine, I-1));
+    if (I<=sts.Count-1) and not((sts[i]<>'') and (sts[i][1]=#12)) then Continue;
+    DPI:=GetDPI(FontName, sts, DPI, StartLine, I-1);
     StartLine:=I+1;
   end;
+  DPI:=GetDPI(FontName, sts, DPI, StartLine);
   StartLine:=0;
   for I := 0 to sts.Count - 1 do begin
     if (I<=sts.Count-1) and not((sts[i]<>'') and (sts[i][1]=#12)) then Continue;
