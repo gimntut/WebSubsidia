@@ -1,0 +1,67 @@
+#COMMAND ? [<x,...>] => WSH:Echo(<x>)
+#INCLUDE "pathes.xinc"
+
+  nStart := SECONDS()
+  pth:="..\"+files_db
+  FindDossier := 9000015
+  set date to GERMAN
+  Set Default to &(pth)
+  ? '{"Delo":{'
+  aInfo := GetInfo('subsid_p','LCHET',FindDossier,'NUM')
+  NUM := aInfo[2]
+  ? aInfo[1], ','
+  aInfo := GetInfo('register','NUM',NUM,'')
+  ? aInfo[1], ','
+  aInfo := GetInfo('dohod_p','NUM',NUM,'')
+  ? aInfo[1], ','
+  // ? '---------------------------------------------------'
+  // ? Transform(SECONDS() - nStart,'##,###')
+  ? '}'
+function GetInfo
+Param BaseName, IndFieldName, FindValue, OutFieldName
+  use &(BaseName)
+  index on &(IndFieldName) to &(BaseName+'_'+IndFieldName)
+  FieldCount :=FCOUNT()
+  aFieldNames := ARRAY(FieldCount)
+  aTypes := ARRAY(FieldCount)
+  aWidths := ARRAY(FieldCount)
+  aDecimals := ARRAY(FieldCount)
+  &(BaseName)->(AFIELDS(aFieldNames, aTypes, aWidths, aDecimals))
+  seek FindValue
+  // ? aFieldNames[1], FindValue
+  stroka :='"'+BaseName+'":['
+  OutValue := ''
+  
+  do while FOUND()
+    if &(IndFieldName) != FindValue 
+      exit
+    endif
+    // ? 'for', FieldCount
+    for I_Counter = 1 to FieldCount
+      Value:=&(aFieldNames[I_Counter])
+      if ValType(Value) == 'C'
+        StrValue = ToAnsi(AllTrim(Value))
+      else 
+        StrValue=AnyToStr(Value)
+      endif
+      
+      if I_Counter>1
+        stroka = stroka+',' +chr(13)+chr(10)
+      endif
+      
+      stroka=stroka+'{"Field":"'+aFieldNames[I_Counter]+'", "Type":"'+aTypes[I_Counter]+':'+IntToStr(aWidths[I_Counter])+'.'+ IntToStr(aDecimals[I_Counter])+'", "Value":"'+StrValue+'"}'
+      if aFieldNames[I_Counter] == OutFieldName
+        OutValue = Value
+        // ? '!!! OutValue=',OutValue, RecNo()
+      endif
+
+      // ? I_Counter
+    next I_Counter
+    // ? 'Skip'
+    skip
+  enddo
+  close &(BaseName)
+  stroka :=stroka+']'
+Return {stroka, OutValue}
+
+#INCLUDE "AnsiOEM.xinc"
