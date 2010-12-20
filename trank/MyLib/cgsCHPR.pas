@@ -2,7 +2,7 @@
 
 interface
 uses Windows, Classes, publ,
-//, ViewLog,
+//ViewLog,
 Dialogs;
 
 const
@@ -1384,7 +1384,7 @@ begin
  Printer.EndDoc;
 end;
 
-function PrintStringsToLaser(FontName: string; var sts: TStringList; StartLine:Integer=0; LastLine:Integer=-1):boolean;
+function PrintStringsToLaser(FontName: string; var sts: TStringList; StartLine:Integer=0; LastLine:Integer=-2):boolean;
 var
   I: Integer;
   PageClientHeight: Integer;
@@ -1392,7 +1392,7 @@ var
   LinesPerPage: Integer;
   n: Integer;
 begin
-  if LastLine=-1 then LastLine:=sts.Count-1;
+  if LastLine=-2 then LastLine:=sts.Count-1;
   Result:=LastLine-StartLine>=0;
   if not Result then Exit;
   n := 0;
@@ -1476,9 +1476,9 @@ Var
   DPI: Integer;
 begin
   if S='' then Exit;
+  Log(S);
   sts:=TStringList.Create;
   Sts.Text:=S;
-
   for i := Sts.Count - 1 downto 0 do
     if PublStr.Trim(Sts[I]) = '' then
       sts.Delete(I)
@@ -1497,7 +1497,7 @@ begin
   end;
   StartLine:=0;
   for I := 0 to sts.Count - 1 do begin
-    if (I<sts.Count-1) and not((sts[i]<>'') and (sts[i][1]=#12)) then Continue;
+    if (I<=sts.Count-1) and not((sts[i]<>'') and (sts[i][1]=#12)) then Continue;
     if IsFirstPage then begin
       Printer.Canvas.Font.PixelsPerInch := DPI;
       UpdateFont;
@@ -1507,6 +1507,8 @@ begin
     IsPrinted:=PrintStringsToLaser(FontName, sts, StartLine, I-1);
     StartLine:=I+1;
   end;
+  if IsPrinted then Printer.NewPage;
+  IsFirstPage:=not PrintStringsToLaser(FontName, sts, StartLine);
   if not IsFirstPage then Printer.EndDoc else Printer.Abort;
   sts.Free;
 end;
