@@ -3,7 +3,7 @@
 
   nStart := SECONDS()
   pth:="..\"+files_db
-  FindDossier := 9000015
+  FindDossier := 9002400
   set date to GERMAN
   Set Default to &(pth)
   ? '{"Delo":{'
@@ -33,6 +33,7 @@ Param BaseName, IndFieldName, FindValue, OutFieldName
   OutValue := ''
   
   do while FOUND()
+    ? 'Error: ',&(IndFieldName),FindValue 
     if &(IndFieldName) != FindValue 
       exit
     endif
