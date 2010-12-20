@@ -1,4 +1,4 @@
-unit cgsCHPR;
+п»їunit cgsCHPR;
 
 interface
 uses Windows, Classes, publ,
@@ -215,9 +215,9 @@ function GetFieldNames(Strings:TStrings; Delimeter:string=';'):TStrings;
 function GetValueByName(Strings: TStrings; RowNum: Integer; FieldName:string; Delimeter: string = ';'):string;
 function GetValueByColumn(Strings: TStrings; Row, Col: Integer; Delimeter: string = ';'):string;
 function CheckBankNum(st:string):boolean;
-procedure PrintToEpson(S:string);
+procedure PrintToEpson(S:string; IgnorePageBreak:Boolean=true);
 procedure PrintToLaser(S:string);
-procedure PrintToLaser2(S:string; Title:string='Без названия'; FontName:string='Courier New');
+procedure PrintToLaser2(S:string; Title:string='Р‘РµР· РЅР°Р·РІР°РЅРёСЏ'; FontName:string='Courier New');
 function Analiz(Text:string;TestLength:Integer):TChprStat;
 function CreateIndexForCSV(CSVFile,IndexFile:string; Col:Integer; CBProc:TIntProc=nil; TimeOut:integer=100):boolean; overload;
 function CreateIndexForCSV(CSVFile,IndexFile:string; Cols:ai; CBProc:TIntProc=nil; TimeOut:integer=100):boolean; overload;
@@ -263,9 +263,12 @@ begin
   sep2.StrictDelimiter:=true;
   For i:=0 to Strings.Count-1 do begin
     s:=PublStr.Trim(Strings[i]);
+    s:=AnsiReplaceStr(s,'В¦','|');
+    s:=AnsiReplaceStr(s,#$B3,'|');
+    s:=AnsiReplaceStr(s,#$BA,'|');
     L:=length(s);
     if L<3 then Continue;
-    if not (((s[1]='|') and (s[L]='|')) or ((s[1]='!') and (s[L]='!'))) then Continue;
+    if not ((s[1]in ['|','!']) and (s[1]=s[L])) then Continue;
     ch:=s[1];
     s:=copy(s,2,L-2);
     s:=PublStr.Trim(s);
@@ -419,8 +422,8 @@ end;
 
 procedure TChprList.InitFilterCount;
 begin
-  // было FFilterCount := Count - 1;
-  // стало:
+  // Р±С‹Р»Рѕ FFilterCount := Count - 1;
+  // СЃС‚Р°Р»Рѕ:
   FFilterCount := Count;
   if FFilterCount = -1 then
     FFilterCount := 0;
@@ -486,11 +489,11 @@ var
 begin
   if not DebugMode then Exit;
   sts := TStringList.Create;
-  sts.Add('Параметры');
-  sts.Add('Фильтр: '+FFilter);
+  sts.Add('РџР°СЂР°РјРµС‚СЂС‹');
+  sts.Add('Р¤РёР»СЊС‚СЂ: '+FFilter);
   ////////////////////////////////////////////
   sts.Add('');
-  sts.Add('* Порядок по умолчанию *');
+  sts.Add('* РџРѕСЂСЏРґРѕРє РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ *');
   isst:=IsAbsIndexMode;
   IsAbsIndexMode:=true;
   for I := 0 to Count - 1 do begin
@@ -498,13 +501,13 @@ begin
   end;
   ////////////////////////////////////////////
   sts.Add('');
-  sts.Add('* Массив Visible *');
+  sts.Add('* РњР°СЃСЃРёРІ Visible *');
   for I := 0 to Count - 1 do begin
     sts.Add(ToZeroStr(I,3)+'['+StrUtils.IfThen(FVisible[i],'+','-')+']');
   end;
   ////////////////////////////////////////////
   sts.Add('');
-  sts.Add('* Массив FilterArray *');
+  sts.Add('* РњР°СЃСЃРёРІ FilterArray *');
   for I := 0 to High(FilterArray) do begin
     if I>=FilterCount then break;
     s := format ('%s: [%s]->[%s]',[ToZeroStr(I,3),ToZeroStr(FilterArray[I],3),ToZeroStr(Order[FilterArray[I]],3)]);
@@ -512,19 +515,19 @@ begin
   end;
   ////////////////////////////////////////////
   sts.Add('');
-  sts.Add('* Массив Order *');
+  sts.Add('* РњР°СЃСЃРёРІ Order *');
   for I := 0 to Count - 1 do begin
     sts.Add(ToZeroStr(I,3)+': ['+ToZeroStr(Order[I],3)+']');
   end;
   ////////////////////////////////////////////
   sts.Add('');
-  sts.Add('* Массив AntiOrder *');
+  sts.Add('* РњР°СЃСЃРёРІ AntiOrder *');
   for I := 0 to Count - 1 do begin
     sts.Add(ToZeroStr(I,3)+': ['+ToZeroStr(FAntiOrder[I],3)+']');
   end;
   ////////////////////////////////////////////
   sts.Add('');
-  sts.Add('* Текст AsTable *');
+  sts.Add('* РўРµРєСЃС‚ AsTable *');
   ////////////////////////////////////////////
   IsAbsIndexMode:=isst;
   ////////////////////////////////////////////
@@ -609,7 +612,7 @@ begin
     FTmpSts.AddObject(S,pointer(-2));
     for I := 1 to Count-1 do begin
       if FTmpSts.Count>TL then begin
-        S:=format('Показаны только %d записей',[TL]);
+        S:=format('РџРѕРєР°Р·Р°РЅС‹ С‚РѕР»СЊРєРѕ %d Р·Р°РїРёСЃРµР№',[TL]);
         FTmpSts.AddObject(S,pointer(-2));
         break;
       end;
@@ -629,7 +632,7 @@ begin
       FTmpSts.AddObject(S,pointer(I-1));
     end;
   end else begin
-    // Подсчёт ширины столбцов
+    // РџРѕРґСЃС‡С‘С‚ С€РёСЂРёРЅС‹ СЃС‚РѕР»Р±С†РѕРІ
     N:=0;
     for I := 0 to FilterCount-1 do begin
       if N>TL then break;
@@ -649,8 +652,8 @@ begin
     end;
 
     FTmpSts.Clear;
-    // Вывод результата
-    // * Заголовок
+    // Р’С‹РІРѕРґ СЂРµР·СѓР»СЊС‚Р°С‚Р°
+    // * Р—Р°РіРѕР»РѕРІРѕРє
     S:='';
     for J := 0 to LW - 1 do begin
       if J<FieldNames.Count
@@ -661,16 +664,16 @@ begin
       end else S:=ContStr(S,'|',StringOfChar(' ',W[J]));
     end;
     FTmpSts.AddObject(S,pointer(-2));
-    // * Линия под заголовком
+    // * Р›РёРЅРёСЏ РїРѕРґ Р·Р°РіРѕР»РѕРІРєРѕРј
     S:='';
     for J := 0 to LW - 1 do begin
       S:=ContStr(S,'|',StringOfChar('-',W[J]));
     end;
     FTmpSts.AddObject(S,pointer(-2));
-    // * Таблица
+    // * РўР°Р±Р»РёС†Р°
     for I := 1 to FilterCount-1 do begin
       if FTmpSts.Count>TL then begin
-        S:=format('Показаны только %d записей',[TL]);
+        S:=format('РџРѕРєР°Р·Р°РЅС‹ С‚РѕР»СЊРєРѕ %d Р·Р°РїРёСЃРµР№',[TL]);
         FTmpSts.AddObject(S,pointer(-2));
         break;
       end;
@@ -702,7 +705,7 @@ var
 begin
   for I := 0 to Count - 1 do begin
     s:=PublStr.Trim(Strings[i]);
-    if (s<>'') and (s[1] in ['|','!']) and (s[length(s)] in ['|','!']) then break;
+    if (s<>'') and (s[1] in ['|','!']) and (s[length(s)] = s[1]) then break;
     FHead:=ContStr(FHead,#13#10,s);
   end;
 end;
@@ -729,7 +732,7 @@ function TChprList.GetValues(Index: Integer): TStrings;
 begin
   Result:=FValues;
   if OutSide(Index,Count-2) then begin
-    FValues.Clear;
+    FValues.DelimitedText:=StringOfChar(FValues.Delimiter,0);
     Exit;
   end;
   if Index=FCurrentValue then Exit;
@@ -795,9 +798,9 @@ begin
   if not Assigned(FOnCustomFilter) then Exit;
   isst:=IsAbsIndexMode;
   IsAbsIndexMode:=true;
-  for I := 0 to Count - 1 do begin
+  for I := 1 to Count - 1 do begin
     Visible:=VisibleItems[I];
-    FOnCustomFilter(self,I,Strings[I],Visible);
+    FOnCustomFilter(self,I-1,Strings[I],Visible);
     VisibleItems[I]:=Visible;
   end;
   IsAbsIndexMode:=isst;
@@ -1159,7 +1162,7 @@ var
 begin
   for I := 0 to High(FOrder) do begin
     if not I=FAntiOrder[FOrder[I]] then begin
-      MessageBox('','Тест #1 не пройден'#13#10
+      MessageBox('','РўРµСЃС‚ #1 РЅРµ РїСЂРѕР№РґРµРЅ'#13#10
       +format('I=%d, Order[I]=%d, AntiOrder[%d]=%d',[I,FOrder[I],FOrder[I],FAntiOrder[FOrder[I]]]));
       break;
     end;
@@ -1168,7 +1171,7 @@ begin
   for I := 0 to Count - 3 do
     if CompNumText(XValues[I,FSortedField],XValues[I+1,FSortedField])>0
       then begin
-        MessageBox('','Тест #2 не пройден'#13#10
+        MessageBox('','РўРµСЃС‚ #2 РЅРµ РїСЂРѕР№РґРµРЅ'#13#10
         +format('V[%d]=%s; V[%d]=%s',[I,XValues[I,FSortedField],I+1,XValues[I+1,FSortedField]]));
         break;
       end;
@@ -1203,6 +1206,7 @@ end;
 procedure TChprList.SetIsTransformed(const Value: Boolean);
 begin
   FIsTransformed := Value;
+  if InnerDelimeter=#0 then InnerDelimeter:=';';
   SetTextStr(FOriginalText);
 end;
 
@@ -1273,9 +1277,14 @@ Var
   v:Integer;
   I:Integer;
   c,sum: Integer;
+  S5: string;
+  US: Boolean;
 begin
   Result:=false;
   if copy(st,6,3)<>'810' then Exit;
+  S5:=copy(ST,1,5);
+  US :=(S5='42307')or(S5='42306')or(S5='42301')or(S5='40817');
+  if not US then Exit;
   sum:=0;
   for I := 1 to Length(st) do begin
     val(st[i],v,c);
@@ -1293,19 +1302,24 @@ begin
   Result:=5=(sum*3) mod 10;
 end;
 
-procedure PrintToEpson(S:string);
+procedure PrintToEpson(S:string; IgnorePageBreak:Boolean=true);
 var
   I: Integer;
   prn: TextFile;
   sts:TStrings;
+  st:string;
 begin
   sts:=TStringList.Create;
   sts.Text:=S;
   AssignFile(Prn, 'LPT1');
   Rewrite(Prn);
   Writeln(Prn,#27'@'#27'0'#27'M'#27'x0'#$12);
-  for I := 0 to sts.Count - 1 do
-    Writeln(Prn, AsOEM(sts[i]));
+  for I := 0 to sts.Count - 1 do begin
+    st:=AsOEM(sts[i]);
+    if IgnorePageBreak then st:=AnsiReplaceStr(St,#12,'');
+    if LeftStr(st,5)='-----' then st:=st+#13#10;
+    Writeln(Prn,st);
+  end;
   CloseFile(Prn);
   sts.Free;
 end;
@@ -1342,7 +1356,7 @@ begin
  PageWidth:=Printer.PageWidth;
  PageClientWidth:=PageWidth*9 div 10;
  PageClientHeight:=Printer.PageHeight*9 div 10;
- Printer.Title:='Расчёт субсидий';
+ Printer.Title:='Р Р°СЃС‡С‘С‚ СЃСѓР±СЃРёРґРёР№';
  Printer.BeginDoc;
  DPIc:=Printer.Canvas.Font.PixelsPerInch;
  if PageClientWidth<CharWidth*MaxLength then begin
@@ -1350,14 +1364,14 @@ begin
    Printer.Canvas.Font.PixelsPerInch:=DPIc;
    UpdateFont;
  end;
- HighLine:=Printer.Canvas.TextHeight('рЁ');
+ HighLine:=Printer.Canvas.TextHeight('СЂРЃ');
  LinesPerPage:=PageClientHeight div HighLine;
  K:=Sts.Count/LinesPerPage;
  while (K>1) and (Frac(K)<0.3) do begin
    DPIc:=DPIc+10;
    Printer.Canvas.Font.PixelsPerInch:=DPIc;
    UpdateFont;
-   HighLine:=Printer.Canvas.TextHeight('рЁ');
+   HighLine:=Printer.Canvas.TextHeight('СЂРЃ');
    LinesPerPage:=PageClientHeight div HighLine;
    K:=Sts.Count/LinesPerPage;
  end;
@@ -1386,7 +1400,7 @@ begin
   begin
     if OutSide(i,sts.Count-1) then break;
     PageClientHeight := Printer.PageHeight * 9 div 10;
-    HighLine := Printer.Canvas.TextHeight('рЁ');
+    HighLine := Printer.Canvas.TextHeight('СЂРЃ');
     LinesPerPage := PageClientHeight div HighLine;
     Printer.Canvas.TextOut(Printer.PageWidth div 20, PageClientHeight div 18 + n * HighLine, Sts[i]);
     Cycle(n, LinesPerPage);
@@ -1434,7 +1448,7 @@ begin
     Printer.Canvas.Font.PixelsPerInch := DPIc;
     UpdateFont;
   end;
-  HighLine := Printer.Canvas.TextHeight('рЁ');
+  HighLine := Printer.Canvas.TextHeight('СЂРЃ');
   LinesPerPage := PageClientHeight div HighLine;
   LineCount:=LastLine-StartLine+1;
   K := LineCount / LinesPerPage;
@@ -1445,14 +1459,14 @@ begin
     DPIc := DPIc + 10;
     Printer.Canvas.Font.PixelsPerInch := DPIc;
     UpdateFont;
-    HighLine := Printer.Canvas.TextHeight('рЁ');
+    HighLine := Printer.Canvas.TextHeight('СЂРЃ');
     LinesPerPage := PageClientHeight div HighLine;
     K := LineCount / LinesPerPage;
   end;
   result:=Printer.Canvas.Font.PixelsPerInch;
 end;
 
-procedure PrintToLaser2(S:string; Title:string='Без названия'; FontName:string='Courier New');
+procedure PrintToLaser2(S:string; Title:string='Р‘РµР· РЅР°Р·РІР°РЅРёСЏ'; FontName:string='Courier New');
 Var
   sts:TStringList;
   IsFirstPage:boolean;
@@ -1825,7 +1839,7 @@ begin
 //    st:=ContStr(st,';',ShowFields.ValueFromIndex[I]);
   sts2.Insert(0,st);
   Assign(sts2);
-  // Финал
+  // Р¤РёРЅР°Р»
   fs.Free;
   sts2.Free;
   sts.Free;
@@ -1895,7 +1909,7 @@ begin
   OutList:=TChprList.Create;
   for I := 0 to Csv1.Count - 1 do begin
     for J := 0 to Csv2.Count - 1 do begin
-      //todo: объединение данных и запись в OutList
+      //todo: РѕР±СЉРµРґРёРЅРµРЅРёРµ РґР°РЅРЅС‹С… Рё Р·Р°РїРёСЃСЊ РІ OutList
     end;
   end;
   OutList.Free;
