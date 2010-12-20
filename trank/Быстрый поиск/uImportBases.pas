@@ -25,21 +25,21 @@ type
     ApplicationEvents1: TApplicationEvents;
     ProgressBar1: TProgressBar;
     Button3: TButton;
-    procedure ToolButton1Click(Sender: TObject);
-    procedure FormActivate(Sender: TObject);
-    procedure ToolButton2Click(Sender: TObject);
-    procedure TabControl1Change(Sender: TObject);
-    procedure FormCreate(Sender: TObject);
-    procedure FormDestroy(Sender: TObject);
-    procedure Edit1Change(Sender: TObject);
-    procedure Edit2Change(Sender: TObject);
-    procedure FormClose(Sender: TObject; var Action: TCloseAction);
-    procedure ExchangeBtnClick(Sender: TObject);
+    procedure ApplicationEvents1Exception(Sender: TObject; E: Exception);
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
-    procedure ApplicationEvents1Exception(Sender: TObject; E: Exception);
-    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure Button3Click(Sender: TObject);
+    procedure Edit1Change(Sender: TObject);
+    procedure Edit2Change(Sender: TObject);
+    procedure ExchangeBtnClick(Sender: TObject);
+    procedure FormActivate(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+    procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
+    procedure TabControl1Change(Sender: TObject);
+    procedure ToolButton1Click(Sender: TObject);
+    procedure ToolButton2Click(Sender: TObject);
   private
     dir: string;
     Src: TStringList;
@@ -152,8 +152,8 @@ var
 begin
   sPath:=Src.Values['2'];
   tPath:=Trg.Values['2'];
-  //  if not FioDlg.Execute then Exit;
-  //  if not PrepareFIO then Exit;
+  if not FioDlg.Execute then Exit;
+//  if not PrepareFIO then Exit;
 
   thViplata:=TViplataThread.Create(true);
   thViplata.WinHandle:=Handle;

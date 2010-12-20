@@ -374,7 +374,7 @@ begin
         SkipEndLines:=1;
       end;
     end;
-    s:=chpr.Values[Index-1][BankColumn];
+    s:=chpr.Values[Index][BankColumn];
     Show:=Index>=SkipLines;
     Show:=Show and (Index<chpr.Count-SkipEndLines);
     Show:=Show and not CheckBankNum(s);
@@ -1350,6 +1350,7 @@ begin
   SetLength(Filename,size);
   DragQueryFile(Message.WParam, 0 , PChar(Filename), size);
   DragFinish(Message.WParam);
+  SetLength(Filename,size-1);
   OpenFile(Filename);
 end;
 
