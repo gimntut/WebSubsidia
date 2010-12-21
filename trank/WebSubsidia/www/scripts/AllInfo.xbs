@@ -3,7 +3,7 @@
 
   nStart := SECONDS()
   pth:="..\"+files_db
-  FindDossier := 9002400
+  FindDossier := 9999996
   set date to GERMAN
   Set Default to &(pth)
   ? '{"Delo":{'
@@ -12,11 +12,22 @@
   ? aInfo[1], ','
   aInfo := GetInfo('register','NUM',NUM,'')
   ? aInfo[1], ','
+  aInfo := GetInfo('sv2','LCHET',FindDossier,'')
+  ? aInfo[1], ','
   aInfo := GetInfo('dohod_p','NUM',NUM,'')
   ? aInfo[1], ','
-  // ? '---------------------------------------------------'
-  // ? Transform(SECONDS() - nStart,'##,###')
-  ? '}'
+  aInfo := GetInfo('income_p','NUM',NUM,'')
+  ? aInfo[1], ','
+  aInfo := GetInfo('kvsum_p','NUM',NUM,'')
+  ? aInfo[1], ','
+  aInfo := GetInfo('kvplat_p','NUM',NUM,'')
+  ? aInfo[1], ','
+  aInfo := GetInfo('arxsub','NUM',NUM,'')
+  ? aInfo[1],','
+  aInfo := GetInfo('arhivsum','NUM',NUM,'')
+  ? aInfo[1]
+  ? '},'
+  ? '"Elapsed":"'+AnyToStr(SECONDS() - nStart,'##.###')+'"}'
 function GetInfo
 Param BaseName, IndFieldName, FindValue, OutFieldName
   use &(BaseName)
@@ -27,17 +38,39 @@ Param BaseName, IndFieldName, FindValue, OutFieldName
   aWidths := ARRAY(FieldCount)
   aDecimals := ARRAY(FieldCount)
   &(BaseName)->(AFIELDS(aFieldNames, aTypes, aWidths, aDecimals))
-  seek FindValue
+  SET FILTER TO IndFieldName+" = "+AnyToStr(FindValue)
   // ? aFieldNames[1], FindValue
-  stroka :='"'+BaseName+'":['
+  stroka :='"'+BaseName+'":{'
   OutValue := ''
-  
-  do while FOUND()
-    ? 'Error: ',&(IndFieldName),FindValue 
-    if &(IndFieldName) != FindValue 
-      exit
+  RecCounter := 0
+  ValueFound := .f.
+  seek FindValue
+  do while &(IndFieldName) == FindValue 
+    if Deleted()
+      Skip
+      loop
     endif
-    // ? 'for', FieldCount
+    if 0<RecCounter++ 
+      stroka = stroka+',' +chr(13)+chr(10)
+    else
+      stroka = stroka+'"fields":['
+      for I_Counter = 1 to FieldCount
+        if I_Counter>1
+          stroka = stroka+','
+        endif
+        stroka = stroka+'"'+aFieldNames[I_Counter]+'"'
+      next
+      stroka = stroka+'],'+chr(13)+chr(10)+'"types":['
+      for I_Counter = 1 to FieldCount
+        if I_Counter>1
+          stroka = stroka+','
+        endif
+        stroka = stroka+'"'+aTypes[I_Counter]+':'+IntToStr(aWidths[I_Counter])+'.'+ IntToStr(aDecimals[I_Counter])+'"'
+      next
+      stroka = stroka+'],'+chr(13)+chr(10)+'"values":['
+      ValueFound = .t.
+    endif
+    stroka = stroka+'['
     for I_Counter = 1 to FieldCount
       Value:=&(aFieldNames[I_Counter])
       if ValType(Value) == 'C'
@@ -45,24 +78,22 @@ Param BaseName, IndFieldName, FindValue, OutFieldName
       else 
         StrValue=AnyToStr(Value)
       endif
-      
       if I_Counter>1
-        stroka = stroka+',' +chr(13)+chr(10)
+        stroka = stroka+', '
       endif
-      
-      stroka=stroka+'{"Field":"'+aFieldNames[I_Counter]+'", "Type":"'+aTypes[I_Counter]+':'+IntToStr(aWidths[I_Counter])+'.'+ IntToStr(aDecimals[I_Counter])+'", "Value":"'+StrValue+'"}'
+      stroka=stroka+'"'+StrValue+'"'
       if aFieldNames[I_Counter] == OutFieldName
         OutValue = Value
-        // ? '!!! OutValue=',OutValue, RecNo()
       endif
-
-      // ? I_Counter
     next I_Counter
-    // ? 'Skip'
+    stroka = stroka+']'
     skip
   enddo
   close &(BaseName)
-  stroka :=stroka+']'
+  if ValueFound 
+    stroka = stroka+']'
+  endif
+  stroka :=stroka+'}'
 Return {stroka, OutValue}
 
 #INCLUDE "AnsiOEM.xinc"
