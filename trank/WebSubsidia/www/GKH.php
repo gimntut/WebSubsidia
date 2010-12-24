@@ -18,7 +18,7 @@
           </html>';
     exit;
   }
-  ` scripts\\gkh.cmd $uploadfile`;
+  ` scripts\\gkh.cmd "$uploadfile"`;
   include "lock.txt";
   if ($LockFIO == "") {
     ` scripts\\PrepareDBF.cmd "register.dbf" "full\\subsid_p.dbf" "full\\kvplat_p.dbf" >$files_log\\prepare.log.txt `;

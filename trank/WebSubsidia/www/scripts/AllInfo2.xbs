@@ -6,53 +6,36 @@
   FindDossier := 9002400
   set date to GERMAN
   Set Default to &(pth)
-  ? '{"Delo":{'
-  aInfo := GetInfo('subsid_p','LCHET',FindDossier,'NUM')
-  NUM := aInfo[2]
+  ? '{"Reference":{'
+  aInfo := GetTable('punkt')
   ? aInfo[1], ','
-  aInfo := GetInfo('register','NUM',NUM,'')
+  aInfo := GetTable('street')
   ? aInfo[1], ','
-  aInfo := GetInfo('sv2','LCHET',FindDossier,'')
+  aInfo := GetTable('s_sovet')
   ? aInfo[1], ','
-  aInfo := GetInfo('dohod_p','PLCHET',FindDossier,'')
+  aInfo := GetTable('arrays')
   ? aInfo[1], ','
-  aInfo := GetInfo('income_p','LCHET',FindDossier,'')
+  aInfo := GetTable('arrays2')
   ? aInfo[1], ','
-  aInfo := GetInfo('kvsum_p','LCHET',FindDossier,'')
+  aInfo := GetTable('diction')
   ? aInfo[1], ','
-  aInfo := GetInfo('kvplat_p','LCHET',FindDossier,'')
-  ? aInfo[1], ','
-  aInfo := GetInfo('arxsub','LCHET',FindDossier,'')
-  ? aInfo[1],','
-  aInfo := GetInfo('arhivsum','LCHET',FindDossier,'')
-  ? aInfo[1],','
-  aInfo := GetInfo('sv5_p','LCHET',FindDossier,'')
-  ? aInfo[1],','
-  aInfo := GetInfo('sv6_p','LCHET',FindDossier,'')
-  ? aInfo[1],','
-  aInfo := GetInfo('sv7_p','LCHET',FindDossier,'')
-  ? aInfo[1]
   ? '},'
   ? '"Elapsed":"'+AnyToStr(SECONDS() - nStart,'##.###')+'"}'
 
-function GetInfo
-Param BaseName, IndFieldName, FindValue, OutFieldName
+function GetTable
+Param BaseName
   use &(BaseName)
-  index on &(IndFieldName) to &(BaseName+'_'+IndFieldName)
   FieldCount :=FCOUNT()
   aFieldNames := ARRAY(FieldCount)
   aTypes := ARRAY(FieldCount)
   aWidths := ARRAY(FieldCount)
   aDecimals := ARRAY(FieldCount)
   &(BaseName)->(AFIELDS(aFieldNames, aTypes, aWidths, aDecimals))
-  SET FILTER TO IndFieldName+" = "+AnyToStr(FindValue)
-  // ? aFieldNames[1], FindValue
   stroka :='"'+BaseName+'":{'
   OutValue := ''
   RecCounter := 0
   ValueFound := .f.
-  seek FindValue
-  do while &(IndFieldName) == FindValue 
+  do while !eof()
     if Deleted()
       Skip
       loop
@@ -89,9 +72,6 @@ Param BaseName, IndFieldName, FindValue, OutFieldName
         stroka = stroka+', '
       endif
       stroka=stroka+'"'+StrValue+'"'
-      if aFieldNames[I_Counter] == OutFieldName
-        OutValue = Value
-      endif
     next I_Counter
     stroka = stroka+']'
     skip

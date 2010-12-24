@@ -56,6 +56,12 @@ FUNCTION AnyToStr
   ENDIF
 RETURN S
 
+FUNCTION StrToJsonFmt
+  PARAMETERS Value
+  S:=STRTRAN(Value,'"','\"')
+RETURN S
+
+
 FUNCTION ItemCSV 
   PARAMETERS CsvLine, xPos, xDelimiter
   // ? CsvLine, xPos, xDelimiter
