@@ -249,6 +249,7 @@ var
   Sep: Char;
   us: Boolean;
   si: Integer;
+  Header: string;
 begin
   Result:='';
   sts:=TStringList.Create;
@@ -308,8 +309,11 @@ begin
     end;
 
     try
-      sts.Add(s);
-      Result:=ContStr(Result,#13#10,s);
+      //      sts.Add(s);
+      if S<>Header
+      then Result:=ContStr(Result,#13#10,s);
+      if Header=''
+      then Header:=S;
     except
     end;
   end;
