@@ -17,6 +17,7 @@ type
     Button4: TButton;
     OpenDialog1: TOpenDialog;
     procedure Button1Click(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
   private
     procedure SetFIOPath(const Value: string);
     function GetFIOPath: string;
@@ -30,7 +31,7 @@ var
   FioDlg: TFioDlg;
 
 implementation
-
+uses uAutoComplete;
 {$R *.dfm}
 
 { TFioDlg }
@@ -43,6 +44,11 @@ end;
 function TFioDlg.Execute: boolean;
 begin
   Result := ShowModal=mrOk;
+end;
+
+procedure TFioDlg.FormCreate(Sender: TObject);
+begin
+  AllEditsToACEdits(self);
 end;
 
 function TFioDlg.GetFIOPath: string;

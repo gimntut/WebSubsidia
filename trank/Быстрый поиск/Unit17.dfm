@@ -12,6 +12,7 @@ object FioDlg: TFioDlg
   Font.Style = []
   OldCreateOrder = False
   Position = poDesktopCenter
+  OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
   object Panel1: TPanel
@@ -21,10 +22,6 @@ object FioDlg: TFioDlg
     Height = 358
     Align = alClient
     TabOrder = 0
-    ExplicitLeft = 176
-    ExplicitTop = 208
-    ExplicitWidth = 185
-    ExplicitHeight = 41
     object GroupBox1: TGroupBox
       AlignWithMargins = True
       Left = 4
@@ -93,8 +90,6 @@ object FioDlg: TFioDlg
         Caption = #1054#1073#1079#1086#1088'...'
         TabOrder = 2
         OnClick = Button1Click
-        ExplicitLeft = 444
-        ExplicitTop = 83
       end
     end
     object Panel2: TPanel
@@ -105,8 +100,6 @@ object FioDlg: TFioDlg
       Align = alTop
       BevelInner = bvLowered
       TabOrder = 1
-      ExplicitTop = 243
-      ExplicitWidth = 530
       DesignSize = (
         597
         41)

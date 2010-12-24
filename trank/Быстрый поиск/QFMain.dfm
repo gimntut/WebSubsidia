@@ -277,10 +277,6 @@ object Form9: TForm9
     Visible = False
     object TabSheet1: TTabSheet
       Caption = #1055#1086#1080#1089#1082
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object pnFindList: TPanel
         Left = 0
         Top = 0
@@ -492,10 +488,6 @@ object Form9: TForm9
     object TabSheet2: TTabSheet
       Caption = #1056#1077#1076#1072#1082#1090#1086#1088
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object pnMemo: TPanel
         Left = 0
         Top = 0
@@ -530,10 +522,6 @@ object Form9: TForm9
     object TabSheet3: TTabSheet
       Caption = #1046#1091#1088#1085#1072#1083
       ImageIndex = 2
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object pnJournal: TPanel
         Left = 0
         Top = 0
@@ -623,22 +611,6 @@ object Form9: TForm9
           end
         end
       end
-    end
-    object TabSheet4: TTabSheet
-      Caption = 'TabSheet4'
-      ImageIndex = 3
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
-    end
-    object TabSheet5: TTabSheet
-      Caption = 'TabSheet5'
-      ImageIndex = 4
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
     end
   end
   object OpenDialog1: TOpenDialog

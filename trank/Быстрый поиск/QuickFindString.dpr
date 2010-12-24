@@ -3,17 +3,15 @@ program QuickFindString;
 {%TogetherDiagram 'ModelSupport_QuickFindString\default.txaPackage'}
 
 uses
-//  MemControl,
   Forms,
   QFMain in 'QFMain.pas' {Form9},
   QFLoadList in 'QFLoadList.pas' {Form10},
   QFTemplate in 'QFTemplate.pas' {QFTemlateDlg},
   DateIntervalDlg in 'DateIntervalDlg.pas' {PeriodDlg},
-//  uSpravkaEDK in 'uSpravkaEDK.pas',
-//  uSpravka in 'uSpravka.pas',
   uTime in 'uTime.pas',
   uImportBases in 'uImportBases.pas' {ImportDlg},
-  Unit17 in 'Unit17.pas' {FioDlg};
+  Unit17 in 'Unit17.pas' {FioDlg},
+  uQFSObj in 'uQFSObj.pas';
 
 {$R *.res}
 

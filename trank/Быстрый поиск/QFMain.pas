@@ -99,8 +99,6 @@ type
     TabSheet1: TTabSheet;
     TabSheet2: TTabSheet;
     TabSheet3: TTabSheet;
-    TabSheet4: TTabSheet;
-    TabSheet5: TTabSheet;
     TextModeBtn: TToolButton;
     Timer1: TTimer;
     ToolBar1: TToolBar;
