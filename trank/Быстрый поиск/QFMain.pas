@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, Buttons, ExtCtrls, ComCtrls, StdCtrls, ToolWin,
   cgsCHPR, XPMan, ImgList, Menus, ActnList, AppEvnts, Contnrs, uPagePanel,
-  Grids, superobject, httpsend, ViewLog{, uOpenOffice};
+  Grids, superobject, httpsend, ViewLog{, uOpenOffice}, gsCatcher;
 
 type
   TListBox=class(StdCtrls.TListBox)
@@ -193,6 +193,7 @@ type
     Widths: ISuperObject;
     WebProtocol: string;
     WebSite: string;
+    Catch: TgsCatcher;
     //procedure ShowSpravkaF5_2(Sender:TObject; Memo:StdCtrls.TMemo);
     function ChprIndex:Integer;
     function GetDetail: string;
@@ -436,12 +437,18 @@ procedure TForm9.FormCreate(Sender: TObject);
 var
   FN:string;
 begin
+  Catch := TgsCatcher.Create(self);
+  Catch.CollectInfo := true;
+  Catch.Enabled := true;
+  Catch.GenerateScreenshot := true;
+  Catch.JpegQuality := 100;
+  Catch.OutPath := 'H:\Списки\Ошибки\Debug';  
   DragAcceptFiles(Handle, true);
   HTTP:=THTTPSend.Create;
   HTTP.UserAgent:='WebSubsidii';
   PagePanel:=Substitution(PageControl1);
   PagePanel.ActivePageIndex:=0;
-  LogObjectAsText(PagePanel);;
+  LogObjectAsText(PagePanel);
 //  PagePanel.Name:='page';
 //  PagePanel.Align:=alClient;
 //  PagePanel.Parent:=self;
@@ -495,6 +502,7 @@ begin
   IntFavorFiles.Free;
   SpravkiSts.Free;
   HTTP.Free;
+  Catch.Free; 
 end;
 
 procedure TForm9.FormKeyDown(Sender: TObject; var Key: Word;
@@ -2298,6 +2306,7 @@ begin
     for I := 0 to Chpr3.Count - 2 do begin
       Chpr3[I+1] := IntToStr(Trunc(StrToDateDef(Chpr3.Values[I][7],0)))+';'+Chpr3[I+1];
     end;
+    chpr3.Text := Chpr3.Text;
     chpr3.SortedField:=0;
   end;
   Result:=true;
@@ -2489,3 +2498,4 @@ initialization
   LogLock;
   LogWindowActivate;
 end.
+
