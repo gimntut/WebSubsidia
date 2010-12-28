@@ -23,6 +23,7 @@ type
     FJpegQuality: TJPEGQualityRange;
     FCollectInfo: boolean;
     Fn: TFilename;
+    FOutPath: string;
     procedure SetEnabled(const Value: boolean);
     procedure DoGenerateScreenshot;
     procedure DoCollectInfo(E: Exception);
@@ -31,6 +32,7 @@ type
     procedure SetGenerateScreenshot(const Value: boolean);
     procedure SetJpegQuality(const Value: TJPEGQualityRange);
     procedure SetCollectInfo(const Value: boolean);
+    procedure SetOutPath(const Value: string);
     { Private declarations }
   protected
     { Protected declarations }
@@ -48,6 +50,7 @@ type
     property GenerateScreenshot: boolean read FGenerateScreenshot write SetGenerateScreenshot;
     property JpegQuality: TJPEGQualityRange read FJpegQuality write SetJpegQuality;
     property CollectInfo: boolean read FCollectInfo write SetCollectInfo;
+    property OutPath:string read FOutPath write SetOutPath;
   end;
 
 procedure Register;
@@ -69,6 +72,7 @@ end;
 
 destructor TgsCatcher.Destroy;
 begin
+  OutPath := '';
   DisableCatcher;
   inherited;
 end;
@@ -90,13 +94,8 @@ begin
 end;
 
 procedure TgsCatcher.Catcher(Sender: TObject; E: Exception);
-Var
- FTemp: array[0..MAX_PATH] of Char;
- s:string;
 begin
- GetTempPath(MAX_PATH,FTemp);
- s:=StrPas(FTemp)+'A';
- Fn := ExtractFilename(Application.ExeName)+'_'+
+ Fn := FOutPath+ExtractFilename(Application.ExeName)+'_'+
        Screen.ActiveForm.Name+
        FormatDateTime('_ddmmyyyy_hhnnss',now);
  if GenerateScreenshot then  DoGenerateScreenshot;
@@ -168,6 +167,19 @@ end;
 procedure TgsCatcher.SetJpegQuality(const Value: TJPEGQualityRange);
 begin
   FJpegQuality := Value;
+end;
+
+procedure TgsCatcher.SetOutPath(const Value: string);
+var
+  FTemp: array[0..MAX_PATH] of Char;
+begin
+  FOutPath := Trim(Value);
+  if LastDelimiter('\',FOutPath)<>Length(FOutPath) then FOutPath:=FOutPath + '\';
+  if not DirectoryExists(Value)
+  then begin
+    GetTempPath(MAX_PATH,FTemp);
+    OutPath:=StrPas(FTemp);
+  end;
 end;
 
 procedure TgsCatcher.SetCollectInfo(const Value: boolean);
