@@ -1080,8 +1080,6 @@ begin
     FastBase.Free;
   end;
   LastSearh:=Edit1.Text;
-  if lstMaster.Count>0 then
-    if Integer(lstMaster.Items[0])>0 then PrintSpravka;
 end;
 
 procedure TForm9.OutJournal(json: ISuperObject);
@@ -1245,6 +1243,8 @@ begin
         s:=Edit1.Text;
         if s<>'' then Edit1.Text:=GetValidLS(s);
         OutFoundF5(Edit1.Text);
+//        if lstMaster.Count>0 then
+//          if Integer(lstMaster.Items[0])>0 then PrintSpravka;
       end;
     end;
     sptFirstList: begin

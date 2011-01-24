@@ -366,7 +366,7 @@ begin
     Exit;
   end;
   FEndInterval := EncodeDate(YearOf(Value),MonthOf(Value),1);
-  ShowInfo;
+  if Visible then ShowInfo;
 end;
 
 procedure TPeriodDlg.SetInfinitiMode(const Value: Boolean);
