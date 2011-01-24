@@ -1,0 +1,114 @@
+#COMMAND ? [<x,...>] => WSH:Echo(<x>)
+#INCLUDE "pathes.xinc"
+  SET DATE FORMAT "yyyy-mm-dd"
+  oArgs := WScript:Arguments
+  if oArgs:Length<2
+    return
+  endif
+  Length :=Val(oArgs:Item(0))
+  Table :=oArgs:Item(1)
+  x := RAT('\',Table)
+  pth := SubStr(Table,1,x-1)
+  BaseName := SubStr(Table,x+1,Len(Table)-x-4)
+  NewBaseName := AtRepl('\',SubStr(Table,Length+1,Len(Table)-Length-4),'_')
+  // ? pth
+  // ? BaseName
+  // ? NewBaseName
+  Set Default to &(pth)
+  PrintTableAsSQL(BaseName)
+  // ? aInfo[1]
+
+function PrintTableAsSQL
+Param BaseName
+  use &(BaseName)
+  FieldCount :=FCOUNT()
+  // aFieldNames := ARRAY(FieldCount)
+  // aTypes := ARRAY(FieldCount)
+  // aWidths := ARRAY(FieldCount)
+  // aDecimals := ARRAY(FieldCount)
+  // AFIELDS(aFieldNames, aTypes, aWidths, aDecimals)
+  TableStruct := DBStruct()
+  OutValue := ''
+  RecCounter := 0
+  ValueFound := .f.
+  do while !eof()
+    if Deleted()
+      Skip
+      loop
+    endif
+    if 0=RecCounter++ 
+      ShortText := 'REPLACE INTO `'+NewBaseName+'` ('//+chr(13)+chr(10)
+      ? 'DROP TABLE IF EXISTS `'+NewBaseName+'`;'
+      ? 'CREATE TABLE IF NOT EXISTS `'+NewBaseName+'` ('
+      for I_Counter = 1 to FieldCount
+        FldDat:=TableStruct[I_Counter]
+        do case
+        case FldDat[2]='N'
+          if FldDat[4] != 0
+            PostFix := 'decimal('+IntToStr(FldDat[3])+','+IntToStr(FldDat[4])+') NOT NULL'
+          else
+            PostFix := 'int('+IntToStr(FldDat[3])+') NOT NULL'
+          endif
+        case FldDat[2]='C'
+          PostFix := 'char('+IntToStr(FldDat[3])+') COLLATE utf8_unicode_ci NOT NULL'
+        case FldDat[2]='D'
+          PostFix := 'date NOT NULL'
+        case FldDat[2]='L'
+          PostFix := 'tinyint(1) NOT NULL'
+        otherwise
+          PostFix := 'Не обрабатываемый тип: '+FldDat[1]+'/'+FldDat[2]+'/'+IntToStr(FldDat[3])+'/'+IntToStr(FldDat[4])
+        endcase
+        if I_Counter<FieldCount
+          Q := ','
+        else
+          Q := ''
+        endif
+        ? '  `'+FldDat[1]+'` '+PostFix+Q
+        ShortText += ' `'+FldDat[1]+'`'+Q
+      next
+      ? ') ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;'
+      ShortText += ') VALUES'
+      ValueFound = .t.
+      ? ''
+      ? ShortText
+    endif
+    ShortText:='('
+    for I_Counter = 1 to FieldCount
+      FldDat:=TableStruct[I_Counter]
+      Value:=&(FldDat[1])
+      do case
+      case ValType(Value) == 'C'
+        StrValue = "'"+ToAnsi(AllTrim(Value))+"'"
+      case FldDat[2] == 'L'
+        StrValue=AnyToStr(Value)
+        if StrValue=='F'
+          StrValue = '0'
+        else
+          StrValue = '1'
+        endif
+      case FldDat[2] == 'D'
+        StrValue=AnyToStr(Value)
+        if StrValue=='-  -'
+          StrValue = '0000-00-00'
+        endif
+      otherwise
+        StrValue=AnyToStr(Value)
+      endcase
+      if I_Counter>1
+        ShortText += ', '
+      endif
+      ShortText+=StrValue
+    next I_Counter
+    skip
+    ShortText += ')'
+    if !eof()
+      ShortText +=','
+    else
+      ShortText +=';'
+    endif
+    ? ShortText
+  enddo
+  close &(BaseName)
+return 
+
+#INCLUDE "AnsiOEM.xinc"

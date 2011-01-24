@@ -4,7 +4,7 @@
 :: @echo [%Date% %Time%] %0 %* | toAnsi >> ..\%files_log%\run.cmd.log
 
 set SettingsFile=..\%files_store%\Settings.ini
-set OptionsCmd=..\%files_tmp%\Options.cmd
+set OptionsCmd=Settings.inc.cmd
 set OptionsXBS=Settings.xinc
 
 if Not Exist %SettingsFile% echo. >%SettingsFile%

@@ -47,7 +47,7 @@ Param BaseName, IndFieldName, FindValue, OutFieldName
   &(BaseName)->(AFIELDS(aFieldNames, aTypes, aWidths, aDecimals))
   SET FILTER TO IndFieldName+" = "+AnyToStr(FindValue)
   // ? aFieldNames[1], FindValue
-  stroka :='"'+BaseName+'":{'
+  OutJson :='"'+BaseName+'":{'
   OutValue := ''
   RecCounter := 0
   ValueFound := .f.
@@ -58,26 +58,26 @@ Param BaseName, IndFieldName, FindValue, OutFieldName
       loop
     endif
     if 0<RecCounter++ 
-      stroka = stroka+',' +chr(13)+chr(10)
+      OutJson = OutJson+',' +chr(13)+chr(10)
     else
-      stroka = stroka+'"fields":['
+      OutJson = OutJson+'"fields":['
       for I_Counter = 1 to FieldCount
         if I_Counter>1
-          stroka = stroka+','
+          OutJson = OutJson+','
         endif
-        stroka = stroka+'"'+aFieldNames[I_Counter]+'"'
+        OutJson = OutJson+'"'+aFieldNames[I_Counter]+'"'
       next
-      stroka = stroka+'],'+chr(13)+chr(10)+'"types":['
+      OutJson = OutJson+'],'+chr(13)+chr(10)+'"types":['
       for I_Counter = 1 to FieldCount
         if I_Counter>1
-          stroka = stroka+','
+          OutJson = OutJson+','
         endif
-        stroka = stroka+'"'+aTypes[I_Counter]+':'+IntToStr(aWidths[I_Counter])+'.'+ IntToStr(aDecimals[I_Counter])+'"'
+        OutJson = OutJson+'"'+aTypes[I_Counter]+':'+IntToStr(aWidths[I_Counter])+'.'+ IntToStr(aDecimals[I_Counter])+'"'
       next
-      stroka = stroka+'],'+chr(13)+chr(10)+'"values":['
+      OutJson = OutJson+'],'+chr(13)+chr(10)+'"values":['
       ValueFound = .t.
     endif
-    stroka = stroka+'['
+    OutJson = OutJson+'['
     for I_Counter = 1 to FieldCount
       Value:=&(aFieldNames[I_Counter])
       if ValType(Value) == 'C'
@@ -86,21 +86,21 @@ Param BaseName, IndFieldName, FindValue, OutFieldName
         StrValue=AnyToStr(Value)
       endif
       if I_Counter>1
-        stroka = stroka+', '
+        OutJson = OutJson+', '
       endif
-      stroka=stroka+'"'+StrValue+'"'
+      OutJson=OutJson+'"'+StrValue+'"'
       if aFieldNames[I_Counter] == OutFieldName
         OutValue = Value
       endif
     next I_Counter
-    stroka = stroka+']'
+    OutJson = OutJson+']'
     skip
   enddo
   close &(BaseName)
   if ValueFound 
-    stroka = stroka+']'
+    OutJson = OutJson+']'
   endif
-  stroka :=stroka+'}'
-Return {stroka, OutValue}
+  OutJson = OutJson+'}'
+Return {OutJson, OutValue}
 
 #INCLUDE "AnsiOEM.xinc"
