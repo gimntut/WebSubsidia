@@ -63,6 +63,8 @@ type
     FMode: Integer;
     FHead: string;
     FIsAbsIndexMode: Boolean;
+    FAutoSplitCells: Boolean;
+    FUnique: Boolean;
     S: string;
     FCurrentValue: Integer;
     function GetAsTable: TStrings;
@@ -161,6 +163,13 @@ type
     Length:Integer;
   end;
 
+  TTransformOptions = record
+    Delimeter: string;
+    Filling: boolean;
+    Unique: boolean;
+    AutoSplitCell: boolean;
+  end;
+
   TFastFileStrList=class(TStringList)
   private
     FBaseIndexFile: string;
@@ -210,7 +219,8 @@ type
     procedure Execute;
   end;
 
-function Transform(Strings:TStrings; Delimeter: string=';'; Filling:boolean=false): string;
+//function Transform(Strings:TStrings; Delimeter: string=';'; Filling:boolean=false): string;
+function Transform(Strings: TStrings; TransformOptions: TTransformOptions): string;
 function GetFieldNames(Strings:TStrings; Delimeter:string=';'):TStrings;
 function GetValueByName(Strings: TStrings; RowNum: Integer; FieldName:string; Delimeter: string = ';'):string;
 function GetValueByColumn(Strings: TStrings; Row, Col: Integer; Delimeter: string = ';'):string;
@@ -238,7 +248,8 @@ var
 type
   MaxIntArr = array[0..MaxInt-1] of Byte;
 
-function Transform(Strings:TStrings; Delimeter: string; Filling:boolean): string;
+//function Transform(Strings:TStrings; Delimeter: string; Filling:boolean): string;
+function Transform(Strings: TStrings; TransformOptions: TTransformOptions): string;
 var
   s, st: string;
   sep1,sep2:TStringList;
@@ -257,7 +268,7 @@ begin
   sts.Sorted:=true;
   sep1:=TStringList.Create;
   sep2:=TStringList.Create;
-  if Delimeter='' then sep:=';' else sep:=Delimeter[1];
+  if TransformOptions.Delimeter='' then sep:=';' else sep:=TransformOptions.Delimeter[1];
   sep1.Delimiter:=Sep;
   sep2.Delimiter:=Sep;
   sep1.StrictDelimiter:=true;
@@ -281,14 +292,14 @@ begin
     end;
     if us then Continue;
     if (s<>'') and (s=StringOfChar(s[1],length(s))) then Continue;
-    s:=AnsiReplaceStr(S,ch,Delimeter);
+    s:=AnsiReplaceStr(S,ch,TransformOptions.Delimeter);
     Repeat
      l:=length(s);
-     s:=AnsiReplaceStr(s,' '+Delimeter,Delimeter);
-     s:=AnsiReplaceStr(s,Delimeter+' ',Delimeter);
+     s:=AnsiReplaceStr(s,' '+TransformOptions.Delimeter,TransformOptions.Delimeter);
+     s:=AnsiReplaceStr(s,TransformOptions.Delimeter+' ',TransformOptions.Delimeter);
     Until l=length(s);
 
-    if Filling then begin
+    if TransformOptions.Filling then begin
       st:=Sep2.text;
       for ch := '0' to '9' do
         if pos(ch,st)>1 then begin
@@ -478,6 +489,8 @@ begin
   FFields.StrictDelimiter:=true;
   FValues.StrictDelimiter:=true;
   FVisible:=TBits.Create;
+  FAutoSplitCells := true;
+  FUnique := true;
   FTableLength := 100;
   FSortedField:=-1;
   FDescending:=false;
@@ -729,7 +742,7 @@ end;
 
 function TChprList.GetValueByName(Index: Integer; FieldName: string): string;
 begin
-  Result:=cgsCHPR.GetValueByName(self,Index-1,FieldName,InnerDelimeter);
+  Result:=cgsCHPR.GetValueByName(self,Index,FieldName,InnerDelimeter);
 end;
 
 function TChprList.GetValues(Index: Integer): TStrings;
@@ -1026,6 +1039,7 @@ var
   S:string;
   I: Integer;
   N: Integer;
+  TransformOptions:TTransformOptions;
 begin
   FCurrentValue:=-1;
   SetLength(S,Length(Value));
@@ -1055,7 +1069,9 @@ begin
   IsAbsIndexMode:=false;
   if IsTransformed then begin
     GetHead;
-    inherited SetTextStr(Transform(self,InnerDelimeter,FFilling));
+    TransformOptions.Filling:=FFilling;
+    TransformOptions.Delimeter:=InnerDelimeter;
+    inherited SetTextStr(Transform(self,TransformOptions));
   end;
   if Count>0
   then FFields.DelimitedText:=Strings[0]

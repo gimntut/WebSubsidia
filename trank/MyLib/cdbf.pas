@@ -40,6 +40,7 @@ var
   tmOut: TDateTime;
 begin
 	d := OpenBase(PChar(DbfFileName));
+  d.opt.nodeleted:=1;
 	if d = nil then
     raise EInOutError.Create('Невозможно открыть файл базы данных');
   s:=CsvFilename;
@@ -58,6 +59,7 @@ begin
   for i := 0 to cnt do
   begin
     ReadRecord(d, i);
+
     for j := 0 to fieldcount(d)-1 do
     begin
       if j>0 then write(tx,ListSeparator);
