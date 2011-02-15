@@ -28,6 +28,7 @@
           <a href=\"address.php?ID=$ID\">Проверить адрес</a><BR />";
           echo "<a href=\"Debtor.php?ID=$ID\">Обработать списки УЖКХ</a><BR />";
           echo "<a href=\"GetErrors.php\">Проверить банковские счета</a><BR />";
+          echo "<a href=\"CheckFather.php\">Проверить Отчество</a><BR />";
           echo "<a href=\"OnSBK.php\">Отчёт о делах на сберкассе</a><BR />";
           echo "<a href=\"dossier.php?ID=$ID\">Информация по делу</a><BR />";
           echo "<a href=\"BezRabAnaliz.php?ID=$ID\">ПОИСК БЕЗРАБОТНЫХ</a><hr />";
