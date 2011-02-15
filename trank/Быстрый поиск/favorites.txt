@@ -1,2 +1,3 @@
 ! Банковский список|D:\Subsidii\!WORK\DBFW0001\TEXT\CHPR.148
 pasp2.csv|C:\Documents and Settings\Пользователь\Мои документы\001) Упорядоченые\004) Списки\pasp2.csv
+SV2.DBF|H:\DBFSOZ\SV2.DBF

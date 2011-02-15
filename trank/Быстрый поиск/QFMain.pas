@@ -437,15 +437,19 @@ procedure TForm9.FormCreate(Sender: TObject);
 var
   FN:string;
 begin
+  Log('StartCatch');
   Catch := TgsCatcher.Create(self);
   Catch.CollectInfo := true;
   Catch.Enabled := true;
   Catch.GenerateScreenshot := true;
   Catch.JpegQuality := 100;
-  Catch.OutPath := 'H:\Списки\Ошибки\Debug';  
+  Catch.OutPath := 'H:\Списки\Ошибки\Debug';
+  Log('Set Drag');
   DragAcceptFiles(Handle, true);
+  Log('Create Httpsend');
   HTTP:=THTTPSend.Create;
   HTTP.UserAgent:='WebSubsidii';
+  Log('Create PagePanel');
   PagePanel:=Substitution(PageControl1);
   PagePanel.ActivePageIndex:=0;
   LogObjectAsText(PagePanel);
@@ -455,15 +459,19 @@ begin
 //  AddPage(pnFindList);
 //  AddPage(pnMemo);
 //  AddPage(pnJournal);
+  Log('Reg QuickFind');
   RegQF;
+  Log('Create TStrings');
   SpravkiSts := TStringList.Create;
   IntFavorFiles:=TStringList.Create;
   FavoriteFiles:=TStringList.Create;
   TmpSts:=TStringList.Create;
+  Log('Create ChprLists');
   Chpr:=TChprList.Create;
   Chpr2:=TChprList.Create;
   Chpr3:=TChprList.Create;
   Table:=TStringList.Create;
+  Log('Create ActList');
   ActList:=TObjectList.Create(true);
   Table.CommaText:=jrnHeaders;
   sgJournal.ColCount:=Table.Count;
@@ -731,7 +739,7 @@ begin
   OpenDialog1.FileName:=FileName;
   SpravkaType := sptNone;
   ResetEditMode;
-  if SameText(ExtractFileExt(FileName),'.Dbf') then begin
+  if SameText(ExtractFileExt(FileName),'.dbf') then begin
     OldFileName:=FileName;
     FileName:=TempPath+ChangeFileExt(ExtractFileName(FileName),'.csv');
     DbfToCsv(OldFileName,FileName,False);
@@ -817,10 +825,14 @@ var
   Reg:TRegistry;
 begin
   Reg:=TRegistry.Create;
+  try
   Reg.RootKey:=HKEY_CLASSES_ROOT;
   Reg.OpenKey('*\shell\Обработать как выборку\command',true);
   Reg.WriteString('','"'+ParamStr(0)+'" "%1"');
   Reg.Free;
+  except
+   on exception do ;
+  end;
 end;
 
 procedure TForm9.ResetEditMode;
@@ -945,7 +957,8 @@ var
   F: Extended;
 begin
   Otvet := ImpossibleFloat;
-  for I := Chpr3.count - 1 downto 1 do
+//  ShowMessage(Chpr3.Text);
+  for I := Chpr3.count - 2 downto 0 do
   begin
     DV := StrToDateDef(Chpr3.ValueByName[I, 'SUB_C'], 0);
     if not SameDate(DateV, DV) then Continue;
@@ -958,7 +971,8 @@ begin
     //E := Ee/Bb;
     F := GetFloatValue(I, 'SDD_PRAVO');
     //F := Ff/B;
-    D := RoundTo(E / F, -4);
+    if F=0 then D:=1
+    else D := RoundTo(E / F, -4);
     if D > 1 then
       D := 1;
     Otvet := A * B * C - E * D * B * 0.22;
@@ -2175,6 +2189,8 @@ begin
   Result:=Math.CompareValue(Index1,Index2);
   if (Index1=0) or (Index2=0) then Exit;
   if not (List is TChprList) then Exit;
+  dec(Index1);
+  dec(Index2);
   Lst:=TChprList(List);
   n1:=lst.ValueByName[Index1,'N'];
   n2:=lst.ValueByName[Index2,'N'];
