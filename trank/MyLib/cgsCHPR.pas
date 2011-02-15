@@ -651,7 +651,7 @@ begin
   end else begin
     // Подсчёт ширины столбцов
     N:=0;
-    for I := 0 to FilterCount-1 do begin
+    for I := 1 to FilterCount-1 do begin
       if N>TL then break;
       Ind:=FilterArray[I];
       {!}
@@ -748,13 +748,14 @@ end;
 function TChprList.GetValues(Index: Integer): TStrings;
 begin
   Result:=FValues;
+  FValues.OnChange:=nil;
+  ValueIndex:=Index+1;
   if OutSide(Index,Count-2) then begin
     FValues.DelimitedText:=StringOfChar(FValues.Delimiter,0);
+    FValues.OnChange:=ValueChange;
     Exit;
   end;
   if Index=FCurrentValue then Exit;
-  FValues.OnChange:=nil;
-  ValueIndex:=Index+1;
   FValues.DelimitedText:=Strings[ValueIndex];
   FValues.OnChange:=ValueChange;
   FCurrentValue:=Index;
@@ -1206,6 +1207,7 @@ end;
 procedure TChprList.ValueChange(Sender: TObject);
 begin
   if OutSide(ValueIndex,Count-1) then Exit;
+  //GetValues(ValueIndex-1);
   Strings[ValueIndex]:=FValues.DelimitedText;
 end;
 
