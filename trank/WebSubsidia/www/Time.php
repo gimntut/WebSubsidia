@@ -1,3 +1,3 @@
 <?php 
-echo date('d-m-Y');
+echo gmdate('d-m-Y H-i-s');
 ?>
