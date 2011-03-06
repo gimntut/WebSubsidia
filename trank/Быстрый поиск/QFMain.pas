@@ -39,7 +39,7 @@ type
     ExcelFillBtn: TToolButton;
     ImageList1: TImageList;
     JournalBtn: TToolButton;
-    Label1: TLabel;
+    lbSpravkaPoPrograme: TLabel;
     lbReklama: TLabel;
     leJournalPlus: TLabeledEdit;
     lstDetails: TListBox;
@@ -79,8 +79,9 @@ type
     OpenFileMenu: TPopupMenu;
     PageControl1: TPageControl;
     Panel1: TPanel;
-    Panel3: TPanel;
-    Panel4: TPanel;
+    pnMaster: TPanel;
+    pnDetails: TPanel;
+    pnOutput: TPanel;
     Panel5: TPanel;
     Panel6: TPanel;
     pnFindList: TPanel;
@@ -116,6 +117,7 @@ type
     TopListMenu: TPopupMenu;
     XPManifest1: TXPManifest;
     ToolButton10: TToolButton;
+    btnSplitMode: TToolButton;
     procedure acCopyExecute(Sender: TObject);
     procedure acCopyParamValueExecute(Sender: TObject);
     procedure acCopyTableExecute(Sender: TObject);
@@ -154,7 +156,7 @@ type
     procedure N15Click(Sender: TObject);
     procedure NewBtnClick(Sender: TObject);
     procedure OpenBtnClick(Sender: TObject);
-    procedure Panel2Resize(Sender: TObject);
+    procedure pnMasterResize(Sender: TObject);
     procedure PrintBtnClick(Sender: TObject);
     procedure sgJournalDrawCell(Sender: TObject; ACol, ARow: Integer; Rect: TRect; State: TGridDrawState);
     procedure SpeedButton1Click(Sender: TObject);
@@ -165,6 +167,7 @@ type
     procedure ToolButton9Click(Sender: TObject);
     procedure ToolButton10Click(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure btnSplitModeClick(Sender: TObject);
   private
     Chpr:TChprList;
     Chpr2:TChprList;
@@ -194,6 +197,7 @@ type
     WebProtocol: string;
     WebSite: string;
     Catch: TgsCatcher;
+    FHorzSplit: boolean;
     //procedure ShowSpravkaF5_2(Sender:TObject; Memo:StdCtrls.TMemo);
     function ChprIndex:Integer;
     function GetDetail: string;
@@ -241,6 +245,7 @@ type
     procedure SortClick(Sender: TObject);
     procedure SpravkaClick(Sender: TObject);
     procedure TextState;
+    procedure SetHorzSplit(const Value: boolean);
   protected
     procedure WMDropFiles(var Message: TMessage); message WM_DROPFILES;
     procedure SeparateDetail(Index:integer; out Parameter, Detail: string);
@@ -250,6 +255,7 @@ type
     property SpravkaType:Integer read FSpravkaType write SetSpravkaType;
     property FontSize:Integer read FFontSize write SetFontSize;
     property MemoMode:Boolean read GetMemoMode write SetMemoMode;
+    property HorzSplit:boolean read FHorzSplit write SetHorzSplit;
     { Public declarations }
   end;
 
@@ -349,6 +355,11 @@ end;
 procedure TForm9.ApplicationEvents1Hint(Sender: TObject);
 begin
   mmHelp.Text:=Application.Hint;
+end;
+
+procedure TForm9.btnSplitModeClick(Sender: TObject);
+begin
+  HorzSplit:=not HorzSplit;
 end;
 
 procedure TForm9.CheckBank(Sender: TObject; Index: Integer; S: string;
@@ -495,6 +506,7 @@ begin
     OpenFile(FN);
   end else ShowFirstList;
   lbReklama.Caption:='Работа со списками [ версия '+GetFileVersion(ParamStr(0))+' ] '+lbReklama.Caption;
+  HorzSplit:=true;
 end;
 
 procedure TForm9.FormDestroy(Sender: TObject);
@@ -812,7 +824,7 @@ begin
   GetScrollRange(Memo3.Handle,SB_HORZ,MinPos,MaxPos);
   lstMaster.ScrollWidth:=MaxPos;
   ShowScrollBar(Memo3.Handle,SB_HORZ,False);
-  Panel2Resize(nil);
+  pnMasterResize(nil);
 //  Log('=== Значения таблицы ===');
 //  for i:=0 to 9 do begin
 //    if i>lstMaster.count-1 then break;
@@ -923,6 +935,28 @@ begin
   SetNewFontSize(Memo1, Value);
   SetNewFontSize(Memo3, Value);
   SaveIni;
+end;
+
+procedure TForm9.SetHorzSplit(const Value: boolean);
+var
+  prc:Integer;
+begin
+  if FHorzSplit=Value then Exit;
+  FHorzSplit := Value;
+  if Value then begin
+    prc:=pnDetails.Height*100 div pnMaster.Height;
+    btnSplitMode.ImageIndex:=16;
+    pnDetails.Align:=alBottom;
+    pnDetails.Width:=pnOutput.Width*prc div 100;
+    Splitter1.Align:=alBottom;
+    lstDetails.Width:=lstDetails.Width+1;
+  end else begin
+    prc:=pnDetails.Width*100 div pnOutput.Width;
+    btnSplitMode.ImageIndex:=17;
+    pnDetails.Align:=alRight;
+    pnDetails.Height:=pnOutput.Height*prc div 100+1;
+    Splitter1.Align:=alRight;
+  end;
 end;
 
 procedure TForm9.SetMemoMode(const Value: Boolean);
@@ -1476,7 +1510,7 @@ begin
   Widths:=so(s);
   InitColumns;
   WebProtocol:=Ini.ReadString('WebServer','Protocol','http');
-  WebSite:=Ini.ReadString('WebServer','Address','WebSubsidia');
+  WebSite:=Ini.ReadString('WebServer','Address','server');
   ExtFileList:=Ini.ReadString('External','FileList','');
   Ini.Free;
   SpravkiMenu.Items.Clear;
@@ -2163,7 +2197,7 @@ begin
   ChprTmp.Free;
 end;
 
-procedure TForm9.Panel2Resize(Sender: TObject);
+procedure TForm9.pnMasterResize(Sender: TObject);
 begin
   Memo3.Margins.Right:=lstMaster.Width-lstMaster.ClientWidth;
 end;

@@ -1,3 +1,7 @@
 ! Банковский список|D:\Subsidii\!WORK\DBFW0001\TEXT\CHPR.148
+1. Список снятых дел|D:\Subsidii\!WORK\DBFW0001\TEXT\CHPR.211
 pasp2.csv|C:\Documents and Settings\Пользователь\Мои документы\001) Упорядоченые\004) Списки\pasp2.csv
 SV2.DBF|H:\DBFSOZ\SV2.DBF
+TEXT в Сети|*D:\Subsidii\!WORK\DBFW0001\TEXT
+Списки|*D:\Списки
+Телефоны ЦЕНТРА|H:\Списки\Телефоны ЦЕНТРА.csv
