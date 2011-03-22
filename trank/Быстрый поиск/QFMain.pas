@@ -381,7 +381,7 @@ begin
       end;
       blReestr: begin
         SkipLines:=7;
-        SkipEndLines:=1;
+        SkipEndLines:=2;
       end;
     end;
     s:=chpr.Values[Index][BankColumn];

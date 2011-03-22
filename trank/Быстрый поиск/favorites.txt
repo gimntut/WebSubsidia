@@ -4,4 +4,5 @@ pasp2.csv|C:\Documents and Settings\Пользователь\Мои документы\001) Упорядоченые
 SV2.DBF|H:\DBFSOZ\SV2.DBF
 TEXT в Сети|*D:\Subsidii\!WORK\DBFW0001\TEXT
 Списки|*D:\Списки
+Таблица адресов|D:\!Arhiv\DBFSOZ\TABLE.DBF
 Телефоны ЦЕНТРА|H:\Списки\Телефоны ЦЕНТРА.csv
