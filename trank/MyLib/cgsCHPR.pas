@@ -237,7 +237,7 @@ resourcestring
   SBitsIndexError = 'Bits index out of range';
 
 implementation
-uses PublStr, StrUtils, Printers, Graphics, SysUtils, DateUtils, PublFile;
+uses PublStr, Math, StrUtils, Printers, Graphics, SysUtils, DateUtils, PublFile;
 var
   FieldStrings:TStringList;
   ValueStrings:TStringList;
@@ -766,7 +766,7 @@ var
   I: Integer;
   s1, s2:string;
 begin
-  for I := 0 to max(FieldNames.Count,Values[Index].Count) - 1 do begin
+  for I := 0 to math.max(FieldNames.Count,Values[Index].Count) - 1 do begin
     s1:='';
     s2:='';
     if I<FFields.Count then s1:=FFields[I];
@@ -1430,6 +1430,11 @@ begin
       Printer.NewPage;
   end;
 end;
+procedure UpdateDPI(DPI:Integer);
+begin
+  Printer.Canvas.Font.PixelsPerInch := DPI;
+  UpdateFont;
+end;
 
 function GetDPI(FontName: string; var sts: TStringList; StartDPI:Integer=96; StartLine:Integer=0; LastLine:Integer=-2):Integer;
 var
@@ -1440,10 +1445,12 @@ var
   PageClientWidth: Integer;
   PageClientHeight: Integer;
   DPIc: Integer;
+  oDPIc: Integer;
   HighLine: Integer;
   LinesPerPage: Integer;
   LineCount: Integer;
   K: Real;
+  MaxLineCount: Integer;
 begin
   MaxLength := 0;
   if LastLine=-2 then LastLine:=sts.Count-1;
@@ -1456,6 +1463,7 @@ begin
   end;
   Result:=StartDPI;
   if MaxLength=0 then Exit;
+  MaxLineCount:=ifthen(Printer.Orientation=poPortrait,100,55);
   Printer.Canvas.Font.Name := FontName;
   Printer.Canvas.Font.Pitch := fpFixed;
   Printer.Canvas.Font.Size := 10;
@@ -1465,25 +1473,30 @@ begin
   PageClientHeight := Printer.PageHeight * 9 div 10;
   Printer.Canvas.Font.PixelsPerInch:=StartDPI;
   DPIc := Printer.Canvas.Font.PixelsPerInch;
+  oDPIc := DPIc;
   UpdateFont;
   if PageClientWidth < CharWidth * MaxLength then
   begin
     DPIc := DPIc * (CharWidth * MaxLength) div PageClientWidth;
-    Printer.Canvas.Font.PixelsPerInch := DPIc;
-    UpdateFont;
+    oDPIc := DPIc;
+    UpdateDPI(DPIc);
   end;
   HighLine := Printer.Canvas.TextHeight('рЁ');
-  LinesPerPage := PageClientHeight div HighLine;
+  LinesPerPage := (PageClientHeight div HighLine) +1;
   LineCount:=LastLine-StartLine+1;
   K := LineCount / LinesPerPage;
-  while (K > 1) and (Frac(K) < 0.3) do
+  while (K > 1) and (Frac(K) < 0.3) and (LinesPerPage<MaxLineCount) do
   begin
+    oDPIc := DPIc;
     DPIc := DPIc + 10;
-    Printer.Canvas.Font.PixelsPerInch := DPIc;
-    UpdateFont;
+    UpdateDPI(DPIc);
     HighLine := Printer.Canvas.TextHeight('рЁ');
     LinesPerPage := PageClientHeight div HighLine;
     K := LineCount / LinesPerPage;
+  end;
+  if LinesPerPage>MaxLineCount then begin
+    DPIc:=oDPIc;
+//    UpdateDPI(DPIc);
   end;
   result:=DPIc;
 end;
@@ -1570,7 +1583,7 @@ begin
     sum:=sm4;
   end;
   if sum<(L div 100) then Result.Delimeter:=#0;
-  Result.IsChpr:=(sm1=sum) and (sm1>min(Length(Text),TestLength*200) div 150);
+  Result.IsChpr:=(sm1=sum) and (sm1>Math.Min(Length(Text),TestLength*200) div 150);
 end;
 
 function CreateIndexForCSV(CSVFile,IndexFile:string; Col:Integer; CBProc:TIntProc=nil; TimeOut:Integer=100):boolean;
@@ -1897,7 +1910,7 @@ begin
   SetLength(Arr1,Fields.Count);
   SetLength(Arr2,Fields.Count);
   n:=0;
-  for I := 0 to min(sts1.Count,sts2.Count) - 1 do begin
+  for I := 0 to Math.Min(sts1.Count,sts2.Count) - 1 do begin
     v1:=Fields.IndexOf(sts1[i]);
     v2:=Fields.IndexOf(sts2[i]);
     if v1=-1 then Continue;

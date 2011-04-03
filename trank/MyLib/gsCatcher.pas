@@ -33,18 +33,14 @@ type
     procedure SetJpegQuality(const Value: TJPEGQualityRange);
     procedure SetCollectInfo(const Value: boolean);
     procedure SetOutPath(const Value: string);
-    { Private declarations }
   protected
-    { Protected declarations }
     procedure EnableCatcher;
     procedure DisableCatcher;
   public
-    { Public declarations }
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure Catcher(Sender: TObject; E: Exception);
   published
-    { Published declarations }
     property Enabled: boolean read FEnabled write SetEnabled
                       default False;
     property GenerateScreenshot: boolean read FGenerateScreenshot write SetGenerateScreenshot;
