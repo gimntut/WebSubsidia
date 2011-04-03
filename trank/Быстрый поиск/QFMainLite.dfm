@@ -17,7 +17,7 @@ object Form9Lite: TForm9Lite
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnKeyDown = FormKeyDown
-  OnKeyPress = Edit1KeyPress
+  OnKeyPress = edSearchLineKeyPress
   OnKeyUp = FormKeyUp
   OnShow = FormShow
   PixelsPerInch = 96
@@ -33,7 +33,6 @@ object Form9Lite: TForm9Lite
     Caption = 
       #1056#1072#1079#1088#1072#1073#1086#1090#1072#1083' '#1043#1080#1084#1072#1077#1074' '#1053#1072#1080#1083#1100' '#1076#1083#1103' '#1052#1077#1078#1088#1072#1081#1086#1085#1085#1086#1075#1086' '#1092#1080#1083#1080#1072#1083#1072' '#1043#1059' '#1056#1077#1089#1087#1091#1073#1083#1080#1082#1072#1085#1089 +
       #1082#1080#1081' '#1094#1077#1085#1090#1088' '#1089#1091#1073#1089#1080#1076#1080#1081' '#1074' '#1075'.'#1058#1091#1081#1084#1072#1079#1099
-    PopupMenu = OpenFileMenu
     OnClick = lbReklamaClick
     OnMouseEnter = lbReklamaMouseEnter
     OnMouseLeave = lbReklamaMouseLeave
@@ -53,152 +52,8 @@ object Form9Lite: TForm9Lite
     ParentShowHint = False
     ShowHint = True
     TabOrder = 0
-    object NewBtn: TToolButton
-      Left = 0
-      Top = 0
-      Hint = #1053#1072#1095#1072#1090#1100' '#1089#1085#1086#1074#1072'|'#1055#1077#1088#1077#1081#1090#1080' '#1082' '#1074#1099#1073#1086#1088#1091' '#1089#1087#1080#1089#1082#1086#1074' '#1080' '#1089#1087#1088#1072#1074#1086#1082
-      Caption = 'NewBtn'
-      ImageIndex = 11
-      OnClick = NewBtnClick
-    end
-    object OpenBtn: TToolButton
-      Left = 23
-      Top = 0
-      Hint = 
-        #1054#1090#1082#1088#1099#1090#1100' '#1092#1072#1081#1083'|'#1047#1085#1072#1095#1086#1082' "'#1055#1072#1087#1082#1072'" - '#1086#1090#1082#1088#1099#1090#1100' '#1092#1072#1081#1083' (Ctrl+O), "'#1057#1090#1088#1077#1083#1082#1072' '#1074#1085 +
-        #1080#1079'" - '#1079#1072#1087#1086#1084#1080#1085#1072#1077#1090' '#1086#1090#1082#1088#1099#1090#1099#1077' '#1092#1072#1081#1083#1099' '#1080' '#1087#1072#1087#1082#1080', '#1086#1090#1082#1088#1099#1074#1072#1077#1090' '#1079#1072#1087#1086#1084#1085#1077#1085#1099#1077' '#1092#1072 +
-        #1081#1083#1099' '#1080#1083#1080' '#1087#1072#1087#1082#1080' (Ctrl+Shift+O)'
-      AutoSize = True
-      Caption = 'OpenBtn'
-      DropdownMenu = OpenFileMenu
-      ImageIndex = 0
-      Style = tbsDropDown
-      OnClick = OpenBtnClick
-    end
-    object SpravkaBtn: TToolButton
-      Left = 59
-      Top = 0
-      Hint = #1057#1087#1088#1072#1074#1082#1080' (F2)'
-      Caption = 'SpravkaBtn'
-      DropdownMenu = SpravkiMenu
-      ImageIndex = 10
-      PopupMenu = SpravkiMenu
-    end
-    object JournalBtn: TToolButton
-      Left = 82
-      Top = 0
-      Caption = 'JournalBtn'
-      ImageIndex = 14
-      Visible = False
-      OnClick = JournalBtnClick
-    end
-    object PrintBtn: TToolButton
-      Left = 105
-      Top = 0
-      Hint = 
-        #1055#1077#1095#1072#1090#1100'|'#1055#1077#1095#1072#1090#1100' '#1087#1086#1083#1085#1086#1075#1086' '#1089#1087#1080#1089#1082#1072', '#1088#1077#1079#1091#1083#1100#1090#1072#1090#1086#1074' '#1087#1086#1080#1089#1082#1072' '#1080#1083#1080' '#1080#1079#1084#1077#1085#1105#1085#1086#1075#1086' ' +
-        #1086#1088#1080#1075#1080#1085#1072#1083#1072' (Ctrl+P '#1080#1083#1080' F9)'
-      Caption = 'PrintBtn'
-      ImageIndex = 1
-      OnClick = PrintBtnClick
-    end
-    object ToolButton3: TToolButton
-      Left = 128
-      Top = 0
-      Width = 8
-      Caption = 'ToolButton3'
-      ImageIndex = 4
-      Style = tbsSeparator
-    end
-    object CheckBankBtn: TToolButton
-      Left = 136
-      Top = 0
-      Hint = 
-        #1055#1086#1080#1089#1082' '#1085#1077#1074#1077#1088#1085#1099#1093' '#1073#1072#1085#1082#1086#1074#1089#1082#1080#1093' '#1089#1095#1077#1090#1086#1074'|'#1055#1088#1080' '#1085#1072#1078#1072#1090#1080#1080' '#1085#1072' '#1101#1090#1091' '#1082#1085#1086#1087#1082#1091' '#1074' '#1089#1087#1080 +
-        #1089#1082#1077' '#1086#1089#1090#1072#1102#1090#1089#1103' '#1090#1086#1083#1100#1082#1086' '#1090#1077' '#1079#1072#1087#1080#1089#1080', '#1082#1086#1090#1086#1088#1099#1077' '#1089#1086#1076#1077#1088#1078#1072#1090' '#1086#1096#1080#1073#1082#1080' '#1074' '#1073#1072#1085#1082#1086#1074#1089 +
-        #1082#1080#1093' '#1089#1095#1077#1090#1072#1093
-      Caption = 'CheckBankBtn'
-      ImageIndex = 3
-      OnClick = CheckBankBtnClick
-    end
-    object ExcelAsIsBtn: TToolButton
-      Left = 159
-      Top = 0
-      Hint = 
-        #1069#1082#1089#1087#1086#1088#1090' '#1074' Excel '#1086#1076#1080#1085' '#1082' '#1086#1076#1085#1086#1084#1091'|'#1069#1082#1087#1086#1088#1090#1080#1088#1086#1074#1072#1085#1080#1077' '#1089#1087#1080#1089#1082#1072' '#1074' Excel '#1074' '#1089#1086 +
-        #1086#1090#1074#1077#1090#1089#1090#1074#1080#1080' '#1089' '#1074#1099#1073#1086#1088#1082#1086#1081', '#1073#1077#1079' '#1080#1079#1084#1077#1085#1077#1085#1080#1081
-      Caption = 'ExcelAsIsBtn'
-      ImageIndex = 4
-      OnClick = ExcelAsIsBtnClick
-    end
-    object ExcelFillBtn: TToolButton
-      Left = 182
-      Top = 0
-      Hint = 
-        #1069#1082#1089#1087#1086#1088#1090' '#1074' Excel '#1089' '#1079#1072#1087#1086#1083#1085#1077#1085#1080#1077#1084'|'#1069#1082#1087#1086#1088#1090#1080#1088#1086#1074#1072#1085#1080#1077' '#1089#1087#1080#1089#1082#1072' '#1074' Excel '#1089' '#1079#1072 +
-        #1087#1086#1083#1085#1077#1085#1080#1077#1084' '#1085#1077#1076#1086#1089#1090#1072#1102#1097#1080#1093' '#1076#1072#1085#1085#1099#1093' '#1085#1072' '#1086#1089#1085#1086#1074#1077' '#1089#1086#1089#1077#1076#1085#1080#1093' '#1079#1072#1087#1080#1089#1077#1081
-      Caption = 'ExcelFillBtn'
-      ImageIndex = 5
-      OnClick = ExcelFillBtnClick
-    end
-    object ToolButton7: TToolButton
-      Left = 205
-      Top = 0
-      Width = 8
-      Caption = 'ToolButton7'
-      ImageIndex = 6
-      Style = tbsSeparator
-    end
-    object TextModeBtn: TToolButton
-      Left = 213
-      Top = 0
-      Hint = #1055#1072#1088#1072#1084#1077#1090#1088#1099' '#1090#1077#1082#1089#1090#1072'|'#1054#1087#1088#1077#1076#1077#1083#1077#1085#1080#1077' '#1093#1072#1088#1072#1082#1090#1077#1088#1080#1089#1090#1080#1082' '#1086#1090#1082#1088#1099#1090#1086#1075#1086' '#1092#1072#1081#1083#1072
-      AllowAllUp = True
-      Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1099' '#1090#1077#1082#1089#1090#1072
-      DropdownMenu = TextParamsMenu
-      ImageIndex = 2
-    end
-    object SortBtn: TToolButton
-      Left = 236
-      Top = 0
-      Hint = 
-        #1057#1086#1088#1090#1080#1088#1086#1074#1082#1072'|'#1057#1086#1088#1090#1080#1088#1086#1074#1082#1072' '#1089#1087#1080#1089#1082#1072' '#1087#1086' '#1074#1099#1073#1088#1072#1085#1085#1086#1084#1091' '#1087#1086#1083#1102'. '#1053#1045' '#1056#1040#1041#1054#1058#1040#1045#1058'. '#1048#1089 +
-        #1087#1086#1083#1100#1079#1086#1074#1072#1090#1100' '#1085#1077' '#1088#1077#1082#1086#1084#1077#1085#1076#1091#1077#1090#1089#1103'.'
-      Caption = #1055#1086#1083#1103' '#1089#1086#1088#1090#1080#1088#1086#1074#1082#1080
-      DropdownMenu = SortMenu
-      ImageIndex = 8
-    end
-    object ToolButton11: TToolButton
-      Left = 259
-      Top = 0
-      Width = 8
-      Caption = 'ToolButton11'
-      ImageIndex = 10
-      Style = tbsSeparator
-    end
-    object MemoModeBtn: TToolButton
-      Left = 267
-      Top = 0
-      Hint = 
-        #1055#1088#1072#1074#1082#1072' '#1086#1088#1080#1075#1080#1085#1072#1083#1072'|'#1048#1079#1084#1077#1085#1080#1090#1100' '#1086#1088#1080#1075#1080#1085#1072#1083' '#1087#1077#1088#1077#1076' '#1087#1077#1095#1072#1090#1100#1102'. '#1048#1079#1084#1077#1085#1080#1077' '#1086#1088#1080#1075#1080#1085 +
-        #1072#1083#1072' '#1074#1083#1080#1103#1077#1090' '#1090#1086#1083#1100#1082#1086' '#1085#1072' '#1087#1077#1095#1072#1090#1100', '#1092#1072#1081#1083' '#1080' '#1089#1087#1080#1089#1086#1082' '#1079#1072#1087#1080#1089#1077#1081' '#1086#1089#1090#1072#1102#1090#1089#1103' '#1085#1077#1080#1079 +
-        #1084#1077#1085#1085#1099#1084#1080'.'
-      Caption = 'MemoModeBtn'
-      ImageIndex = 9
-      Style = tbsCheck
-      Visible = False
-      OnClick = MemoModeBtnClick
-    end
-    object ToolButton1: TToolButton
-      Left = 290
-      Top = 0
-      Width = 8
-      Caption = 'ToolButton1'
-      ImageIndex = 10
-      Style = tbsSeparator
-    end
     object ToolButton2: TToolButton
-      Left = 298
+      Left = 0
       Top = 0
       Hint = #1059#1074#1077#1083#1080#1095#1080#1090#1100' '#1096#1088#1080#1092#1090'| '#1059#1074#1077#1083#1080#1095#1080#1090#1100' '#1096#1088#1080#1092#1090' '#1074#1086' '#1074#1089#1077#1093' '#1089#1087#1080#1089#1082#1072#1093' '#1080' '#1089#1087#1088#1072#1074#1082#1072#1093
       Caption = 'ToolButton2'
@@ -206,7 +61,7 @@ object Form9Lite: TForm9Lite
       OnClick = ToolButton2Click
     end
     object ToolButton4: TToolButton
-      Left = 321
+      Left = 23
       Top = 0
       Hint = #1059#1084#1077#1085#1100#1096#1080#1090#1100' '#1096#1088#1080#1092#1090'| '#1059#1084#1077#1085#1100#1096#1080#1090#1100' '#1096#1088#1080#1092#1090' '#1074#1086' '#1074#1089#1077#1093' '#1089#1087#1080#1089#1082#1072#1093' '#1080' '#1089#1087#1088#1072#1074#1082#1072#1093
       Caption = 'ToolButton4'
@@ -214,33 +69,26 @@ object Form9Lite: TForm9Lite
       OnClick = ToolButton4Click
     end
     object ToolButton5: TToolButton
-      Left = 344
+      Left = 46
       Top = 0
       Width = 8
       Caption = 'ToolButton5'
       ImageIndex = 14
       Style = tbsSeparator
     end
-    object ToolButton9: TToolButton
-      Left = 352
-      Top = 0
-      Caption = 'ToolButton9'
-      ImageIndex = 15
-      OnClick = ToolButton9Click
-    end
-    object ToolButton10: TToolButton
-      Left = 375
-      Top = 0
-      Caption = 'ToolButton10'
-      Visible = False
-      OnClick = ToolButton10Click
-    end
     object btnSplitMode: TToolButton
-      Left = 398
+      Left = 54
       Top = 0
       Caption = '**'
       ImageIndex = 16
       OnClick = btnSplitModeClick
+    end
+    object MemoModeBtn: TToolButton
+      Left = 77
+      Top = 0
+      Caption = 'MemoModeBtn'
+      ImageIndex = 17
+      Visible = False
     end
   end
   object pnHelp: TPanel
@@ -269,7 +117,6 @@ object Form9Lite: TForm9Lite
       ParentFont = False
       ReadOnly = True
       TabOrder = 0
-      OnDblClick = mmHelpDblClick
     end
   end
   object PageControl1: TPageControl
@@ -353,7 +200,7 @@ object Form9Lite: TForm9Lite
             OnMouseUp = SpeedButton1MouseUp
             ExplicitLeft = 668
           end
-          object Edit1: TEdit
+          object edSearchLine: TEdit
             Left = 8
             Top = 8
             Width = 712
@@ -365,9 +212,9 @@ object Form9Lite: TForm9Lite
               #1079' '#1073#1091#1082#1074' '#1080' '#1094#1080#1092#1088'.'
             Anchors = [akLeft, akTop, akRight]
             TabOrder = 0
-            OnChange = Edit1Change
-            OnKeyDown = Edit1KeyDown
-            OnKeyPress = Edit1KeyPress
+            OnChange = edSearchLineChange
+            OnKeyDown = edSearchLineKeyDown
+            OnKeyPress = edSearchLineKeyPress
           end
         end
         object pnOutput: TPanel
@@ -455,7 +302,6 @@ object Form9Lite: TForm9Lite
                 ReadOnly = True
                 TabOrder = 0
                 WordWrap = False
-                OnDblClick = mmHelpDblClick
               end
             end
           end
@@ -494,10 +340,6 @@ object Form9Lite: TForm9Lite
     object TabSheet2: TTabSheet
       Caption = #1056#1077#1076#1072#1082#1090#1086#1088
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object pnMemo: TPanel
         Left = 0
         Top = 0
@@ -529,118 +371,10 @@ object Form9Lite: TForm9Lite
         end
       end
     end
-    object TabSheet3: TTabSheet
-      Caption = #1046#1091#1088#1085#1072#1083
-      ImageIndex = 2
-      object pnJournal: TPanel
-        Left = 0
-        Top = 0
-        Width = 755
-        Height = 404
-        Align = alClient
-        TabOrder = 0
-        object sgJournal: TStringGrid
-          Left = 1
-          Top = 75
-          Width = 753
-          Height = 328
-          Align = alClient
-          DefaultColWidth = 35
-          DefaultRowHeight = 18
-          Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goColSizing, goRowSelect]
-          TabOrder = 0
-          OnDrawCell = sgJournalDrawCell
-        end
-        object ToolBar2: TToolBar
-          Left = 1
-          Top = 1
-          Width = 753
-          Height = 21
-          AutoSize = True
-          ButtonHeight = 21
-          ButtonWidth = 104
-          Caption = 'ToolBar2'
-          ShowCaptions = True
-          TabOrder = 1
-          object lbSpravkaPoPrograme: TLabel
-            AlignWithMargins = True
-            Left = 0
-            Top = 0
-            Width = 77
-            Height = 21
-            AutoSize = False
-            Caption = #1046#1091#1088#1085#1072#1083':'
-            Font.Charset = DEFAULT_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -16
-            Font.Name = 'Tahoma'
-            Font.Style = [fsBold]
-            ParentFont = False
-            Layout = tlCenter
-          end
-          object ToolButton6: TToolButton
-            Left = 77
-            Top = 0
-            Caption = #1047#1072' '#1084#1077#1089#1103#1094
-            Down = True
-            Grouped = True
-            ImageIndex = 0
-            Style = tbsCheck
-          end
-          object ToolButton8: TToolButton
-            Left = 181
-            Top = 0
-            Caption = #1047#1072' '#1087#1086#1089#1083#1077#1076#1085#1080#1081' '#1076#1077#1085#1100
-            Grouped = True
-            ImageIndex = 1
-            Style = tbsCheck
-          end
-        end
-        object Panel5: TPanel
-          Left = 1
-          Top = 22
-          Width = 753
-          Height = 53
-          Align = alTop
-          TabOrder = 2
-          DesignSize = (
-            753
-            53)
-          object leJournalPlus: TLabeledEdit
-            Left = 8
-            Top = 23
-            Width = 737
-            Height = 21
-            Anchors = [akLeft, akTop, akRight]
-            EditLabel.Width = 382
-            EditLabel.Height = 13
-            EditLabel.Caption = 
-              #1044#1086#1073#1072#1074#1083#1077#1085#1080#1077' '#1076#1077#1083'. '#1055#1077#1088#1077#1095#1080#1089#1083#1080#1090#1077' '#1095#1077#1088#1077#1079' '#1079#1072#1087#1103#1090#1091#1102' '#1085#1086#1084#1077#1088#1072' '#1076#1077#1083' '#1080' '#1085#1072#1078#1084#1080#1090#1077' E' +
-              'nter'
-            TabOrder = 0
-          end
-        end
-      end
-    end
-  end
-  object OpenDialog1: TOpenDialog
-    Filter = 
-      #1060#1072#1081#1083#1099' '#1089#1087#1080#1089#1082#1086#1074'|ch*.*;*.csv;*.dbf|'#1042#1099#1073#1086#1088#1082#1080' - Chpr*.*|Chpr*.*|'#1058#1077#1082#1089#1090#1086 +
-      #1074#1099#1077' '#1090#1072#1073#1083#1080#1094#1099' - *.csv|*.csv|'#1060#1072#1081#1083#1099' '#1073#1072#1079'|*.dbf|'#1042#1089#1077' '#1092#1072#1081#1083#1099'|*.*'
-    Left = 256
-    Top = 342
   end
   object XPManifest1: TXPManifest
     Left = 288
     Top = 342
-  end
-  object OpenFileMenu: TPopupMenu
-    Left = 16
-    Top = 334
-    object N5: TMenuItem
-      Caption = #1054#1090#1082#1088#1099#1090#1100' '#1092#1072#1081#1083
-      OnClick = N5Click
-    end
   end
   object ImageList1: TImageList
     Left = 288
@@ -1353,116 +1087,6 @@ object Form9Lite: TForm9Lite
     Left = 352
     Top = 342
   end
-  object TextParamsMenu: TPopupMenu
-    Images = ImageList1
-    Left = 16
-    Top = 366
-    object mnTransformed: TMenuItem
-      Tag = 11
-      Caption = #1055#1088#1077#1086#1073#1088#1072#1079#1086#1074#1072#1085#1099#1081' '#1090#1077#1082#1089#1090
-      Checked = True
-      GroupIndex = 1
-      Hint = #1055#1088#1077#1086#1073#1088#1072#1079#1086#1074#1072#1085#1099#1081' '#1090#1077#1082#1089#1090'|'#1060#1072#1081#1083' '#1103#1074#1083#1103#1077#1090#1089#1103' '#1074#1099#1073#1086#1088#1082#1086#1081'.'
-      RadioItem = True
-      OnClick = mnStateClick
-    end
-    object mnOriginalText: TMenuItem
-      Tag = 12
-      Caption = #1054#1088#1080#1075#1080#1085#1072#1083#1100#1085#1099#1081' '#1090#1077#1082#1089#1090
-      GroupIndex = 1
-      Hint = 
-        #1054#1088#1080#1075#1080#1085#1072#1083#1100#1085#1099#1081' '#1090#1077#1082#1089#1090'|'#1060#1072#1081#1083' '#1103#1074#1083#1103#1077#1090#1089#1103' '#1090#1077#1082#1089#1090#1086#1074#1099#1084' '#1076#1086#1082#1091#1084#1077#1085#1090#1086#1084' '#1080#1089#1087#1086#1083#1100#1079#1091#1102#1097 +
-        #1080#1084' '#1074' '#1082#1072#1095#1077#1089#1090#1074#1077' '#1088#1072#1079#1076#1077#1083#1080#1090#1077#1083#1103' ";", "," '#1080#1083#1080' Tab'
-      RadioItem = True
-      OnClick = mnStateClick
-    end
-    object N13: TMenuItem
-      AutoCheck = True
-      Caption = #1055#1077#1095#1072#1090#1072#1090#1100' '#1096#1072#1087#1082#1091' '#1074#1099#1073#1086#1088#1082#1080
-      Checked = True
-      GroupIndex = 3
-    end
-    object N8: TMenuItem
-      Caption = '-'
-      GroupIndex = 3
-    end
-    object mnOEM: TMenuItem
-      Tag = 21
-      Caption = #1050#1086#1076#1080#1088#1086#1074#1082#1072' DOS'
-      GroupIndex = 3
-      Hint = #1050#1086#1076#1080#1088#1086#1074#1082#1072' DOS|'#1060#1072#1081#1083' '#1089#1086#1076#1077#1088#1078#1080#1090' '#1090#1077#1082#1089#1090' '#1074' '#1082#1086#1076#1080#1088#1086#1074#1082#1077' DOS(OEM/cp866)'
-      RadioItem = True
-      OnClick = mnStateClick
-    end
-    object mnANSI: TMenuItem
-      Tag = 22
-      Caption = #1050#1086#1076#1080#1088#1086#1074#1082#1072' Windows'
-      GroupIndex = 3
-      Hint = 
-        #1050#1086#1076#1080#1088#1086#1074#1082#1072' Windows|'#1060#1072#1081#1083' '#1089#1086#1076#1077#1088#1078#1080#1090' '#1090#1077#1082#1089#1090' '#1074' '#1082#1086#1076#1080#1088#1086#1074#1082#1077' Windows(ANSI/w' +
-        'in1251)'
-      RadioItem = True
-      OnClick = mnStateClick
-    end
-    object N11: TMenuItem
-      Caption = '-'
-      GroupIndex = 3
-    end
-    object mnComma: TMenuItem
-      Tag = 31
-      Caption = #1056#1072#1079#1076#1077#1083#1080#1090#1077#1083#1100' - '#1047#1072#1087#1103#1090#1072#1103
-      Checked = True
-      GroupIndex = 3
-      Hint = 
-        #1056#1072#1079#1076#1077#1083#1080#1090#1077#1083#1100' - '#1047#1072#1087#1103#1090#1072#1103'|'#1042' '#1092#1072#1081#1083#1077' '#1080#1089#1087#1086#1083#1100#1079#1091#1077#1090#1089#1103' '#1079#1072#1087#1103#1090#1072#1103' '#1074' '#1082#1072#1095#1077#1089#1090#1074#1077' '#1088#1072 +
-        #1079#1076#1077#1083#1080#1090#1077#1083#1103
-      RadioItem = True
-      OnClick = mnStateClick
-    end
-    object mnPointComma: TMenuItem
-      Tag = 32
-      Caption = #1056#1072#1079#1076#1077#1083#1080#1090#1077#1083#1100' - '#1058#1086#1095#1082#1072'-'#1079#1072#1087#1103#1090#1072#1103
-      GroupIndex = 3
-      Hint = 
-        #1056#1072#1079#1076#1077#1083#1080#1090#1077#1083#1100' - '#1058#1086#1095#1082#1072'-'#1079#1072#1087#1103#1090#1072#1103'|'#1042' '#1092#1072#1081#1083#1077' '#1080#1089#1087#1086#1083#1100#1079#1091#1077#1090#1089#1103' ";" '#1074' '#1082#1072#1095#1077#1089#1090#1074#1077' ' +
-        #1088#1072#1079#1076#1077#1083#1080#1090#1077#1083#1103
-      RadioItem = True
-      OnClick = mnStateClick
-    end
-    object mnTab: TMenuItem
-      Tag = 33
-      Caption = #1056#1072#1079#1076#1077#1083#1080#1090#1077#1083#1100' - '#1058#1072#1073#1091#1083#1103#1094#1080#1103
-      GroupIndex = 3
-      Hint = 
-        #1056#1072#1079#1076#1077#1083#1080#1090#1077#1083#1100' - '#1058#1072#1073#1091#1083#1103#1094#1080#1103'|'#1042' '#1092#1072#1081#1083#1077' '#1089#1080#1084#1074#1086#1083' '#1090#1072#1073#1091#1083#1103#1094#1080#1080' '#1074' '#1082#1072#1095#1077#1089#1090#1074#1077' '#1088#1072#1079#1076 +
-        #1077#1083#1080#1090#1077#1083#1103
-      RadioItem = True
-      OnClick = mnStateClick
-    end
-    object mnNull: TMenuItem
-      Tag = 34
-      Caption = #1041#1077#1079' '#1088#1072#1079#1076#1077#1083#1080#1090#1077#1083#1103
-      GroupIndex = 3
-      Hint = #1041#1077#1079' '#1088#1072#1079#1076#1077#1083#1080#1090#1077#1083#1103'|'#1048#1075#1085#1086#1088#1080#1088#1086#1074#1072#1085#1080#1077' '#1083#1102#1073#1099#1093' '#1088#1072#1079#1076#1077#1083#1080#1090#1077#1083#1077#1081
-      RadioItem = True
-      OnClick = mnStateClick
-    end
-    object N7: TMenuItem
-      Caption = '-'
-      GroupIndex = 3
-    end
-    object N9: TMenuItem
-      Caption = #1064#1072#1073#1083#1086#1085
-      Enabled = False
-      GroupIndex = 3
-      OnClick = N9Click
-    end
-  end
-  object SortMenu: TPopupMenu
-    Images = ImageList1
-    Left = 48
-    Top = 366
-  end
   object ApplicationEvents1: TApplicationEvents
     OnHint = ApplicationEvents1Hint
     Left = 256
@@ -1491,15 +1115,6 @@ object Form9Lite: TForm9Lite
     object N15: TMenuItem
       Caption = #1055#1077#1088#1077#1081#1090#1080' '#1082' '#1092#1072#1081#1083#1091
       OnClick = N15Click
-    end
-  end
-  object SpravkiMenu: TPopupMenu
-    Images = ImageList1
-    Left = 80
-    Top = 366
-    object MenuItem2: TMenuItem
-      Caption = #1057#1087#1088#1072#1074#1082#1080': '#1044#1077#1090#1089#1082#1086#1077' '#1087#1086#1089#1086#1073#1080#1077
-      ImageIndex = 8
     end
   end
   object Timer1: TTimer

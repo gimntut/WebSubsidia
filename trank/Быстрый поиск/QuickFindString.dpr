@@ -20,6 +20,7 @@ begin
   Application.Initialize;
   Application.Title := 'Работа со списками';
   Application.CreateForm(TForm9Lite, Form9Lite);
+  Application.CreateForm(TForm9, Form9);
   Application.CreateForm(TForm10, Form10);
   Application.CreateForm(TQFTemlateDlg, QFTemlateDlg);
   Application.CreateForm(TPeriodDlg, PeriodDlg);

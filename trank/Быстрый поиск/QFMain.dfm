@@ -283,6 +283,10 @@ object Form9: TForm9
     Visible = False
     object TabSheet1: TTabSheet
       Caption = #1055#1086#1080#1089#1082
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object pnFindList: TPanel
         Left = 0
         Top = 0
@@ -532,6 +536,10 @@ object Form9: TForm9
     object TabSheet3: TTabSheet
       Caption = #1046#1091#1088#1085#1072#1083
       ImageIndex = 2
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object pnJournal: TPanel
         Left = 0
         Top = 0

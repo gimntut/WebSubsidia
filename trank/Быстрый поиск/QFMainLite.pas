@@ -32,106 +32,58 @@ type
     acCopyValue: TAction;
     ActionList1: TActionList;
     ApplicationEvents1: TApplicationEvents;
-    CheckBankBtn: TToolButton;
     DetailListMenu: TPopupMenu;
-    Edit1: TEdit;
-    ExcelAsIsBtn: TToolButton;
-    ExcelFillBtn: TToolButton;
+    edSearchLine: TEdit;
     ImageList1: TImageList;
-    JournalBtn: TToolButton;
-    lbSpravkaPoPrograme: TLabel;
     lbReklama: TLabel;
-    leJournalPlus: TLabeledEdit;
     lstDetails: TListBox;
     lstMaster: TListBox;
     Memo1: TMemo;
     Memo3: TMemo;
-    MemoModeBtn: TToolButton;
     MenuItem1: TMenuItem;
-    MenuItem2: TMenuItem;
     mmHelp: TMemo;
-    mnANSI: TMenuItem;
-    mnComma: TMenuItem;
-    mnNull: TMenuItem;
-    mnOEM: TMenuItem;
-    mnOriginalText: TMenuItem;
-    mnPointComma: TMenuItem;
-    mnTab: TMenuItem;
-    mnTransformed: TMenuItem;
     N4: TMenuItem;
-    N5: TMenuItem;
     N6: TMenuItem;
-    N7: TMenuItem;
-    N8: TMenuItem;
-    N9: TMenuItem;
-    N11: TMenuItem;
     N12: TMenuItem;
-    N13: TMenuItem;
     N14: TMenuItem;
     N15: TMenuItem;
-    NewBtn: TToolButton;
-    OpenBtn: TToolButton;
-    OpenDialog1: TOpenDialog;
-    OpenFileMenu: TPopupMenu;
     PageControl1: TPageControl;
     Panel1: TPanel;
     pnMaster: TPanel;
     pnDetails: TPanel;
     pnOutput: TPanel;
-    Panel5: TPanel;
     Panel6: TPanel;
     pnFindList: TPanel;
     pnHelp: TPanel;
-    pnJournal: TPanel;
     pnMemo: TPanel;
-    PrintBtn: TToolButton;
     PrintDialog1: TPrintDialog;
-    sgJournal: TStringGrid;
-    SortBtn: TToolButton;
-    SortMenu: TPopupMenu;
     SpeedButton1: TSpeedButton;
     Splitter1: TSplitter;
-    SpravkaBtn: TToolButton;
-    SpravkiMenu: TPopupMenu;
     TabSheet1: TTabSheet;
     TabSheet2: TTabSheet;
-    TabSheet3: TTabSheet;
-    TextModeBtn: TToolButton;
     Timer1: TTimer;
     ToolBar1: TToolBar;
-    ToolBar2: TToolBar;
-    ToolButton1: TToolButton;
     ToolButton2: TToolButton;
-    ToolButton3: TToolButton;
     ToolButton4: TToolButton;
     ToolButton5: TToolButton;
-    ToolButton6: TToolButton;
-    ToolButton7: TToolButton;
-    ToolButton8: TToolButton;
-    ToolButton9: TToolButton;
-    ToolButton11: TToolButton;
     TopListMenu: TPopupMenu;
     XPManifest1: TXPManifest;
-    ToolButton10: TToolButton;
     btnSplitMode: TToolButton;
+    MemoModeBtn: TToolButton;
     procedure acCopyExecute(Sender: TObject);
     procedure acCopyParamValueExecute(Sender: TObject);
     procedure acCopyTableExecute(Sender: TObject);
     procedure acCopyValueExecute(Sender: TObject);
     procedure ApplicationEvents1Hint(Sender: TObject);
-    procedure CheckBankBtnClick(Sender: TObject);
     procedure DetailListMenuPopup(Sender: TObject);
-    procedure Edit1Change(Sender: TObject);
-    procedure Edit1KeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure Edit1KeyPress(Sender: TObject; var Key: Char);
-    procedure ExcelAsIsBtnClick(Sender: TObject);
-    procedure ExcelFillBtnClick(Sender: TObject);
+    procedure edSearchLineChange(Sender: TObject);
+    procedure edSearchLineKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure edSearchLineKeyPress(Sender: TObject; var Key: Char);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure JournalBtnClick(Sender: TObject);
     procedure lbReklamaClick(Sender: TObject);
     procedure lbReklamaMouseEnter(Sender: TObject);
     procedure lbReklamaMouseLeave(Sender: TObject);
@@ -140,58 +92,46 @@ type
     procedure lstDetailsDblClick(Sender: TObject);
     procedure lstMasterDblClick(Sender: TObject);
     procedure MemoModeBtnClick(Sender: TObject);
-    procedure mmHelpDblClick(Sender: TObject);
     procedure mnStateClick(Sender: TObject);
-    procedure N5Click(Sender: TObject);
-    procedure N9Click(Sender: TObject);
-    procedure N10Click(Sender: TObject);
     procedure N14Click(Sender: TObject);
     procedure N15Click(Sender: TObject);
     procedure NewBtnClick(Sender: TObject);
-    procedure OpenBtnClick(Sender: TObject);
     procedure pnMasterResize(Sender: TObject);
     procedure PrintBtnClick(Sender: TObject);
-    procedure sgJournalDrawCell(Sender: TObject; ACol, ARow: Integer; Rect: TRect; State: TGridDrawState);
     procedure SpeedButton1Click(Sender: TObject);
     procedure SpeedButton1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure Timer1Timer(Sender: TObject);
     procedure ToolButton2Click(Sender: TObject);
     procedure ToolButton4Click(Sender: TObject);
     procedure ToolButton9Click(Sender: TObject);
-    procedure ToolButton10Click(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure btnSplitModeClick(Sender: TObject);
   private
-    Chpr:TChprList;
+    ActList:TObjectList;
+    CaptionName: string;
+    Catch: TgsCatcher;
     Chpr2:TChprList;
     Chpr3:TChprList;
-    Table:TStringList;
-    TmpSts:TStringList;
-    BankColumn:Integer;
-    CaptionName: string;
-    IniFileName: string;
-    SpravkiSts:TStringList;
-    FSpravkaType: Integer;
-    FSpravkaPath: string;
+    Chpr:TChprList;
+    ExtFileList: string;
+    FFontSize: Integer;
+    FHorzSplit: boolean;
     FKey: Word;
+    FSpravkaPath: string;
+    FSpravkaType: Integer;
+    InFile: string;
+    IniFileName: string;
+    JObject:ISuperObject;
     LastSearh: string;
     MaxWidth: Integer;
     MessageStr: string;
-    ActList:TObjectList;
-    ExtFileList: string;
-    FFontSize: Integer;
     PagePanel: TPagePanel;
-    BankListType: Integer;
-    Widths: ISuperObject;
-    WebProtocol: string;
-    WebSite: string;
-    Catch: TgsCatcher;
-    FHorzSplit: boolean;
-    InFile: string;
+    SpravkiSts:TStringList;
+    Table:TStringList;
+    TmpSts:TStringList;
     //procedure ShowSpravkaF5_2(Sender:TObject; Memo:StdCtrls.TMemo);
     function ChprIndex:Integer;
     function GetDetail: string;
-    function GetFileNameForExcel: string;
     function GetFloatValue(J: Integer; S: string):Extended;
     function GetMemoMode: Boolean;
     function GetValidLS(s: string): string;
@@ -199,11 +139,8 @@ type
     function PrepareEDKResult(s: string):boolean;
     function PrepareF5Result(s: string):boolean;
     function PrepareFindResult(s: string; Table2:string):boolean;
-    procedure CheckBank(Sender:TObject; Index:Integer; S:string; var Show:boolean);
-    procedure InitColumns;
-    procedure JournalClick(Sender: TObject);
-    procedure LinkChild;
-    procedure LinkEDK;
+    function PrepareFindRes(s: string):boolean;
+    function A2B(s:string):string;
     procedure LoadIni;
     procedure OpenFile(FileName: string);
     procedure OutCaption;
@@ -214,7 +151,6 @@ type
     procedure ResetEditMode;
     procedure ReturnClick;
     procedure SaveIni;
-    procedure SaveToTmpCsv;
     procedure SetFontSize(const Value: Integer);
     procedure SetMemoMode(const Value: Boolean);
     procedure SetNewFontSize(WinControl: TWinControl; const Value: Integer);
@@ -224,9 +160,6 @@ type
     procedure ShowSpravkaF5_1(Sender:TObject; Memo:StdCtrls.TMemo);
     procedure ShowSverka(Sender:TObject; Memo:StdCtrls.TMemo);
     procedure SolveF7(DateV: TDate; var LastOtvet: Extended; var Otvet: Extended);
-    procedure SortClick(Sender: TObject);
-    procedure SpravkaClick(Sender: TObject);
-    procedure TextState;
     procedure SetHorzSplit(const Value: boolean);
     procedure InitCatch;
   protected
@@ -249,8 +182,6 @@ const
   sptEDK = 1;
   sptChild = 2;
   sptF5 = 3;
-  sptFirstList = 4;
-  sptJournal = 5;
   // BankListType
   blNone = 0;
   blChoice = 1;
@@ -261,7 +192,7 @@ const
   'SUMMA', 'FACT', 'OTKAZ', 'SPEC', 'DateZap');
   jrnHeaders = ('"№ п/п","№ дела","Дата обращения","ФИО","Адрес","Сумма",'
   +'"Факт.оплата","Причина отказа","Специалист","Дата записи"');
-  
+
   FieldsEDK_DB1: string
                  =( 'FAMILY=Фамилия,NAME=Имя,FATHER=Отчество,PN=Нас.Пункт,'+
                     'ST=Улица,HOUSE=Дом,KORP=Корп,FLAT=Квартира,'+
@@ -281,8 +212,22 @@ const
 implementation
 uses Publ, PublFile, ShellAPI, ClipBrd, Printers, QFLoadList, ShFolder, Registry,
   StrUtils, PublStr, QFTemplate, IniFiles, DateIntervalDlg, DateUtils, Types,
-  cdbf, Math, uImportBases, QFMain;
+  Math, uImportBases;
 {$R *.dfm}
+
+function TForm9Lite.A2B(s: string): string;
+var
+  TmpSts:TStringList;
+begin
+  TmpSts := TStringList.Create;
+  TmpSts.Clear;
+  TmpSts.Delimiter:=',';
+  TmpSts.StrictDelimiter:=false;
+  TmpSts.DelimitedText:=AnsiReplaceStr(copy(s,2,length(s)-2),'\/','/');
+  TmpSts.Delimiter:=';';
+  Result:=TmpSts.DelimitedText;
+  TmpSts.Free;
+end;
 
 procedure TForm9Lite.acCopyExecute(Sender: TObject);
 var
@@ -345,65 +290,36 @@ begin
   HorzSplit:=not HorzSplit;
 end;
 
-procedure TForm9Lite.CheckBank(Sender: TObject; Index: Integer; S: string;
-  var Show: boolean);
-var
-  SkipLines: Integer;
-  SkipEndLines: Integer;
-begin
-  if BankColumn=-1
-  then
-    Show:=not CheckBankNum(S)
-  else begin
-    SkipLines:=0;
-    SkipEndLines:=0;
-    case BankListType of
-      blOldReestr: begin
-       SkipLines:=11;
-       SkipEndLines:=1;
-      end;
-      blReestr: begin
-        SkipLines:=7;
-        SkipEndLines:=2;
-      end;
-    end;
-    s:=chpr.Values[Index][BankColumn];
-    Show:=Index>=SkipLines;
-    Show:=Show and (Index<chpr.Count-SkipEndLines);
-    Show:=Show and not CheckBankNum(s);
-  end;
-end;
-
-procedure TForm9Lite.Edit1Change(Sender: TObject);
+procedure TForm9Lite.edSearchLineChange(Sender: TObject);
 var
   SelStart: Integer;
   SelLength: Integer;
 begin
-  if pos(#9,Edit1.text)>0 then begin
-    Edit1.OnChange:=nil;
-    SelStart:=Edit1.SelStart;
-    SelLength:=Edit1.SelLength;
-    Edit1.Text:=AnsiReplaceStr(Edit1.Text,#9,' ');
-    Edit1.SelStart:=SelStart;
-    Edit1.SelLength:=SelLength;
-    Edit1.OnChange:=Edit1Change;
+  if pos(#9,edSearchLine.text)>0 then begin
+    edSearchLine.OnChange:=nil;
+    SelStart:=edSearchLine.SelStart;
+    SelLength:=edSearchLine.SelLength;
+    edSearchLine.Text:=AnsiReplaceStr(edSearchLine.Text,#9,' ');
+    edSearchLine.SelStart:=SelStart;
+    edSearchLine.SelLength:=SelLength;
+    edSearchLine.OnChange:=edSearchLineChange;
   end;
   if FSpravkaType=sptNone then ;
   Exit;
   case SpravkaType of
-    sptEDK: OutFoundEDK(Edit1.Text);
-    sptChild: OutFoundEDK(Edit1.Text);
-    sptF5: OutFoundF5(GetValidLS(Edit1.Text));
+    sptEDK: OutFoundEDK(edSearchLine.Text);
+    sptChild: OutFoundEDK(edSearchLine.Text);
+    sptF5: OutFoundF5(GetValidLS(edSearchLine.Text));
   end;
 end;
 
-procedure TForm9Lite.Edit1KeyDown(Sender: TObject; var Key: Word;
+procedure TForm9Lite.edSearchLineKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
   if Key=VK_RETURN then Key:=0;
 end;
 
-procedure TForm9Lite.Edit1KeyPress(Sender: TObject; var Key: Char);
+procedure TForm9Lite.edSearchLineKeyPress(Sender: TObject; var Key: Char);
 var
   ss,sl:Integer;
 begin
@@ -412,14 +328,13 @@ begin
   end;
   if not (ActiveControl is TCustomEdit) and (PublStr.AnsiUpperCase(Key)[1] in ['0'..'9','A'..'Z','А'..'Я'])
   then begin
-    ss:=Edit1.SelStart;
-    sl:=Edit1.SelLength;
-    Edit1.SetFocus;
-    Edit1.SelStart:=ss;
-    Edit1.SelLength:=sl;
-    Edit1.Perform(WM_CHAR,ord(Key),0);
+    ss:=edSearchLine.SelStart;
+    sl:=edSearchLine.SelLength;
+    edSearchLine.SetFocus;
+    edSearchLine.SelStart:=ss;
+    edSearchLine.SelLength:=sl;
+    edSearchLine.Perform(WM_CHAR,ord(Key),0);
   end;
-  
 end;
 
 procedure TForm9Lite.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -451,8 +366,6 @@ begin
   Log('Create ActList');
   ActList:=TObjectList.Create(true);
   Table.CommaText:=jrnHeaders;
-  sgJournal.ColCount:=Table.Count;
-  sgJournal.Rows[0].Assign(Table);
   IniFileName:=ProgramPath+'\QFS.ini';
   //LoadIni;
   Chpr.InnerDelimeter:=';';
@@ -460,7 +373,6 @@ begin
   Chpr.IsTransformed:=true;
   Chpr.Filling:=true;
   Chpr.TableLength:=1000;
-  n13.Enabled:=true;
   MessageStr:='Прежде чем начать поиск, выберите список по которому будете искать'
   +#13#10'Для возврата к названиям списков нажмит ESC';
   FN:=ExpandFileName(ParamStr(1));
@@ -487,8 +399,6 @@ end;
 
 procedure TForm9Lite.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
-var
-  pnt: TPoint;
 begin
   case ShortCut(Key,Shift) of
     VK_RETURN: ReturnClick;
@@ -501,42 +411,22 @@ begin
       Key:=0;
     end;
     VK_ESCAPE: begin
-      Edit1.Text:='';
+      edSearchLine.Text:='';
       SpeedButton1.Click;
     end;
-    scCtrl+scShift+ORD('O'): begin
-      pnt:=Point(OpenBtn.Left,OpenBtn.Top+OpenBtn.Height);
-      Pnt:=ToolBar1.ClientToScreen(Pnt);
-      OpenBtn.DropdownMenu.Popup(Pnt.X,Pnt.Y);
-    end;
-    scCtrl+ORD('N'): begin
-      NewBtn.Click;
-    end;
-    scCtrl+ORD('O'): begin
-      OpenBtn.Click;
-    end;
     scCtrl+ORD('P'), VK_F9: begin
-      PrintBtn.Click;
+      PrintBtnClick(nil);
     end;
   end;
 end;
 
 procedure TForm9Lite.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-var
-  pnt: TPoint;
 begin
   case ShortCut(Key,Shift) of
     scAlt+VK_RETURN: if WindowState=wsMaximized
                      then WindowState:=wsNormal
                      else WindowState:=wsMaximized;
     scCtrl+VK_RETURN: PrintSpravka;
-    VK_F2: begin
-      pnt:=Point(SpravkaBtn.Left,SpravkaBtn.Top+SpravkaBtn.Height);
-      Pnt:=ToolBar1.ClientToScreen(Pnt);
-
-      SpravkaBtn.DropdownMenu.Popup(Pnt.X,Pnt.Y);
-
-    end;
   end;
   Key:=0;
 end;
@@ -580,59 +470,49 @@ begin
   Result := Str2Float(AnsiReplaceStr(Chpr3.ValueByName[J, S], '.', DecimalSeparator));
 end;
 
-procedure TForm9Lite.SortClick(Sender: TObject);
-begin
-  Chpr.SortedField:=TControl(Sender).Tag;
-  OutTable;
-end;
-
 procedure TForm9Lite.OpenFile(FileName: string);
 var
-  S:string;
-  OldFileName: string;
+  jAr:TSuperArray;
+  I: Integer;
+  sts: TStringList;
 begin
-  OpenDialog1.FileName:=FileName;
-  SpravkaType := sptNone;
+//  MemoMode:=true;
+  JObject:=so(LoadStrFromFile(FileName));
+  Memo1.Text :=JObject['db1.fields'].AsString;
+  sts := TStringList.Create;
+  sts.Add(A2B(JObject['db1.fields'].AsString));
+  jAr := JObject['db1.values'].AsArray;
+  for I := 0 to jAr.Length - 1 do sts.Add(A2B(jAr.S[I]));
+//  Memo1.lines:=sts;
+  //////////////////////////////////////////////////////////
   ResetEditMode;
-  if SameText(ExtractFileExt(FileName),'.dbf') then begin
-    OldFileName:=FileName;
-    FileName:=TempPath+ChangeFileExt(ExtractFileName(FileName),'.csv');
-    DbfToCsv(OldFileName,FileName,False);
-  end;
-  S:=Edit1.Text;
-  Chpr.Clear;
   Chpr.OnCustomFilter:=nil;
   Chpr.Filter:='';
-  Chpr.IsTransformed := false;
-  Chpr.IsOEMSource := false;
-  Chpr.LoadFromFile(FileName);
-  Chpr.AutoConfig;
-  n13.Enabled:=Chpr.IsTransformed;
-  Edit1.Text:=S;
-  Chpr.Filter:=S;
-  TextState;
+  Chpr.Mode := mdCsv;
+  Chpr.Text:=sts.Text;
+//  MemoMode := true;
+//  Memo1.Lines:=sts;
+  sts.Free;
   MessageStr:='';
+  Chpr.ShowFields.DelimitedText:=FieldsEDK_DB1;
   OutTable;
+  SpravkaType := sptChild;
 end;
 
 procedure TForm9Lite.OutTable(NoDataText:string='Нет данных');
 var
   I: Integer;
-  It: TMenuItem;
-  SortItems: TMenuItem;
   MxL: Integer;
   MinPos: Integer;
   MaxPos: Integer;
   st: string;
 begin
   Table.Assign(Chpr.AsTable);
-  MemoModeBtn.Visible:=not Chpr.IsTransformed;
-  SortBtn.Enabled:=(Chpr.Count>0) and (Chpr.FieldNames.Count>0);
-  //Label1.Caption := Table[0];
+//  MemoModeBtn.Visible:=not Chpr.IsTransformed;
   Memo3.Text:= Table[0];
   Table.Delete(1);
   Table.Delete(0);
-  lstMaster.Items.BeginUpdate;
+  lstMaster.Items.BeginUpdate;                               
   lstMaster.Items := Table;
   if Table.Count=0 then begin
     lstMaster.Items.Text:=NoDataText;
@@ -648,19 +528,9 @@ begin
   inc(MxL);
 //  lstMaster.Items.SaveToFile('c:\---.---');
   lstMaster.Items.EndUpdate;
-  SortItems:=SortMenu.Items;
-  SortItems.Clear;
-  for I := 0 to Chpr.FieldNames.Count - 1 do begin
-    It:=TMenuItem.Create(SortMenu);
-    It.Caption:=Chpr.FieldNames[I];
-    It.OnClick:=SortClick;
-    it.Tag:=I;
-    SortItems.Add(it);
-  end;
   if lstMaster.Count>0 then lstMaster.Selected[0]:=true;
   ListBoxClick(lstMaster);
   OutCaption;
-  TextState;
   //ShowScrollBar(Memo3.Handle,SB_HORZ,True);
   lstMaster.Canvas.Font:=lstMaster.Font;
   SetScrollRange(Memo3.Handle,SB_HORZ,0,MxL*(lstMaster.Canvas.TextWidth('W')),TRUE);
@@ -688,23 +558,15 @@ begin
   s := CaptionName;
   case SpravkaType of
     sptNone: begin
-      if s = '' then
-        s := ExtractFileName(OpenDialog1.FileName);
-      if Edit1.Text <> '' then
-        s2 := format('. Поиск "%s" (%d/%d)', [Edit1.Text, Chpr.FilterCount-1, Chpr.Count-1]);
+      if edSearchLine.Text <> '' then
+        s2 := format('. Поиск "%s" (%d/%d)', [edSearchLine.Text, Chpr.FilterCount-1, Chpr.Count-1]);
       Caption := format('Работа со списком "%s"%s', [s, s2]);
       //Application.Title:=format('Работа со списком', [GetFileDate(ParamStr(0))]);
     end;
-    sptFirstList: Caption:='Работа со списками';
     sptEDK: Caption := 'Справки ЕДК';
     sptChild: Caption := 'Справки Детские пособия';
     sptF5: Caption := 'Справки Суммы выплат субсидий';
   end;
-end;
-
-procedure TForm9Lite.LinkEDK;
-begin
-  Dummy;
 end;
 
 //procedure TForm9.GenerateFile;
@@ -719,24 +581,7 @@ var
 begin
   Ini:=TIniFile.Create(IniFileName);
   Ini.WriteInteger('Customize','FontSize',FFontSize);
-  if Assigned(Widths) then
-    Ini.WriteString('Customize','JrnWidths',Widths.AsString);
   Ini.Free;
-end;
-
-procedure TForm9Lite.SaveToTmpCsv;
-var
-  S: string;
-  Dir: string;
-begin
-  S:=GetFileNameForExcel;
-  try
-    chpr.SaveToFile(S);
-  except
-    on Exception do Exception.Create('Возможно файл уже занят. Закройте Excel и попробуйте снова');
-  end;
-  Dir := GetSpecialFolderPath(CSIDL_PERSONAL);
-  ShellExecute(0, 'open', PAnsiChar(S), PAnsiChar(Dir), '', SW_NORMAL);
 end;
 
 procedure TForm9Lite.SeparateDetail(Index:integer; out Parameter, Detail: string);
@@ -862,25 +707,9 @@ begin
     sptNone: begin
       MessageStr:='Ничего не найдено!'
     end;
-    sptEDK: LinkEDK;
-    sptChild: LinkChild;
     else ;
   end;
   OutCaption;
-end;
-
-procedure TForm9Lite.sgJournalDrawCell(Sender: TObject; ACol, ARow: Integer;
-  Rect: TRect; State: TGridDrawState);
-var
-  I: Integer;
-  x: TSuperArray;
-begin
-  Widths:=SO('[]');
-  for I := 0 to sgJournal.ColCount - 1 do begin
-    x:=Widths.AsArray;
-    x.Add(so(format('%d',[sgJournal.ColWidths[i]])));
-  end;
-//  Caption:=Widths.AsString;
 end;
 
 procedure TForm9Lite.OutFoundEDK(s:string);
@@ -915,7 +744,7 @@ begin
   finally
     FastBase.Free;
   end;
-  LastSearh:=Edit1.Text;
+  LastSearh:=edSearchLine.Text;
 end;
 
 const
@@ -965,25 +794,12 @@ begin
   finally
     FastBase.Free;
   end;
-  LastSearh:=Edit1.Text;
+  LastSearh:=edSearchLine.Text;
 end;
 
 function TForm9Lite.GetMemoMode: Boolean;
 begin
   Result:=MemoModeBtn.Down;
-end;
-
-procedure TForm9Lite.InitColumns;
-var
-  i: Integer;
-begin
-  if Widths <> nil then
-  begin
-    for i := 0 to Widths.AsArray.Length - 1 do
-    begin
-      sgJournal.ColWidths[i] := Widths.AsArray[i].AsInteger;
-    end;
-  end;
 end;
 
 const
@@ -1005,11 +821,6 @@ SpravkaF5Niz=
 '    Директор____________________           Подпись_____________'+#13#10;
 
 
-procedure TForm9Lite.LinkChild;
-begin
-  Dummy;
-end;
-
 procedure TForm9Lite.PrintSpravka;
 var
   LC: string;
@@ -1024,13 +835,17 @@ begin
         KeyPreview:=false;
         Ind := ChprIndex;
         if Ind = -1 then Exit;
-        LC := Chpr.Values[Ind][10];
+        LC := Chpr.ValueByName[Ind,'LCHET'];
         PrepareEDKResult(LC);
         PeriodDlg.OnChangeInterval:=ShowSpravkaEDK;
         PeriodDlg.TriggersOff;
+        PeriodDlg.FastPrint:=true;
         if PeriodDlg.Execute then
         begin
+          MemoMode:=true;
           ShowSpravkaEDK(PeriodDlg,Memo1);
+          PrintBtnClick(nil);
+          MemoMode:=false;
         end else begin
           MemoMode:=false;
         end;
@@ -1057,23 +872,18 @@ begin
         end;
         KeyPreview:=true;
       end;
-    sptFirstList: begin
-      Ind:=ChprIndex;
-      if (Ind=-1) or (ActList[Ind]=nil) then Exit;
-      TAction(ActList[Ind]).Execute;
-    end;
   end;
 end;
 
 procedure TForm9Lite.ReturnClick;
 var
   s: string;
-  Ind: Integer;
   ChangedFindStr:boolean;
 begin
-  s := Edit1.Text;
-  ChangedFindStr:= not ((Edit1.Text = LastSearh) and (Chpr.FilterCount <> 0)
+  s := edSearchLine.Text;
+  ChangedFindStr:= not ((edSearchLine.Text = LastSearh) and (Chpr.FilterCount <> 0)
                    and (lstMaster.ItemIndex <> -1));
+  SpravkaType := sptChild;
   case SpravkaType of
     sptNone:
       begin
@@ -1101,72 +911,12 @@ begin
         not MemoMode
       then PrintSpravka
       else begin
-        s:=Edit1.Text;
-        if s<>'' then Edit1.Text:=GetValidLS(s);
-        OutFoundF5(Edit1.Text);
-//        if lstMaster.Count>0 then
-//          if Integer(lstMaster.Items[0])>0 then PrintSpravka;
-      end;
-    end;
-    sptFirstList: begin
-      if ChangedFindStr then begin
-        lstDetails.Clear;
-        Chpr.Filter := s;
-        OutTable(MessageStr);
-        LastSearh := s;
-      end else begin
-        Ind:=ChprIndex;
-        if (Ind=-1) or (ActList[Ind]=nil) then Exit;
-        TAction(ActList[Ind]).Execute;
+        s:=edSearchLine.Text;
+        if s<>'' then edSearchLine.Text:=GetValidLS(s);
+        OutFoundF5(edSearchLine.Text);
       end;
     end;
   end;
-end;
-
-procedure TForm9Lite.TextState;
-var
-  I: Integer;
-const
-  BankColumnName:array[0..2] of string = ('N счета в банке','NCHETA','B');
-begin
-  if Chpr.IsTransformed then
-    mnTransformed.Checked := true
-  else
-    mnOriginalText.Checked := true;
-  n13.Enabled := Chpr.IsTransformed;
-  if Chpr.IsOEMSource then
-    mnOEM.Checked := true
-  else
-    mnANSI.Checked := true;
-  case Chpr.InnerDelimeter of
-    ',':
-      mnComma.Checked := true;
-    ';':
-      mnPointComma.Checked := true;
-     #9:
-      mnTab.Checked := true;
-     #0:
-      mnNull.Checked := true;
-  end;
-  BankListType:=blNone;
-  for I := 0 to 2 do begin
-    BankColumn := chpr.FieldNames.IndexOf(BankColumnName[i]);
-    if BankColumn=-1 then Continue;
-    case I of
-      0: BankListType:=blChoice;
-      1: BankListType:=blSV2;
-      2: begin
-        if chpr.Values[0][0]='УРАЛЬСКИЙ БАНК' then begin
-          BankListType:=blOldReestr;
-        end else if chpr.Values[1][0]='К платежному поручению №' then begin
-          BankListType:=blReestr;
-        end;
-      end;
-    end;
-    Chpr.TableLength:=15000;
-    break;
-  end;
-  CheckBankBtn.Enabled := BankColumn <> -1;
 end;
 
 procedure TForm9Lite.Timer1Timer(Sender: TObject);
@@ -1181,11 +931,6 @@ begin
  KeyPreview:=true;
  FKey:=0;
  //lstMaster.OnClick(lstMaster);
-end;
-
-procedure TForm9Lite.ToolButton10Click(Sender: TObject);
-begin
-  chpr.SaveAsFlat('d:\!Test\test.flat');
 end;
 
 procedure TForm9Lite.ToolButton2Click(Sender: TObject);
@@ -1253,7 +998,7 @@ begin
   S:=lstDetails.Items[Ind];
   P:=pos(':',S);
   if P>0 then System.Delete(S,1,p+1);
-  Edit1.Text:=PublStr.Trim(S);
+  edSearchLine.Text:=PublStr.Trim(S);
   SpeedButton1.Click;
 end;
 
@@ -1303,38 +1048,12 @@ end;
 procedure TForm9Lite.LoadIni;
 var
   Ini:TIniFile;
-  I: Integer;
-  it:TMenuItem;
-  s: string;
 begin
   Ini:=TIniFile.Create(IniFileName);
   Ini.ReadSectionValues('Spravki',SpravkiSts);
   FontSize:=Ini.ReadInteger('Customize','FontSize',10);
-  s:=Ini.ReadString('Customize','JrnWidths','[]');
-  Widths:=so(s);
-  InitColumns;
-  WebProtocol:=Ini.ReadString('WebServer','Protocol','http');
-  WebSite:=Ini.ReadString('WebServer','Address','server');
   ExtFileList:=Ini.ReadString('External','FileList','');
   Ini.Free;
-  SpravkiMenu.Items.Clear;
-  for I := 0 to SpravkiSts.Count - 1 do begin
-    it:=TMenuItem.Create(SpravkiMenu);
-    it.Tag:=I;
-    it.OnClick:=SpravkaClick;
-    it.Caption:='&'+IntToStr(I+1)+' '+SpravkiSts.Names[I];
-    SpravkiMenu.Items.add(it);
-  end;
-end;
-
-procedure TForm9Lite.mmHelpDblClick(Sender: TObject);
-begin
-  OpenDialog1.FilterIndex:=1;
-  if OpenDialog1.Execute then begin
-    if OpenDialog1.FilterIndex<>1 then Exit;
-    CreateIndexForCSV(OpenDialog1.FileName,OpenDialog1.FileName+'.Index',0);
-    CreateIndexForTxt(OpenDialog1.FileName,OpenDialog1.FileName+'.BIndex');
-  end;
 end;
 
 procedure TForm9Lite.mnStateClick(Sender: TObject);
@@ -1347,7 +1066,6 @@ begin
       Chpr.IsTransformed:=TControl(Sender).Tag=11;
       if Chpr.IsTransformed then
         ResetEditMode;
-      n13.Enabled:=Chpr.IsTransformed;
     end;
     21,22: Chpr.IsOEMSource:=TControl(Sender).Tag=21;
     31: Chpr.InnerDelimeter:=',';
@@ -1356,16 +1074,6 @@ begin
     34: Chpr.InnerDelimeter:=#0;
   end;
   OutTable;
-  TextState;
-end;
-
-procedure TForm9Lite.N10Click(Sender: TObject);
-var
-  s:string;
-begin
-  s:=ExtractFileName(ExtractFileDir(OpenDialog1.FileName));
-  if s='' then Exit;
-  if not InputQuery('Важная папка','Введите псевдоним папки',s) then Exit;
 end;
 
 procedure TForm9Lite.N14Click(Sender: TObject);
@@ -1379,18 +1087,6 @@ begin
 //  Caption:='/select,"'+Detail+'"';
 end;
 
-procedure TForm9Lite.N5Click(Sender: TObject);
-begin
-  OpenBtn.Click;
-end;
-
-procedure TForm9Lite.N9Click(Sender: TObject);
-begin
-  if QFTemlateDlg.Execute then begin
-
-  end;
-end;
-
 procedure TForm9Lite.SpeedButton1Click(Sender: TObject);
 begin
   ReturnClick;
@@ -1402,49 +1098,9 @@ begin
   if Button=mbRight then Chpr.TableLength:=10000;
 end;
 
-procedure TForm9Lite.SpravkaClick(Sender: TObject);
-var
-  it: TComponent;
-  s:string;
-  OldSpt:Integer;
-  tg:Integer;
-begin
-  it:=TComponent(Sender);
-  Tg:=it.Tag;
-  FSpravkaPath:=SpravkiSts.ValueFromIndex[it.tag];
-  if RightStr(FSpravkaPath,1)<>'\' then FSpravkaPath:=FSpravkaPath+'\';
-  s:=SpravkiSts.Names[tg];
-  OldSpt:=SpravkaType;
-  if SameText(s,'ЕДК') then SpravkaType:=sptEDK;
-  if SameText(s,'Детские пособия') then SpravkaType:=sptChild;
-  if SameText(Copy(s,1,7),'Выплаты') then SpravkaType:=sptF5;
-  PagePanel.ActivePageIndex:=0;
-  if OldSpt<>SpravkaType then LastSearh:='';
-  lstMaster.Clear;
-end;
-
 procedure TForm9Lite.MemoModeBtnClick(Sender: TObject);
 begin
   MemoMode:=MemoModeBtn.Down;
-end;
-
-procedure TForm9Lite.OpenBtnClick(Sender: TObject);
-begin
-  CaptionName:='';
-  if OpenDialog1.Execute then
-    OpenFile(OpenDialog1.FileName);
-end;
-
-procedure TForm9Lite.CheckBankBtnClick(Sender: TObject);
-var
-  OldFilling:Boolean;
-begin
-  OldFilling:=Chpr.Filling;
-  Chpr.Filling:=true;
-  chpr.OnCustomFilter:=CheckBank;
-  OutTable('Все счета правильные');
-  chpr.OnCustomFilter:=nil;
-  Chpr.Filling:=OldFilling;
 end;
 
 procedure TForm9Lite.ShowSpravkaEDK(Sender: TObject; Memo: StdCtrls.TMemo);
@@ -1494,11 +1150,11 @@ var
 
 begin{ TODO -oНаиль : Убрать привязку ЛистБокс1 }
   IntervalDlg:=TPeriodDlg(Sender);
-  LC:=TmpSts[10];
-  FIO:=format('%s %s %s',[TmpSts[0],TmpSts[1],TmpSts[2]]);
-  Adres:=format('%s ул.%s, д.%s',[TmpSts[3],TmpSts[4],ContStr(ContStr(TmpSts[5],'/',TmpSts[6]),' кв.',TmpSts[7])]);
-  Pens:=TmpSts[8];
-  Ist:=TmpSts[9];
+  LC:=TmpSts[0];
+  FIO:=format('%s %s %s',[TmpSts[3],TmpSts[4],TmpSts[5]]);
+  Adres:=format('%s ул.%s, д.%s',[TmpSts[48],TmpSts[47],ContStr(ContStr(TmpSts[8],'/',TmpSts[9]),' кв.',TmpSts[10])]);
+  Pens:=TmpSts[23];
+  Ist:=TmpSts[22];
   ChprTmp:= TChprList.Create;
   ChprTmp.Mode:=mdCSv;
   ChprTmp.Text:=//ResultStr;
@@ -1515,8 +1171,8 @@ begin{ TODO -oНаиль : Убрать привязку ЛистБокс1 }
     if not ((DateV>IntervalDlg.StartInterval-0.5) and (DateV<IntervalDlg.EndInterval+0.5))
     then Continue;
     RSts.Add(Float2Str(DateV,0)+ChprTmp[i+1]);
-    if (ChprTmp.Values[i][3]<>'0.00') or (ChprTmp.Values[i][4]<>'') then Stolbi:=Stolbi+[R1];
-    if (ChprTmp.Values[i][8]<>'0.00') or (ChprTmp.Values[i][10]<>'') or (ChprTmp.Values[i][11]<>'0') then Stolbi:=Stolbi+[raz];
+    if (ChprTmp.Values[i][3]<>'0.00') or (ChprTmp.Values[i][4]<>'  .  .    ') then Stolbi:=Stolbi+[R1];
+    if (ChprTmp.Values[i][8]<>'0.00') or (ChprTmp.Values[i][10]<>'  .  .    ') or (ChprTmp.Values[i][11]<>'0') then Stolbi:=Stolbi+[raz];
     if (ChprTmp.Values[i][5]<>'') then Stolbi:=Stolbi+[ud];
   end;
   RSts.Sort;
@@ -1609,7 +1265,7 @@ begin{ TODO -oНаиль : Убрать привязку ЛистБокс1 }
     ResultStr := ResultStr +#13#10'Суммы по периодам:'#13#10+ RSts.Text;
   if RSts.Count>1 then
     ResultStr := ResultStr+format(#13#10'ИТОГО: %.2f'#13#10,[TotalSum]);
-  MemoMode:=true;
+//  MemoMode:=true;
   Memo.Text:=ResultStr;
 //  Memo.Lines.AddStrings(Chpr2.asTable);
 //  Memo.Lines.AddStrings(Chpr3.asTable);
@@ -1955,7 +1611,7 @@ end;
 
 function TForm9Lite.PrepareEDKResult(s: string): boolean;
 begin
-  Result:=PrepareFindResult(s,'base1');
+  Result:=PrepareFindRes(s);
 end;
 
 function TForm9Lite.PrepareF5Result(s: string):boolean;
@@ -2020,6 +1676,77 @@ begin
 //  end;
 //  if Result<>0 then Exit;
   Result:=CompareStr(n1,n2);
+end;
+
+function TForm9Lite.PrepareFindRes(s: string): boolean;
+var
+  Ind: Integer;
+  sts: TStringList;
+  jAr: TSuperArray;
+  I: Integer;
+  jAr2: TSuperArray;
+  J: Integer;
+  DateX: string;
+  DateDo: string;
+  st: string;
+begin
+  Result:=false;
+  { TODO -oНаиль : Убрать привязку ЛистБокс1 }
+  Ind := lstMaster.ItemIndex;
+  if OutSide(Ind, lstMaster.Items.Count - 1) then Exit;
+  Ind := ChprIndex;
+  if Ind = -1 then Exit;
+  TmpSts.Assign(Chpr.values[Ind]);
+  sts := TStringList.Create;
+  sts.Clear;
+  jAr := JObject['AllData'].AsArray;
+  for I := 0 to jAr.Length - 1 do begin
+    if I=0 then begin
+      sts.Add(A2B(jAr.O[I]['adb1.fields'].AsString));
+    end;
+    if jAr.O[I]['adb1.values']<>nil then begin
+      jAr2:=jAr.O[I]['adb1.values'].AsArray;
+      for J := 0 to jAr2.length - 1 do begin
+        st:=jAr2.O[J].AsArray.S[0];
+        if st<>s then Continue;
+        st:=';';
+        if J=0 then st:=';DO';
+        sts.Add(A2B(jAr2.s[J])+st);
+      end;
+    end;
+  end;
+  Chpr2.Mode:=mdCsv;
+  Chpr2.Text:=sts.Text;
+  for I := 0 to chpr2.Count - 2 do begin
+    DateX:=chpr2.Values[I][4];
+    if DateX<>'' then begin
+      DateDo:=DateToStr(StrToDateDef(chpr2.Values[I][1],1)-1);
+      chpr2[I+1]:=chpr2[I+1]+DateDo;
+    end;
+  end;
+  sts.Clear;
+  for I := 0 to jAr.Length - 1 do begin
+    if I=0 then begin
+      sts.Add(A2B(jAr.O[I]['RAS_SK.fields'].AsString));
+    end;
+    if jAr.O[I]['RAS_SK.values']<>nil then begin
+      jAr2:=jAr.O[I]['RAS_SK.values'].AsArray;
+      for J := 0 to jAr2.length - 1 do begin
+        st:=jAr2.O[J].AsArray.S[0];
+        if st<>s then Continue;
+        st:='';
+        if J=0 then st:='DateC;';
+        sts.Add(st+A2B(jAr2.s[J]));
+      end;
+    end;
+  end;
+  chpr3.Text := sts.Text;
+  for I := 0 to Chpr3.Count - 2 do begin
+    Chpr3[I+1] := IntToStr(Trunc(StrToDateDef(Chpr3.Values[I][7],0)))+';'+Chpr3[I+1];
+  end;
+  chpr3.Text := Chpr3.Text;
+  chpr3.SortedField:=0;
+  sts.Free;
 end;
 
 function TForm9Lite.PrepareFindResult(s, Table2: string): boolean;
@@ -2120,33 +1847,11 @@ begin
   Result := LeftStr('9000000', 7 - length(s)) + s;
 end;
 
-procedure TForm9Lite.JournalBtnClick(Sender: TObject);
-begin
-  JournalClick(nil);
-end;
-
-procedure TForm9Lite.JournalClick(Sender: TObject);
-begin
-  PagePanel.ActivePageIndex:=2;
-  FSpravkaType:=sptJournal;
-end;
-
 function TForm9Lite.GetDetail: string;
 var
   Param:string;
 begin
   SeparateDetail(-1,Param,Result);
-end;
-
-function TForm9Lite.GetFileNameForExcel: string;
-begin
-  if GetKeyState(VK_CONTROL)<0 then
-    if GetKeyState(VK_LSHIFT)<0 then
-      Result := OpenDialog1.FileName + '.txt'
-    else
-      Result := OpenDialog1.FileName + '.csv'
-  else
-    Result := TempPath + ExtractFileName(OpenDialog1.FileName) + '.csv';
 end;
 
 function TForm9Lite.MaxStringLength(S:string):Integer;
@@ -2178,7 +1883,6 @@ var
   TmpStr:string;
   IsDbfReestr:Boolean;
 begin
-  fn:=AnsiUpperCase(ExtractFileName(OpenDialog1.FileName));
   IsDbfReestr:=(fn<>'') and (fn[1] in ['F','T'])
   and (ExtractFileExt(fn)='.DBF') and (Chpr.Filter='');
 
@@ -2224,33 +1928,19 @@ begin
       for I := 1 to length(st) do
         if st[i]<>'|' then st1[i]:='-';
       s:=st+#13#10+st1+#13#10+s;
-      if n13.Enabled and n13.Checked then s:=Chpr.Head+#13#10+s;
-      if Edit1.Text<>'' then
+      if edSearchLine.Text<>'' then
         s:=format('По поисковому запросу "%s" найдено %d из %d записей:'#13#10+
         #13#10+
-        '%s',[Edit1.Text,Chpr.FilterCount-1,Chpr.Count-1,s]);
+        '%s',[edSearchLine.Text,Chpr.FilterCount-1,Chpr.Count-1,s]);
     end;
 
     if Pos('EPSON',AnsiUpperCase(Printer.Printers[Printer.PrinterIndex]))>0 then begin
       PrintToEpson(S);
-    end else PrintToLaser2(S,OpenDialog1.FileName,Memo1.Font.Name);
+    end else PrintToLaser2(S,'Ля-ля-ля',Memo1.Font.Name);
     if IsDbfReestr then begin
       Chpr.Text:=TmpStr;
     end;
   end;
-end;
-
-procedure TForm9Lite.ExcelAsIsBtnClick(Sender: TObject);
-begin
-  chpr.Filling:=false;
-  SaveToTmpCsv;
-  chpr.Filling:=true;
-end;
-
-procedure TForm9Lite.ExcelFillBtnClick(Sender: TObject);
-begin
-  chpr.Filling:=true;
-  SaveToTmpCsv;
 end;
 
 { TListBox }
@@ -2259,7 +1949,7 @@ procedure TListBox.WMHScroll(var Message: TWMHScroll);
 begin
   if Message.ScrollCode=SB_THUMBPOSITION then begin;
     //Form9.lbReklama.Caption:=format('%d/%d',[Message.Pos,Form9.lstMaster.ClientWidth]);
-    SendMessage(Form9.Memo3.Handle,WM_HSCROLL,SB_THUMBPOSITION +Message.Pos shl 16,0);
+    SendMessage(Form9Lite.Memo3.Handle,WM_HSCROLL,SB_THUMBPOSITION +Message.Pos shl 16,0);
     //SetScrollPos(Form9.Memo3.Handle,SB_HORZ,Message.Pos,True);
   end;
   inherited;
@@ -2277,4 +1967,3 @@ initialization
   LogLock;
   LogWindowActivate;
 end.
-
