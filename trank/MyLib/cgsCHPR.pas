@@ -67,6 +67,7 @@ type
     FUnique: Boolean;
     S: string;
     FCurrentValue: Integer;
+    FShowFields: TStrings;
     function GetAsTable: TStrings;
     function GetFieldNames: TStrings;
     function GetInnerDelimeter: Char;
@@ -76,7 +77,7 @@ type
     function GetValuesWithNames(Index: Integer): TStrings;
     function GetXValues(Row, Col: Integer): string;
     procedure ColumnSort;
-    procedure ExchangeOrder(Index1, Index2: Integer);
+//    procedure ExchangeOrder(Index1, Index2: Integer);
     procedure FieldsChange(Sender: TObject);
     procedure FineSort;
     procedure GetHead;
@@ -94,7 +95,7 @@ type
     procedure SetSortedField(const Value: Integer);
     procedure SetTableLength(const Value: Integer);
     procedure SetXValues(Row, Col: Integer; const Value: string);
-    procedure SimpleSort;
+//    procedure SimpleSort;
     procedure Test;
     procedure ValueChange(Sender: TObject);
     //////////////////////////////////////////
@@ -109,6 +110,7 @@ type
     procedure RelIndFilter;
     procedure SortFilter;
     procedure SetIsAbsIndexMode(const Value: Boolean);
+    procedure SetShowFields(const Value: TStrings);
   protected
     function  Compare(Index1, Index2: Integer): Integer;
     function Get(Index: Integer): string; override;
@@ -150,6 +152,7 @@ type
     property Order[Index:Integer]:Integer read GetOrder write SetOrder;
     property SortedField:Integer read FSortedField write SetSortedField;
     property VisibleItems[Index:Integer]:Boolean read GetVisible write SetVisible;
+    property ShowFields:TStrings read FShowFields write SetShowFields;
   end;
 
   TChprStat=record
@@ -485,6 +488,7 @@ begin
   inherited;
   FFields:=TStringList.Create;
   FValues:=TStringList.Create;
+  FShowFields:=TStringList.Create;
   FFields.OnChange:=FieldsChange;
   FFields.StrictDelimiter:=true;
   FValues.StrictDelimiter:=true;
@@ -589,41 +593,79 @@ var
   V:string;
   fs:string;
   W2: Integer;
+  ShwFldCnt: Integer;
+  FieldsNum: array of Integer;
+  JJ: Integer;
+  IsExternalFields: Boolean;
+  FiN: string;
+  cnt: Integer;
+
+  function GetV(JJ:integer):string;
+  begin
+    if IsExternalFields
+    then JJ:=FieldsNum[JJ];
+    Result:=FValues[JJ];
+  end;
+
+  function GetF(JJ:integer):string;
+  begin
+    if IsExternalFields
+    then Result := ShowFields.ValueFromIndex[JJ]
+    else Result := FieldNames[JJ];
+  end;
+
 begin
   FCurrentValue:=-1;
   DebugOut('do.txt');
   NeedTmpSts;
   LW:=FieldNames.Count;
-  SetLength(W,LW);
-  for I := 0 to High(W) do W[i]:=Length(FFields[I]);
+  IsExternalFields:=ShowFields.Count>0;
+  if IsExternalFields then begin
+    ShwFldCnt:=ShowFields.Count;
+    if ShwFldCnt>0 then begin
+      SetLength(FieldsNum,ShwFldCnt);
+      for I:=0 to ShwFldCnt-1 do
+        FieldsNum[I]:=self.FieldNames.IndexOf(ShowFields.Names[I]);
+    end;
+  end else ShwFldCnt:=LW;
+  SetLength(W,ShwFldCnt);
+
+  for I := 0 to High(W) do W[i]:=Length(GetF(I));
   TL:=TableLength;
   if TL=0 then TL:=Count;
   if Filter='' then begin
     for I := 1 to Count-1 do begin
       if Assigned(FOnCustomFilter) and not VisibleItems[I] then Continue;
       GetValues(I-1);
-      if FValues.Count>LW then begin
-        LW:=FValues.Count;
-        SetLength(W,LW);
+      if (FValues.Count>ShwFldCnt) and not IsExternalFields then begin
+        ShwFldCnt:=FValues.Count;
+        SetLength(W,ShwFldCnt);
       end;
-      for J := 0 to FValues.Count-1 do begin
-        L:=Length(FValues[J]);
+
+      if IsExternalFields
+      then cnt:=ShwFldCnt
+      else cnt:=FValues.Count;
+
+      for J := 0 to cnt-1 do begin
+        L:=Length(GetV(J));
         if L>W[J] then W[J]:=L;
       end;
     end;
     FTmpSts.Clear;
     S:='';
-    for J := 0 to LW - 1 do begin
-      if J<FieldNames.Count
+
+    for J := 0 to ShwFldCnt-1 do begin
+      if not OutSide(J,FieldNames.Count-1)
       then begin
-        L:=length(FieldNames[J]);
+        FiN := GetF(J);
+        L:=length(FiN);
         W2:=(W[J]-L) div 2;
-        S:=ContStr(S,'|',format('%*s%-*s',[W2,'',W[J]-W2,FieldNames[j]]));
+        S:=ContStr(S,'|',format('%*s%-*s',[W2,'',W[J]-W2,FiN]));
       end else S:=ContStr(S,'|',StringOfChar(' ',W[J]));
     end;
     FTmpSts.AddObject(S,pointer(-1));
     S:='';
-    for J := 0 to LW - 1 do begin
+    for J := 0 to ShwFldCnt-1 do begin
       S:=ContStr(S,'|',StringOfChar('-',W[J]));
     end;
     FTmpSts.AddObject(S,pointer(-2));
@@ -636,10 +678,10 @@ begin
       if Assigned(FOnCustomFilter) and not VisibleItems[I] then Continue;
       GetValues(I-1);
       S:='';
-      for J := 0 to LW - 1 do begin
-        if J<FValues.Count
+    for J := 0 to ShwFldCnt-1 do begin
+      if not OutSide(J,FValues.Count-1)
         then begin
-          V:=FValues[J];
+          V:=GetV(J);
           if IsNumber(V)
           then fs:='%*s'
           else fs:='%-*s';
@@ -657,14 +699,20 @@ begin
       {!}
       if not VisibleItems[Ind] then Continue;
       GetValues(Ind-1);
-      if FValues.Count>LW then begin
-        LW:=FValues.Count;
-        SetLength(W,LW);
+      if (FValues.Count>ShwFldCnt) and not IsExternalFields then begin
+        ShwFldCnt:=FValues.Count;
+        SetLength(W,ShwFldCnt);
       end;
-      for J := 0 to FValues.Count-1 do begin
-        L:=Length(FValues[J]);
+
+      if IsExternalFields
+      then cnt:=ShwFldCnt
+      else cnt:=FValues.Count;
+
+      for J := 0 to cnt-1 do begin
+        L:=Length(GetV(J));
         if L>W[J] then W[J]:=L;
       end;
+
       inc(N);
     end;
 
@@ -672,18 +720,19 @@ begin
     // Вывод результата
     // * Заголовок
     S:='';
-    for J := 0 to LW - 1 do begin
-      if J<FieldNames.Count
+    for J := 0 to ShwFldCnt-1 do begin
+      if not OutSide(J,FieldNames.Count-1)
       then begin
-        L:=length(FieldNames[J]);
+        FiN := GetF(J);
+        L:=length(FiN);
         W2:=(W[J]-L) div 2;
-        S:=ContStr(S,'|',format('%*s%-*s',[W2,'',W[J]-W2,FieldNames[j]]));
+        S:=ContStr(S,'|',format('%*s%-*s',[W2,'',W[J]-W2,FiN]));
       end else S:=ContStr(S,'|',StringOfChar(' ',W[J]));
     end;
     FTmpSts.AddObject(S,pointer(-2));
     // * Линия под заголовком
     S:='';
-    for J := 0 to LW - 1 do begin
+    for J := 0 to ShwFldCnt-1 do begin
       S:=ContStr(S,'|',StringOfChar('-',W[J]));
     end;
     FTmpSts.AddObject(S,pointer(-2));
@@ -699,9 +748,9 @@ begin
       if not VisibleItems[Ind] then Continue;
       GetValues(Ind-1);
       S:='';
-      for J := 0 to LW - 1 do begin
-        if J<FValues.Count
-        then S:=ContStr(S,'|',format('%-*s',[W[J],FValues[j]]))
+    for J := 0 to ShwFldCnt-1 do begin
+      if not OutSide(J,FValues.Count-1)
+        then S:=ContStr(S,'|',format('%-*s',[W[J],GetV(j)]))
         else S:=ContStr(S,'|',StringOfChar(' ',W[J]));
       end;
       FTmpSts.AddObject(S,pointer(Ind-1));
@@ -833,19 +882,19 @@ begin
     FOnEnum(self,I,Strings[I]);
 end;
 
-procedure TChprList.ExchangeOrder(Index1, Index2: Integer);
-var
-  o1,o2:Integer;
-begin
-  Index1:=Index1+1;
-  Index2:=Index2+1;
-  o1:=FOrder[Index1];
-  o2:=FOrder[Index2];
-  FOrder[Index1]:=o2;
-  FOrder[Index2]:=o1;
-  FAntiOrder[o2]:=Index1;
-  FAntiOrder[o1]:=Index2;
-end;
+//procedure TChprList.ExchangeOrder(Index1, Index2: Integer);
+//var
+//  o1,o2:Integer;
+//begin
+//  Index1:=Index1+1;
+//  Index2:=Index2+1;
+//  o1:=FOrder[Index1];
+//  o2:=FOrder[Index2];
+//  FOrder[Index1]:=o2;
+//  FOrder[Index2]:=o1;
+//  FAntiOrder[o2]:=Index1;
+//  FAntiOrder[o1]:=Index2;
+//end;
 
 procedure TChprList.FieldsChange(Sender: TObject);
 begin
@@ -1155,26 +1204,26 @@ begin
   SortFilter;
 end;
 
-procedure TChprList.SimpleSort;
-var
-  I: Integer;
-  J: Integer;
-  s1: string;
-  s2: string;
-begin
-  for I := 0 to Count - 3 do begin
-    s1:=XValues[I,FSortedField];
-    for J := I+1 to Count - 2 do begin
-      s2:=XValues[J,FSortedField];
-      if CompNumText(s1,s2)>0 then begin
-        ExchangeOrder(I,J);
-        s1:=XValues[I,FSortedField];
-      end;
-    end;
-//    if I=100 then break;
-  end;
-
-end;
+//procedure TChprList.SimpleSort;
+//var
+//  I: Integer;
+//  J: Integer;
+//  s1: string;
+//  s2: string;
+//begin
+//  for I := 0 to Count - 3 do begin
+//    s1:=XValues[I,FSortedField];
+//    for J := I+1 to Count - 2 do begin
+//      s2:=XValues[J,FSortedField];
+//      if CompNumText(s1,s2)>0 then begin
+//        ExchangeOrder(I,J);
+//        s1:=XValues[I,FSortedField];
+//      end;
+//    end;
+////    if I=100 then break;
+//  end;
+//
+//end;
 
 procedure TChprList.Test;
 var
@@ -1285,6 +1334,11 @@ begin
   FAntiOrder[Value]:=Index;
   FOrder[av]:=o;
   FAntiOrder[o]:=av;
+end;
+
+procedure TChprList.SetShowFields(const Value: TStrings);
+begin
+  FShowFields.Assign(Value);
 end;
 
 procedure TChprList.SetSortedField(const Value: Integer);
