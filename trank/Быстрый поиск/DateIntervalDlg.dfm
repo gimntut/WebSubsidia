@@ -61,7 +61,7 @@ object PeriodDlg: TPeriodDlg
     DesignSize = (
       859
       41)
-    object Button1: TButton
+    object btnOK: TButton
       Left = 692
       Top = 8
       Width = 75
@@ -72,7 +72,7 @@ object PeriodDlg: TPeriodDlg
       ModalResult = 1
       TabOrder = 0
     end
-    object Button2: TButton
+    object btnCancel: TButton
       Left = 773
       Top = 8
       Width = 75
@@ -82,7 +82,7 @@ object PeriodDlg: TPeriodDlg
       Caption = #1054#1090#1084#1077#1085#1072
       ModalResult = 2
       TabOrder = 1
-      OnClick = Button2Click
+      OnClick = btnCancelClick
     end
   end
   object Panel2: TPanel
@@ -110,7 +110,7 @@ object PeriodDlg: TPeriodDlg
     object Label2: TLabel
       Left = 2
       Top = 310
-      Width = 381
+      Width = 397
       Height = 52
       Align = alBottom
       Caption = 
@@ -119,8 +119,10 @@ object PeriodDlg: TPeriodDlg
         #1077#1081' Ctrl. '#1055#1056#1054#1041#1045#1051' - '#1074#1099#1073#1080#1088#1072#1077#1090' 6 '#1084#1077#1089#1103#1094#1077#1074' '#1087#1077#1088#1077#1076' '#1090#1077#1082#1091#1097#1080#1084'. Ctrl+'#1055#1056#1054#1041#1045#1051' ' +
         '- '#1087#1086#1082#1072#1079#1099#1074#1072#1077#1090' '#1074' '#1089#1087#1088#1072#1074#1082#1077' '#1074#1089#1077' '#1089#1091#1084#1084#1099' ('#1055#1086#1083#1085#1099#1081' '#1087#1086#1082#1072#1079').'
       WordWrap = True
+      ExplicitWidth = 381
     end
     object CheckBox1: TCheckBox
+      Tag = 2
       AlignWithMargins = True
       Left = 5
       Top = 51
@@ -133,6 +135,7 @@ object PeriodDlg: TPeriodDlg
       OnClick = TriggerClick
     end
     object CheckBox2: TCheckBox
+      Tag = 1
       AlignWithMargins = True
       Left = 5
       Top = 28
@@ -155,6 +158,7 @@ object PeriodDlg: TPeriodDlg
       TabOrder = 2
       Visible = False
       OnClick = TriggerClick
+      ExplicitLeft = 4
     end
   end
   object Memo1: TMemo

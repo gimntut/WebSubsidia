@@ -11,14 +11,15 @@ uses
   uTime in 'uTime.pas',
   uImportBases in 'uImportBases.pas' {ImportDlg},
   Unit17 in 'Unit17.pas' {FioDlg},
-  uQFSObj in 'uQFSObj.pas';
+  uQFSObj in 'uQFSObj.pas',
+  QFMainLite in 'QFMainLite.pas' {Form9Lite};
 
 {$R *.res}
 
 begin
   Application.Initialize;
   Application.Title := 'Работа со списками';
-  Application.CreateForm(TForm9, Form9);
+  Application.CreateForm(TForm9Lite, Form9Lite);
   Application.CreateForm(TForm10, Form10);
   Application.CreateForm(TQFTemlateDlg, QFTemlateDlg);
   Application.CreateForm(TPeriodDlg, PeriodDlg);

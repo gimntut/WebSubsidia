@@ -1,4 +1,4 @@
-object Form9: TForm9
+object Form9Lite: TForm9Lite
   Left = 256
   Top = 192
   Caption = #1056#1072#1073#1086#1090#1072' '#1089#1086' '#1089#1087#1080#1089#1082#1072#1084#1080
@@ -640,21 +640,6 @@ object Form9: TForm9
     object N5: TMenuItem
       Caption = #1054#1090#1082#1088#1099#1090#1100' '#1092#1072#1081#1083
       OnClick = N5Click
-    end
-    object N1: TMenuItem
-      Caption = #1047#1072#1087#1086#1084#1085#1080#1090#1100' '#1086#1090#1082#1088#1099#1090#1099#1081' '#1092#1072#1081#1083
-      OnClick = N1Click
-    end
-    object N10: TMenuItem
-      Caption = #1047#1072#1087#1086#1084#1085#1080#1090#1100' '#1087#1072#1087#1082#1091' '#1092#1072#1081#1083#1072
-      OnClick = N10Click
-    end
-    object N3: TMenuItem
-      Caption = #1047#1072#1073#1099#1090#1100' '#1092#1072#1081#1083'...'
-      OnClick = N3Click
-    end
-    object N2: TMenuItem
-      Caption = '-'
     end
   end
   object ImageList1: TImageList
