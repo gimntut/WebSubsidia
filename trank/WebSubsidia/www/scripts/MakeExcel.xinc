@@ -47,6 +47,7 @@ TRY
     sRange:="1:"+IntToStr(cnt)
     :Rows(sRange):Select
     :Selection:Copy
+    // Alert('')
     wb2:= :Workbooks:Open(CurrPath+XlsHead)
     wb2:Activate
     :Range(FirstCell):Select

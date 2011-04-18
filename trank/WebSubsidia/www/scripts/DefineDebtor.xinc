@@ -7,3 +7,10 @@ DolgColumn:=3
 SoglachColumn:=-1
 SoglachYes:="Есть"
 KoefDolg:=10 // Коэфициент привышения субсидии долгом
+TRY
+  SET DATE TO FRENCH
+  oArgs := WScript:Arguments
+  DateX := CTOD(oArgs:Item(0))
+CATCH oErr
+  DateX := Date()
+END

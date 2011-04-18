@@ -81,6 +81,6 @@ Param BaseName
     stroka = stroka+']'
   endif
   stroka :=stroka+'}'
-Return {stroka, OutValue}
+return {stroka, OutValue}
 
 #INCLUDE "AnsiOEM.xinc"

@@ -1,7 +1,7 @@
 #COMMAND ? [<x,...>] => WSH:Echo(<x>)
 #INCLUDE "DefineDebtor.xinc"
 #include "pathes.xinc"
-SET DATE TO FRENCH  
+SET DATE TO FRENCH
 pth:="..\"+files_db
 Set Default to &(pth)
 InputFile:="..\"+files_tmp+"\bashgaz2.csv"
@@ -12,6 +12,7 @@ DolgColumn:=7
 DateColumn:=8
 KoefDolg:=3 // Коэфициент привышения субсидии долгом
 
+// ? DateX, VALTYPE(DateX)
 /***********************************************/
 FindDebtor()
 /***********************************************/

@@ -21,7 +21,12 @@ Function FindDebtor()
   xPred:=0
   xSUM:=0.0
   xInd:=0
-  NowDay:=Date()
+  // ? DateX
+  IF VALTYPE (DateX) = "D"
+    NowDay:=DateX
+  ELSE
+    NowDay:=Date()
+  ENDIF
   // NowDay:=CTOD('31.05.2010')
   DO WHILE .NOT. a:AtEndOfLine
     s:=a:ReadLine
