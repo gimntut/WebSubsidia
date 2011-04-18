@@ -10,4 +10,4 @@ set Result="..\%files_tmp%\tgesResult.csv"
 CScript.exe -NoLogo tges.xbs %1| toAnsi> %Musor%
 find /v "[X]" < %Musor% > %Result%
 CScript.exe -NoLogo tgesExcel.xbs
-TASKKILL /F /IM EXCEL.EXE
+%TASKKILL% /F /IM EXCEL.EXE

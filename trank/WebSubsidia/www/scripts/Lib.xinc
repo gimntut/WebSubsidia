@@ -1,0 +1,96 @@
+function GetInfoSlow
+// ѕолучение соотвествующих условию записей таблицы в Json формате
+// BaseName - »м€ таблицы
+// IndFieldName - ѕоле по которому ведЄтс€ поиск
+// FindValue - значение которое ищетс€ в IndFieldName
+// OutFieldName - »м€ пол€ значение из которого должно быть возвращено в соотвествии с FindValue
+param BaseName, IndFieldName, FindValue, OutFieldName
+	use &(BaseName)
+	IndexName := BaseName+'_'+IndFieldName
+	index on &(IndFieldName) to &(IndexName)
+	Result:=GetInfoFast(BaseName, IndexName, IndFieldName, FindValue, OutFieldName)
+	close &(BaseName)
+return Result
+
+function GetInfoFast
+// ѕолучение соотвествующих условию записей таблицы в Json формате
+// BaseName - »м€ таблицы
+// IndFieldName - ѕоле по которому ведЄтс€ поиск
+// FindValue - значение которое ищетс€ в IndFieldName
+// OutFieldName - »м€ пол€ значение из которого должно быть возвращено в соотвествии с FindValue
+param BaseName, IndexName, IndexField, FindValue, OutFieldName
+	use &(BaseName) index &(IndexName) shared new
+	Result:=GetInfoLite(IndexField, FindValue, OutFieldName)
+	Result[1]:='"'+BaseName+'":{'+Result[1]+'}'
+	close &(BaseName)
+return Result
+
+function GetInfoLite
+// ѕолучение соотвествующих условию записей проиндекированной таблицы
+// FindValue - значение которое ищетс€ в IndFieldName
+// OutFieldName - »м€ пол€ значение из которого должно быть возвращено в соотвествии с FindValue
+Param IndexField, FindValue, OutFieldName
+    NeedJoin:=.not.(OutFieldName == "")
+	Founds := {}
+	FieldCount :=FCOUNT()
+	TableStruct := DBStruct()
+	seek AnyToStr(FindValue)
+	RecCounter := 0
+	ValueFound := .f.
+	OutJson := ""
+	OutJson = OutJson+'"fields":['
+	for I_Counter = 1 to FieldCount
+		FldDat:=TableStruct[I_Counter]
+		if I_Counter>1
+			OutJson = OutJson+','
+		endif
+		OutJson = OutJson+'"'+fldDat[1]+'"'
+	next
+	OutJson = OutJson+'],'+chr(13)+chr(10)+'"types":['
+	for I_Counter = 1 to FieldCount
+		FldDat:=TableStruct[I_Counter]
+		if I_Counter>1
+			OutJson = OutJson+','
+		endif
+		OutJson = OutJson+'"'+FldDat[2]+':'+IntToStr(FldDat[3])+'.'+ IntToStr(FldDat[4])+'"'
+	next
+	OutJson = OutJson+"]"
+	seek FindValue
+	do while UpperCyrOEM(AnyToStr(&(IndexField)))==UpperCyrOEM(AnyToStr(FindValue))
+		if Deleted()
+			dbskip(1)
+			loop
+		endif
+		if 0<RecCounter++ 
+			OutJson = OutJson+',' +chr(13)+chr(10)
+		else
+			OutJson = OutJson+','+chr(13)+chr(10)+'"values":['
+			ValueFound = .t.
+		endif
+		OutJson = OutJson+'['
+		for I_Counter = 1 to FieldCount
+			FldDat:=TableStruct[I_Counter]
+			Value:=&(fldDat[1])
+			if ValType(Value) == 'C'
+				StrValue = StrToJsonFmt(ToAnsi(AllTrim(Value)))
+			else 
+				StrValue=AnyToStr(Value)
+			endif
+			if I_Counter>1
+				OutJson = OutJson+', '
+			endif
+			OutJson=OutJson+'"'+StrValue+'"'
+			if NeedJoin
+			  if ascan(Founds,&(OutFieldName))==0
+				// ? &(OutFieldName)
+				aadd(Founds,&(OutFieldName))
+			  endif
+			endif
+		next I_Counter
+		OutJson = OutJson+']'
+		dbskip(1)
+	enddo
+	if ValueFound 
+		OutJson = OutJson+']'
+	endif
+return {OutJson, Founds}
