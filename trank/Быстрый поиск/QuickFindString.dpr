@@ -12,14 +12,15 @@ uses
   uImportBases in 'uImportBases.pas' {ImportDlg},
   Unit17 in 'Unit17.pas' {FioDlg},
   uQFSObj in 'uQFSObj.pas',
-  QFMainLite in 'QFMainLite.pas' {Form9Lite};
+  QFMainLite in 'QFMainLite.pas' {Form9Lite},
+  DM in 'DM.pas' {DataModule3: TDataModule};
 
 {$R *.res}
 
 begin
   Application.Initialize;
   Application.Title := 'Работа со списками';
-  Application.CreateForm(TForm9Lite, Form9Lite);
+  Application.CreateForm(TDataModule3, DataModule3);
   Application.CreateForm(TForm9, Form9);
   Application.CreateForm(TForm10, Form10);
   Application.CreateForm(TQFTemlateDlg, QFTemlateDlg);

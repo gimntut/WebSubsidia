@@ -25,19 +25,10 @@ type
 //  end;
 
   TForm9 = class(TForm)
-    acCopy: TAction;
-    acCopyParamValue1: TMenuItem;
-    acCopyParamValue: TAction;
-    acCopyTable: TAction;
-    acCopyValue: TAction;
-    ActionList1: TActionList;
-    ApplicationEvents1: TApplicationEvents;
     CheckBankBtn: TToolButton;
-    DetailListMenu: TPopupMenu;
     Edit1: TEdit;
     ExcelAsIsBtn: TToolButton;
     ExcelFillBtn: TToolButton;
-    ImageList1: TImageList;
     JournalBtn: TToolButton;
     lbSpravkaPoPrograme: TLabel;
     lbReklama: TLabel;
@@ -47,36 +38,9 @@ type
     Memo1: TMemo;
     Memo3: TMemo;
     MemoModeBtn: TToolButton;
-    MenuItem1: TMenuItem;
-    MenuItem2: TMenuItem;
     mmHelp: TMemo;
-    mnANSI: TMenuItem;
-    mnComma: TMenuItem;
-    mnNull: TMenuItem;
-    mnOEM: TMenuItem;
-    mnOriginalText: TMenuItem;
-    mnPointComma: TMenuItem;
-    mnTab: TMenuItem;
-    mnTransformed: TMenuItem;
-    N1: TMenuItem;
-    N2: TMenuItem;
-    N3: TMenuItem;
-    N4: TMenuItem;
-    N5: TMenuItem;
-    N6: TMenuItem;
-    N7: TMenuItem;
-    N8: TMenuItem;
-    N9: TMenuItem;
-    N10: TMenuItem;
-    N11: TMenuItem;
-    N12: TMenuItem;
-    N13: TMenuItem;
-    N14: TMenuItem;
-    N15: TMenuItem;
     NewBtn: TToolButton;
     OpenBtn: TToolButton;
-    OpenDialog1: TOpenDialog;
-    OpenFileMenu: TPopupMenu;
     PageControl1: TPageControl;
     Panel1: TPanel;
     pnMaster: TPanel;
@@ -89,19 +53,15 @@ type
     pnJournal: TPanel;
     pnMemo: TPanel;
     PrintBtn: TToolButton;
-    PrintDialog1: TPrintDialog;
     sgJournal: TStringGrid;
     SortBtn: TToolButton;
-    SortMenu: TPopupMenu;
     SpeedButton1: TSpeedButton;
     Splitter1: TSplitter;
     SpravkaBtn: TToolButton;
-    SpravkiMenu: TPopupMenu;
     TabSheet1: TTabSheet;
     TabSheet2: TTabSheet;
     TabSheet3: TTabSheet;
     TextModeBtn: TToolButton;
-    Timer1: TTimer;
     ToolBar1: TToolBar;
     ToolBar2: TToolBar;
     ToolButton1: TToolButton;
@@ -114,10 +74,12 @@ type
     ToolButton8: TToolButton;
     ToolButton9: TToolButton;
     ToolButton11: TToolButton;
-    TopListMenu: TPopupMenu;
-    XPManifest1: TXPManifest;
     ToolButton10: TToolButton;
     btnSplitMode: TToolButton;
+    TabSheet4: TTabSheet;
+    Label1: TLabel;
+    Label2: TLabel;
+    Label3: TLabel;
     procedure acCopyExecute(Sender: TObject);
     procedure acCopyParamValueExecute(Sender: TObject);
     procedure acCopyTableExecute(Sender: TObject);
@@ -147,13 +109,6 @@ type
     procedure MemoModeBtnClick(Sender: TObject);
     procedure mmHelpDblClick(Sender: TObject);
     procedure mnStateClick(Sender: TObject);
-    procedure N1Click(Sender: TObject);
-    procedure N3Click(Sender: TObject);
-    procedure N5Click(Sender: TObject);
-    procedure N9Click(Sender: TObject);
-    procedure N10Click(Sender: TObject);
-    procedure N14Click(Sender: TObject);
-    procedure N15Click(Sender: TObject);
     procedure NewBtnClick(Sender: TObject);
     procedure OpenBtnClick(Sender: TObject);
     procedure pnMasterResize(Sender: TObject);
@@ -174,9 +129,6 @@ type
     Chpr3:TChprList;
     Table:TStringList;
     TmpSts:TStringList;
-    FavoriteFiles:TStringList;
-    IntFavorFiles:TStringList;
-    FavoritePath:string;
     BankColumn:Integer;
     CaptionName: string;
     IniFileName: string;
@@ -298,7 +250,7 @@ const
 implementation
 uses Publ, PublFile, ShellAPI, ClipBrd, Printers, QFLoadList, ShFolder, Registry,
   StrUtils, PublStr, QFTemplate, IniFiles, DateIntervalDlg, DateUtils, Types,
-  cdbf, Math, uTime, uImportBases;
+  cdbf, Math, uTime, uImportBases, DM;
 {$R *.dfm}
 
 procedure TForm9.acCopyExecute(Sender: TObject);
@@ -495,7 +447,7 @@ begin
   Chpr.IsTransformed:=true;
   Chpr.Filling:=true;
   Chpr.TableLength:=1000;
-  n13.Enabled:=true;
+  DataModule3.n13.Enabled:=true;
   ShowFavorite;
   Synchronizing('http://'+WebSite+'/time.php');
   MessageStr:='Прежде чем начать поиск, выберите список по которому будете искать'
@@ -537,7 +489,7 @@ begin
       if ActiveControl is TMemo then Exit;
       if ActiveControl is TStringGrid then Exit;
       FKey:=Key;
-      Timer1.Enabled:=true;
+      DataModule3.Timer1.Enabled:=true;
       Key:=0;
     end;
     VK_ESCAPE: begin
@@ -589,50 +541,6 @@ end;
 procedure TForm9.lbReklamaClick(Sender: TObject);
 begin
   ShellExecute(0,'open','mailto:gimntut@list.ru','','',SW_SHOWNORMAL);
-end;
-
-procedure TForm9.ShowFavorite;
-var
-  I: Integer;
-  it: TMenuItem;
-  S: string;
-  IsDir:boolean;
-  LS: string;
-begin
-  LoadIni;
-  for I := OpenFileMenu.Items.count - 1 downto 5 do
-    OpenFileMenu.Items[I].Free;
-  for I := 0 to FavoriteFiles.Count - 1 do
-  begin
-    LS:=GetLongHint(FavoriteFiles[I]);
-    IsDir:=LS[1]='*';
-    if IsDir then Continue;
-    if not FileExists(GetLongHint(FavoriteFiles[I])) then Continue;
-    it := TMenuItem.Create(OpenFileMenu);
-    S:=GetShortHint(FavoriteFiles[I]);
-    it.Caption := S;
-    it.Tag := I;
-    it.OnClick:=FavorClick;
-    OpenFileMenu.Items.Add(it);
-  end;
-  it := TMenuItem.Create(OpenFileMenu);
-  it.Caption := '-';
-  OpenFileMenu.Items.Add(it);
-  for I := 0 to FavoriteFiles.Count - 1 do
-  begin
-    LS:=GetLongHint(FavoriteFiles[I]);
-    IsDir:=LS[1]='*';
-    if not IsDir then Continue;
-    System.Delete(LS,1,1);
-    if not SysUtils.DirectoryExists(LS) then Continue;
-    it := TMenuItem.Create(OpenFileMenu);
-    S:=GetShortHint(FavoriteFiles[I]);
-    S:='['+S+']';
-    it.Caption := S;
-    it.Tag := I;
-    it.OnClick:=FavorClick;
-    OpenFileMenu.Items.Add(it);
-  end;
 end;
 
 procedure TForm9.ShowFirstList;
@@ -714,11 +622,11 @@ var
 begin
   s:=Detail;
   try
-    n14.Visible:=DirectoryExists(s);
+    DataModule3.n14.Visible:=DirectoryExists(s);
   except
-    n14.Visible:=false;
+    DataModule3.n14.Visible:=false;
   end;
-  n15.Visible:=FileExists(s);
+  DataModule3.n15.Visible:=FileExists(s);
 end;
 
 procedure TForm9.LoadExternalList(FileName:string);
@@ -748,7 +656,7 @@ var
   S:string;
   OldFileName: string;
 begin
-  OpenDialog1.FileName:=FileName;
+  DataModule3.OpenDialog1.FileName:=FileName;
   SpravkaType := sptNone;
   ResetEditMode;
   if SameText(ExtractFileExt(FileName),'.dbf') then begin
@@ -764,7 +672,7 @@ begin
   Chpr.IsOEMSource := false;
   Chpr.LoadFromFile(FileName);
   Chpr.AutoConfig;
-  n13.Enabled:=Chpr.IsTransformed;
+  DataModule3.n13.Enabled:=Chpr.IsTransformed;
   Edit1.Text:=S;
   Chpr.Filter:=S;
   TextState;
@@ -805,10 +713,10 @@ begin
   inc(MxL);
 //  lstMaster.Items.SaveToFile('c:\---.---');
   lstMaster.Items.EndUpdate;
-  SortItems:=SortMenu.Items;
+  SortItems:=DataModule3.SortMenu.Items;
   SortItems.Clear;
   for I := 0 to Chpr.FieldNames.Count - 1 do begin
-    It:=TMenuItem.Create(SortMenu);
+    It:=TMenuItem.Create(DataModule3.SortMenu);
     It.Caption:=Chpr.FieldNames[I];
     It.OnClick:=SortClick;
     it.Tag:=I;
@@ -861,7 +769,7 @@ begin
   case SpravkaType of
     sptNone: begin
       if s = '' then
-        s := ExtractFileName(OpenDialog1.FileName);
+        s := ExtractFileName(DataModule3.OpenDialog1.FileName);
       if Edit1.Text <> '' then
         s2 := format('. Поиск "%s" (%d/%d)', [Edit1.Text, Chpr.FilterCount-1, Chpr.Count-1]);
       Caption := format('Работа со списком "%s"%s', [s, s2]);
@@ -1320,23 +1228,23 @@ const
   BankColumnName:array[0..2] of string = ('N счета в банке','NCHETA','B');
 begin
   if Chpr.IsTransformed then
-    mnTransformed.Checked := true
+    DataModule3.mnTransformed.Checked := true
   else
-    mnOriginalText.Checked := true;
-  n13.Enabled := Chpr.IsTransformed;
+    DataModule3.mnOriginalText.Checked := true;
+  DataModule3.n13.Enabled := Chpr.IsTransformed;
   if Chpr.IsOEMSource then
-    mnOEM.Checked := true
+    DataModule3.mnOEM.Checked := true
   else
-    mnANSI.Checked := true;
+    DataModule3.mnANSI.Checked := true;
   case Chpr.InnerDelimeter of
     ',':
-      mnComma.Checked := true;
+      DataModule3.mnComma.Checked := true;
     ';':
-      mnPointComma.Checked := true;
+      DataModule3.mnPointComma.Checked := true;
      #9:
-      mnTab.Checked := true;
+      DataModule3.mnTab.Checked := true;
      #0:
-      mnNull.Checked := true;
+      DataModule3.mnNull.Checked := true;
   end;
   BankListType:=blNone;
   for I := 0 to 2 do begin
@@ -1362,7 +1270,7 @@ end;
 procedure TForm9.Timer1Timer(Sender: TObject);
 begin
  if FKey=0 then begin
-   Timer1.Enabled:=false;
+   DataModule3.Timer1.Enabled:=false;
    Exit;
  end;
  KeyPreview:=false;
@@ -1513,24 +1421,24 @@ begin
   WebSite:=Ini.ReadString('WebServer','Address','server');
   ExtFileList:=Ini.ReadString('External','FileList','');
   Ini.Free;
-  SpravkiMenu.Items.Clear;
+  DataModule3.SpravkiMenu.Items.Clear;
   for I := 0 to SpravkiSts.Count - 1 do begin
-    it:=TMenuItem.Create(SpravkiMenu);
+    it:=TMenuItem.Create(DataModule3.SpravkiMenu);
     it.Tag:=I;
     it.OnClick:=SpravkaClick;
     it.Caption:='&'+IntToStr(I+1)+' '+SpravkiSts.Names[I];
-    SpravkiMenu.Items.add(it);
+    DataModule3.SpravkiMenu.Items.add(it);
   end;
   LoadExternalList(ExtFileList);
 end;
 
 procedure TForm9.mmHelpDblClick(Sender: TObject);
 begin
-  OpenDialog1.FilterIndex:=1;
-  if OpenDialog1.Execute then begin
-    if OpenDialog1.FilterIndex<>1 then Exit;
-    CreateIndexForCSV(OpenDialog1.FileName,OpenDialog1.FileName+'.Index',0);
-    CreateIndexForTxt(OpenDialog1.FileName,OpenDialog1.FileName+'.BIndex');
+  DataModule3.OpenDialog1.FilterIndex:=1;
+  if DataModule3.OpenDialog1.Execute then begin
+    if DataModule3.OpenDialog1.FilterIndex<>1 then Exit;
+    CreateIndexForCSV(DataModule3.OpenDialog1.FileName,DataModule3.OpenDialog1.FileName+'.Index',0);
+    CreateIndexForTxt(DataModule3.OpenDialog1.FileName,DataModule3.OpenDialog1.FileName+'.BIndex');
   end;
 end;
 
@@ -1544,7 +1452,7 @@ begin
       Chpr.IsTransformed:=TControl(Sender).Tag=11;
       if Chpr.IsTransformed then
         ResetEditMode;
-      n13.Enabled:=Chpr.IsTransformed;
+      DataModule3.n13.Enabled:=Chpr.IsTransformed;
     end;
     21,22: Chpr.IsOEMSource:=TControl(Sender).Tag=21;
     31: Chpr.InnerDelimeter:=',';
@@ -1554,90 +1462,6 @@ begin
   end;
   OutTable;
   TextState;
-end;
-
-procedure TForm9.N10Click(Sender: TObject);
-var
-  s:string;
-begin
-  s:=ExtractFileName(ExtractFileDir(OpenDialog1.FileName));
-  if s='' then Exit;
-  if not InputQuery('Важная папка','Введите псевдоним папки',s) then Exit;
-  IntFavorFiles.Add(S+'|*'+ExtractFileDir(OpenDialog1.FileName));
-  IntFavorFiles.Sort;
-  IntFavorFiles.SaveToFile(FavoritePath);
-  FavoriteFiles.Clear;
-  FavoriteFiles.AddStrings(IntFavorFiles);
-  ShowFavorite;
-end;
-
-procedure TForm9.N14Click(Sender: TObject);
-begin
-  ShellExecute(0,'open',PChar(Detail),'','',SW_NORMAL);
-end;
-
-procedure TForm9.N15Click(Sender: TObject);
-begin
-  ShellExecute(0,'open','explorer.exe',PChar('/select,"'+Detail+'"'),'',SW_NORMAL);
-//  Caption:='/select,"'+Detail+'"';
-end;
-
-procedure TForm9.N1Click(Sender: TObject);
-var
-  s:string;
-begin
-  s:=ExtractFileName(OpenDialog1.FileName);
-  if s='' then Exit;
-  if not InputQuery('Важный файл','Введите название для списка',s) then Exit;
-  IntFavorFiles.Add(S+'|'+OpenDialog1.FileName);
-  IntFavorFiles.Sort;
-  IntFavorFiles.SaveToFile(FavoritePath);
-  ShowFavorite;
-end;
-
-procedure TForm9.N3Click(Sender: TObject);
-var
-  I: Integer;
-begin
-  Form10.List:=IntFavorFiles;
-  if Form10.Execute then begin
-    IntFavorFiles.Clear;
-    for I := 0 to Form10.List.Count - 1 do
-      if not Form10.Checked[I] then
-        IntFavorFiles.Add(Form10.List[I]);
-    IntFavorFiles.SaveToFile(FavoritePath);
-    ShowFavorite;
-  end;
-end;
-
-procedure TForm9.N5Click(Sender: TObject);
-begin
-  OpenBtn.Click;
-end;
-
-procedure TForm9.N9Click(Sender: TObject);
-begin
-  if QFTemlateDlg.Execute then begin
-
-  end;
-end;
-
-procedure TForm9.FavorClick(Sender: TObject);
-var
-  Ind:Integer;
-  S: string;
-begin
-  Ind:=TMenuItem(Sender).Tag;
-  S:=GetLongHint(FavoriteFiles[Ind]);
-  if S[1]='*' then begin
-    System.Delete(S,1,1);
-    OpenDialog1.FileName:='';
-    OpenDialog1.InitialDir:=S;
-    OpenBtn.Click;
-  end else begin
-    CaptionName:=GetShortHint(FavoriteFiles[Ind]);
-    OpenFile(S);
-  end;
 end;
 
 procedure TForm9.SpeedButton1Click(Sender: TObject);
@@ -1680,8 +1504,8 @@ end;
 procedure TForm9.OpenBtnClick(Sender: TObject);
 begin
   CaptionName:='';
-  if OpenDialog1.Execute then
-    OpenFile(OpenDialog1.FileName);
+  if DataModule3.OpenDialog1.Execute then
+    OpenFile(DataModule3.OpenDialog1.FileName);
 end;
 
 procedure TForm9.CheckBankBtnClick(Sender: TObject);
@@ -2413,11 +2237,11 @@ function TForm9.GetFileNameForExcel: string;
 begin
   if GetKeyState(VK_CONTROL)<0 then
     if GetKeyState(VK_LSHIFT)<0 then
-      Result := OpenDialog1.FileName + '.txt'
+      Result := DataModule3.OpenDialog1.FileName + '.txt'
     else
-      Result := OpenDialog1.FileName + '.csv'
+      Result := DataModule3.OpenDialog1.FileName + '.csv'
   else
-    Result := TempPath + ExtractFileName(OpenDialog1.FileName) + '.csv';
+    Result := TempPath + ExtractFileName(DataModule3.OpenDialog1.FileName) + '.csv';
 end;
 
 function TForm9.MaxStringLength(S:string):Integer;
@@ -2449,7 +2273,7 @@ var
   TmpStr:string;
   IsDbfReestr:Boolean;
 begin
-  fn:=AnsiUpperCase(ExtractFileName(OpenDialog1.FileName));
+  fn:=AnsiUpperCase(ExtractFileName(DataModule3.OpenDialog1.FileName));
   IsDbfReestr:=(fn<>'') and (fn[1] in ['F','T'])
   and (ExtractFileExt(fn)='.DBF') and (Chpr.Filter='');
 
@@ -2485,7 +2309,7 @@ begin
     then Printer.Orientation:=poLandscape
     else Printer.Orientation:=poPortrait;
 
-  if PrintDialog1.Execute then begin
+  if DataModule3.PrintDialog1.Execute then begin
     s:=Lines.Text;
     if not MemoMode and not IsDbfReestr
     then begin
@@ -2495,7 +2319,7 @@ begin
       for I := 1 to length(st) do
         if st[i]<>'|' then st1[i]:='-';
       s:=st+#13#10+st1+#13#10+s;
-      if n13.Enabled and n13.Checked then s:=Chpr.Head+#13#10+s;
+      if DataModule3.n13.Enabled and DataModule3.n13.Checked then s:=Chpr.Head+#13#10+s;
       if Edit1.Text<>'' then
         s:=format('По поисковому запросу "%s" найдено %d из %d записей:'#13#10+
         #13#10+
@@ -2504,7 +2328,7 @@ begin
 
     if Pos('EPSON',AnsiUpperCase(Printer.Printers[Printer.PrinterIndex]))>0 then begin
       PrintToEpson(S);
-    end else PrintToLaser2(S,OpenDialog1.FileName,Memo1.Font.Name);
+    end else PrintToLaser2(S,DataModule3.OpenDialog1.FileName,Memo1.Font.Name);
     if IsDbfReestr then begin
       Chpr.Text:=TmpStr;
     end;

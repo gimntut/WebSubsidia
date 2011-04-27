@@ -23,5 +23,7 @@
     <Transaction>2010.11.12 10:52:16.687.dfm,C:\Documents and Settings\Пользователь\Мои документы\Borland Studio Projects\Быстрый поиск\Unit14.dfm=C:\Documents and Settings\Пользователь\Мои документы\Borland Studio Projects\Быстрый поиск\uImportBases.dfm</Transaction>
     <Transaction>2010.12.21 14:58:23.108.pas,C:\Documents and Settings\Пользователь\Мои документы\Borland Studio Projects\Быстрый поиск\Unit3.pas=C:\Documents and Settings\Пользователь\Мои документы\Borland Studio Projects\Быстрый поиск\uQFSObj.pas</Transaction>
     <Transaction>2011.04.03 11:01:21.078.pas,C:\Documents and Settings\Пользователь\Мои документы\Borland Studio Projects\Быстрый поиск\Unit3.pas=C:\Documents and Settings\Пользователь\Мои документы\Borland Studio Projects\Быстрый поиск\QFMainLite.pas</Transaction>
+    <Transaction>2011.04.27 10:11:45.593.pas,C:\Documents and Settings\Пользователь\Мои документы\Borland Studio Projects\Быстрый поиск\Unit3.pas=C:\Documents and Settings\Пользователь\Мои документы\Borland Studio Projects\Быстрый поиск\DM.pas</Transaction>
+    <Transaction>2011.04.27 10:11:45.593.dfm,C:\Documents and Settings\Пользователь\Мои документы\Borland Studio Projects\Быстрый поиск\Unit3.dfm=C:\Documents and Settings\Пользователь\Мои документы\Borland Studio Projects\Быстрый поиск\DM.dfm</Transaction>
   </Transactions>
 </BorlandProject>
