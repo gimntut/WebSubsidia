@@ -29,10 +29,7 @@ type
     Edit1: TEdit;
     ExcelAsIsBtn: TToolButton;
     ExcelFillBtn: TToolButton;
-    JournalBtn: TToolButton;
-    lbSpravkaPoPrograme: TLabel;
     lbReklama: TLabel;
-    leJournalPlus: TLabeledEdit;
     lstDetails: TListBox;
     lstMaster: TListBox;
     Memo1: TMemo;
@@ -46,32 +43,25 @@ type
     pnMaster: TPanel;
     pnDetails: TPanel;
     pnOutput: TPanel;
-    Panel5: TPanel;
     Panel6: TPanel;
     pnFindList: TPanel;
     pnHelp: TPanel;
-    pnJournal: TPanel;
     pnMemo: TPanel;
     PrintBtn: TToolButton;
-    sgJournal: TStringGrid;
     SortBtn: TToolButton;
     SpeedButton1: TSpeedButton;
     Splitter1: TSplitter;
     SpravkaBtn: TToolButton;
     TabSheet1: TTabSheet;
     TabSheet2: TTabSheet;
-    TabSheet3: TTabSheet;
     TextModeBtn: TToolButton;
     ToolBar1: TToolBar;
-    ToolBar2: TToolBar;
     ToolButton1: TToolButton;
     ToolButton2: TToolButton;
     ToolButton3: TToolButton;
     ToolButton4: TToolButton;
     ToolButton5: TToolButton;
-    ToolButton6: TToolButton;
     ToolButton7: TToolButton;
-    ToolButton8: TToolButton;
     ToolButton9: TToolButton;
     ToolButton11: TToolButton;
     ToolButton10: TToolButton;
@@ -92,7 +82,6 @@ type
     procedure Edit1KeyPress(Sender: TObject; var Key: Char);
     procedure ExcelAsIsBtnClick(Sender: TObject);
     procedure ExcelFillBtnClick(Sender: TObject);
-    procedure FavorClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -113,7 +102,6 @@ type
     procedure OpenBtnClick(Sender: TObject);
     procedure pnMasterResize(Sender: TObject);
     procedure PrintBtnClick(Sender: TObject);
-    procedure sgJournalDrawCell(Sender: TObject; ACol, ARow: Integer; Rect: TRect; State: TGridDrawState);
     procedure SpeedButton1Click(Sender: TObject);
     procedure SpeedButton1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure Timer1Timer(Sender: TObject);
@@ -131,8 +119,6 @@ type
     TmpSts:TStringList;
     BankColumn:Integer;
     CaptionName: string;
-    IniFileName: string;
-    SpravkiSts:TStringList;
     FSpravkaType: Integer;
     FSpravkaPath: string;
     FKey: Word;
@@ -140,13 +126,9 @@ type
     MaxWidth: Integer;
     MessageStr: string;
     ActList:TObjectList;
-    ExtFileList: string;
-    FFontSize: Integer;
     PagePanel: TPagePanel;
     BankListType: Integer;
     HTTP: THTTPSend;
-    Widths: ISuperObject;
-    WebProtocol: string;
     WebSite: string;
     Catch: TgsCatcher;
     FHorzSplit: boolean;
@@ -162,32 +144,24 @@ type
     function PrepareF5Result(s: string):boolean;
     function PrepareFindResult(s: string; Table2:string):boolean;
     procedure AddActToList(I: Integer;Event:TNotifyEvent);
-    procedure AddToJournal(LCs:string='');
     procedure CheckBank(Sender:TObject; Index:Integer; S:string; var Show:boolean);
-    procedure GetJournal(s: string; out json: ISuperObject);
-    procedure InitColumns;
     procedure JournalClick(Sender: TObject);
     procedure LinkChild;
     procedure LinkEDK;
-    procedure LoadExternalList(FileName:string);
-    procedure LoadIni;
     procedure OpenFile(FileName: string);
     procedure OutCaption;
     procedure OutFoundEDK(s:string);
     procedure OutFoundF5(s: string);
-    procedure OutJournal(json:ISuperObject);
     procedure OutTable(NoDataText:string='Нет данных');
     procedure PrintSpravka;
     procedure RegQF;
     procedure ResetEditMode;
     procedure ReturnClick;
-    procedure SaveIni;
     procedure SaveToTmpCsv;
     procedure SetFontSize(const Value: Integer);
     procedure SetMemoMode(const Value: Boolean);
     procedure SetNewFontSize(WinControl: TWinControl; const Value: Integer);
     procedure SetSpravkaType(const Value: Integer);
-    procedure ShowFavorite;
     procedure ShowFirstList;
     procedure ShowSpravkaEDK(Sender:TObject; Memo:StdCtrls.TMemo);
     procedure ShowSpravkaF5(Sender:TObject; Memo:StdCtrls.TMemo);
@@ -195,9 +169,9 @@ type
     procedure ShowSverka(Sender:TObject; Memo:StdCtrls.TMemo);
     procedure SolveF7(DateV: TDate; var LastOtvet: Extended; var Otvet: Extended);
     procedure SortClick(Sender: TObject);
-    procedure SpravkaClick(Sender: TObject);
     procedure TextState;
     procedure SetHorzSplit(const Value: boolean);
+    function GetFontSize: Integer;
   protected
     procedure WMDropFiles(var Message: TMessage); message WM_DROPFILES;
     procedure SeparateDetail(Index:integer; out Parameter, Detail: string);
@@ -205,7 +179,7 @@ type
     property Detail:string read GetDetail;
   public
     property SpravkaType:Integer read FSpravkaType write SetSpravkaType;
-    property FontSize:Integer read FFontSize write SetFontSize;
+    property FontSize:Integer read GetFontSize write SetFontSize;
     property MemoMode:Boolean read GetMemoMode write SetMemoMode;
     property HorzSplit:boolean read FHorzSplit write SetHorzSplit;
     { Public declarations }
@@ -393,7 +367,7 @@ end;
 
 procedure TForm9.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-  SaveIni;
+  Options.Save;
 end;
 
 procedure TForm9.FormCreate(Sender: TObject);
@@ -425,9 +399,6 @@ begin
   Log('Reg QuickFind');
   RegQF;
   Log('Create TStrings');
-  SpravkiSts := TStringList.Create;
-  IntFavorFiles:=TStringList.Create;
-  FavoriteFiles:=TStringList.Create;
   TmpSts:=TStringList.Create;
   Log('Create ChprLists');
   Chpr:=TChprList.Create;
@@ -437,18 +408,15 @@ begin
   Log('Create ActList');
   ActList:=TObjectList.Create(true);
   Table.CommaText:=jrnHeaders;
-  sgJournal.ColCount:=Table.Count;
-  sgJournal.Rows[0].Assign(Table);
-  FavoritePath:=ProgramPath+'\favorites.txt';
-  IniFileName:=ProgramPath+'\QFS.ini';
-  //LoadIni;
+  DataModule3.IniFileName:=ProgramPath+'\QFS.ini';
+  DataModule3.LoadIni;
   Chpr.InnerDelimeter:=';';
   Chpr.IsOEMSource:=true;
   Chpr.IsTransformed:=true;
   Chpr.Filling:=true;
   Chpr.TableLength:=1000;
   DataModule3.n13.Enabled:=true;
-  ShowFavorite;
+  DataModule3.ShowFavorite;
   Synchronizing('http://'+WebSite+'/time.php');
   MessageStr:='Прежде чем начать поиск, выберите список по которому будете искать'
   +#13#10'Для возврата к названиям списков нажмит ESC';
@@ -470,9 +438,6 @@ begin
   Chpr3.Free;
   Table.Free;
   TmpSts.Free;
-  FavoriteFiles.Free;
-  IntFavorFiles.Free;
-  SpravkiSts.Free;
   HTTP.Free;
   Catch.Free; 
 end;
@@ -562,15 +527,15 @@ begin
 //  AddActToList(0,JournalClick);
 //  sts.Add('--------------;-----;------------');
 //  ActList.Add(nil);
-  for I := 0 to SpravkiSts.Count - 1 do begin
-    sts.Add(SpravkiSts.Names[I]+';Справка;F2, '+IntToStr(I+1));
-    AddActToList(I,SpravkaClick);
+  for I := 0 to DataModule3.SpravkiSts.Count - 1 do begin
+    sts.Add(DataModule3.SpravkiSts.Names[I]+';Справка;F2, '+IntToStr(I+1));
+    AddActToList(I,DataModule3.acSpravka.OnExecute);
     //todo: добавить реакцию на выбор
   end;
   flagFirst:=true;
-  for I := 0 to FavoriteFiles.Count - 1 do
+  for I := 0 to DataModule3.FavoriteFiles.Count - 1 do
   begin
-    LS:=GetLongHint(FavoriteFiles[I]);
+    LS:=GetLongHint(DataModule3.FavoriteFiles[I]);
     IsDir:=LS[1]='*';
     if not IsDir then Continue;
     System.Delete(LS,1,1);
@@ -580,25 +545,25 @@ begin
       ActList.Add(nil);
     end;
     flagFirst:=False;
-    S:=GetShortHint(FavoriteFiles[I]);
+    S:=GetShortHint(DataModule3.FavoriteFiles[I]);
     sts.Add(format('%s;Папка;Ctrl+Shift+O',[S]));
-    AddActToList(I,FavorClick);
+    AddActToList(I,DataModule3.FavorClick);
   end;
   flagFirst:=true;
-  for I := 0 to FavoriteFiles.Count - 1 do
+  for I := 0 to DataModule3.FavoriteFiles.Count - 1 do
   begin
-    LS:=GetLongHint(FavoriteFiles[I]);
+    LS:=GetLongHint(DataModule3.FavoriteFiles[I]);
     IsDir:=LS[1]='*';
     if IsDir then Continue;
-    if not FileExists(GetLongHint(FavoriteFiles[I])) then Continue;
+    if not FileExists(GetLongHint(DataModule3.FavoriteFiles[I])) then Continue;
     if flagFirst then begin
       sts.Add('--------------;-----;------------');
       ActList.Add(nil);
     end;
     flagFirst:=False;
-    S:=GetShortHint(FavoriteFiles[I]);
+    S:=GetShortHint(DataModule3.FavoriteFiles[I]);
     sts.Add(format('%s;Файл;Ctrl+Shift+O',[S]));
-    AddActToList(I,FavorClick);
+    AddActToList(I,DataModule3.FavorClick);
   end;
   Chpr.Text:=sts.Text;
   sts.Free;
@@ -629,20 +594,14 @@ begin
   DataModule3.n15.Visible:=FileExists(s);
 end;
 
-procedure TForm9.LoadExternalList(FileName:string);
-var
-  sts:TStringList;
-begin
-  if not FileExists(FileName) then Exit;
-  sts:=TStringList.Create;
-  sts.LoadFromFile(FileName);
-  FavoriteFiles.AddStrings(sts);
-  sts.Free;
-end;
-
 function TForm9.GetFloatValue(J: Integer; S: string):Extended;
 begin
   Result := Str2Float(AnsiReplaceStr(Chpr3.ValueByName[J, S], '.', DecimalSeparator));
+end;
+
+function TForm9.GetFontSize: Integer;
+begin
+  Result:=Options.FontSize;
 end;
 
 procedure TForm9.SortClick(Sender: TObject);
@@ -656,6 +615,8 @@ var
   S:string;
   OldFileName: string;
 begin
+  PagePanel.ActivePageIndex:=3;
+  PagePanel.Invalidate;
   DataModule3.OpenDialog1.FileName:=FileName;
   SpravkaType := sptNone;
   ResetEditMode;
@@ -678,6 +639,7 @@ begin
   TextState;
   MessageStr:='';
   OutTable;
+  PagePanel.ActivePageIndex:=0;
 end;
 
 procedure TForm9.OutTable(NoDataText:string='Нет данных');
@@ -793,17 +755,6 @@ end;
 //  Caption := '';
 //end;
 
-procedure TForm9.SaveIni;
-var
-  Ini: TIniFile;
-begin
-  Ini:=TIniFile.Create(IniFileName);
-  Ini.WriteInteger('Customize','FontSize',FFontSize);
-  if Assigned(Widths) then
-    Ini.WriteString('Customize','JrnWidths',Widths.AsString);
-  Ini.Free;
-end;
-
 procedure TForm9.SaveToTmpCsv;
 var
   S: string;
@@ -837,12 +788,12 @@ end;
 
 procedure TForm9.SetFontSize(const Value: Integer);
 begin
-  FFontSize := Value;
+  Options.FontSize := Value;
   SetNewFontSize(lstMaster, Value);
   SetNewFontSize(lstDetails, Value);
   SetNewFontSize(Memo1, Value);
   SetNewFontSize(Memo3, Value);
-  SaveIni;
+  Options.Save;
 end;
 
 procedure TForm9.SetHorzSplit(const Value: boolean);
@@ -939,20 +890,6 @@ begin
   OutCaption;
 end;
 
-procedure TForm9.sgJournalDrawCell(Sender: TObject; ACol, ARow: Integer;
-  Rect: TRect; State: TGridDrawState);
-var
-  I: Integer;
-  x: TSuperArray;
-begin
-  Widths:=SO('[]');
-  for I := 0 to sgJournal.ColCount - 1 do begin
-    x:=Widths.AsArray;
-    x.Add(so(format('%d',[sgJournal.ColWidths[i]])));
-  end;
-//  Caption:=Widths.AsString;
-end;
-
 procedure TForm9.OutFoundEDK(s:string);
 var
   FastBase:TFastFileStrList;
@@ -1038,47 +975,9 @@ begin
   LastSearh:=Edit1.Text;
 end;
 
-procedure TForm9.OutJournal(json: ISuperObject);
-var
-  JournalRec: ISuperObject;
-  i: Integer;
-  J: Integer;
-begin
-  InitColumns;
-  if json=nil then exit;
-  sgJournal.RowCount:=json.AsArray.Length+1;
-  i:=0;
-  for JournalRec in json do begin
-    if JournalRec=nil then Continue;
-    inc(i);
-    for J := 0 to High(jrnFields) do
-      sgJournal.Cells[J,i]:=JournalRec.S[jrnFields[J]];
-  end;
-end;
-
-procedure TForm9.GetJournal(s: string; out json: ISuperObject);
-begin
-  HTTP.Clear;
-  HTTP.HTTPMethod('GET', s);
-  json := TSuperObject.ParseStream(HTTP.Document, true);
-end;
-
 function TForm9.GetMemoMode: Boolean;
 begin
   Result:=MemoModeBtn.Down;
-end;
-
-procedure TForm9.InitColumns;
-var
-  i: Integer;
-begin
-  if Widths <> nil then
-  begin
-    for i := 0 to Widths.AsArray.Length - 1 do
-    begin
-      sgJournal.ColWidths[i] := Widths.AsArray[i].AsInteger;
-    end;
-  end;
 end;
 
 const
@@ -1215,9 +1114,6 @@ begin
         TAction(ActList[Ind]).Execute;
       end;
     end;
-    sptJournal: begin
-      AddToJournal;
-    end;
   end;
 end;
 
@@ -1288,13 +1184,13 @@ end;
 
 procedure TForm9.ToolButton2Click(Sender: TObject);
 begin
-  FontSize:=FFontSize+1;
+  FontSize:=FontSize+1;
 end;
 
 procedure TForm9.ToolButton4Click(Sender: TObject);
 begin
-  if FFontSize<=6 then Exit;
-  FontSize:=FFontSize-1;
+  if FontSize<=6 then Exit;
+  FontSize:=FontSize-1;
 end;
 
 procedure TForm9.ToolButton9Click(Sender: TObject);
@@ -1318,7 +1214,7 @@ end;
 
 procedure TForm9.NewBtnClick(Sender: TObject);
 begin
-  LoadIni;
+  Options.Load;
   ShowFirstList;
 end;
 
@@ -1399,39 +1295,6 @@ begin
   ListBox.ItemIndex:=Ind;
 end;
 
-procedure TForm9.LoadIni;
-var
-  Ini:TIniFile;
-  I: Integer;
-  it:TMenuItem;
-  s: string;
-begin
-  if FileExists(FavoritePath)
-  then begin
-    IntFavorFiles.LoadFromFile(FavoritePath);
-    FavoriteFiles.Assign(IntFavorFiles);
-  end;
-  Ini:=TIniFile.Create(IniFileName);
-  Ini.ReadSectionValues('Spravki',SpravkiSts);
-  FontSize:=Ini.ReadInteger('Customize','FontSize',10);
-  s:=Ini.ReadString('Customize','JrnWidths','[]');
-  Widths:=so(s);
-  InitColumns;
-  WebProtocol:=Ini.ReadString('WebServer','Protocol','http');
-  WebSite:=Ini.ReadString('WebServer','Address','server');
-  ExtFileList:=Ini.ReadString('External','FileList','');
-  Ini.Free;
-  DataModule3.SpravkiMenu.Items.Clear;
-  for I := 0 to SpravkiSts.Count - 1 do begin
-    it:=TMenuItem.Create(DataModule3.SpravkiMenu);
-    it.Tag:=I;
-    it.OnClick:=SpravkaClick;
-    it.Caption:='&'+IntToStr(I+1)+' '+SpravkiSts.Names[I];
-    DataModule3.SpravkiMenu.Items.add(it);
-  end;
-  LoadExternalList(ExtFileList);
-end;
-
 procedure TForm9.mmHelpDblClick(Sender: TObject);
 begin
   DataModule3.OpenDialog1.FilterIndex:=1;
@@ -1473,27 +1336,6 @@ procedure TForm9.SpeedButton1MouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
   if Button=mbRight then Chpr.TableLength:=10000;
-end;
-
-procedure TForm9.SpravkaClick(Sender: TObject);
-var
-  it: TComponent;
-  s:string;
-  OldSpt:Integer;
-  tg:Integer;
-begin
-  it:=TComponent(Sender);
-  Tg:=it.Tag;
-  FSpravkaPath:=SpravkiSts.ValueFromIndex[it.tag];
-  if RightStr(FSpravkaPath,1)<>'\' then FSpravkaPath:=FSpravkaPath+'\';
-  s:=SpravkiSts.Names[tg];
-  OldSpt:=SpravkaType;
-  if SameText(s,'ЕДК') then SpravkaType:=sptEDK;
-  if SameText(s,'Детские пособия') then SpravkaType:=sptChild;
-  if SameText(Copy(s,1,7),'Выплаты') then SpravkaType:=sptF5;
-  PagePanel.ActivePageIndex:=0;
-  if OldSpt<>SpravkaType then LastSearh:='';
-  lstMaster.Clear;
 end;
 
 procedure TForm9.MemoModeBtnClick(Sender: TObject);
@@ -2201,7 +2043,6 @@ end;
 procedure TForm9.JournalClick(Sender: TObject);
 begin
   PagePanel.ActivePageIndex:=2;
-  AddToJournal;
   FSpravkaType:=sptJournal;
 end;
 
@@ -2220,17 +2061,6 @@ begin
   Action.OnExecute := Event;
   Action.Tag := I;
   ActList.Add(Action);
-end;
-
-procedure TForm9.AddToJournal;
-var
-  JournalURL: string;
-  Journal: ISuperObject;
-begin
-  leJournalPlus.Text := '';
-  JournalURL:='http://'+WebSite+'/test.php';
-  GetJournal(JournalURL, Journal);
-  OutJournal(Journal);
 end;
 
 function TForm9.GetFileNameForExcel: string;
