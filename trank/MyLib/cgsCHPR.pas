@@ -12,6 +12,8 @@ const
   /////////////////////////////////
   IntSize = SizeOf(Integer);
   BitsPerInt = IntSize * 8;
+  /////////////////////////////////
+  ReplaceSpaces = true;
 type
   TBitEnum = 0..BitsPerInt - 1;
   TBitSet = set of TBitEnum;
@@ -228,9 +230,9 @@ function GetFieldNames(Strings:TStrings; Delimeter:string=';'):TStrings;
 function GetValueByName(Strings: TStrings; RowNum: Integer; FieldName:string; Delimeter: string = ';'):string;
 function GetValueByColumn(Strings: TStrings; Row, Col: Integer; Delimeter: string = ';'):string;
 function CheckBankNum(st:string):boolean;
-procedure PrintToEpson(S:string; IgnorePageBreak:Boolean=true);
+procedure PrintToEpson(Sts:TStringList; IgnorePageBreak:Boolean=true);
 procedure PrintToLaser(S:string);
-procedure PrintToLaser2(S:string; Title:string='Без названия'; FontName:string='Courier New');
+procedure PrintToLaser2(Sts:TStrings; Title:string='Без названия'; FontName:string='Courier New');
 function Analiz(Text:string;TestLength:Integer):TChprStat;
 function CreateIndexForCSV(CSVFile,IndexFile:string; Col:Integer; CBProc:TIntProc=nil; TimeOut:integer=100):boolean; overload;
 function CreateIndexForCSV(CSVFile,IndexFile:string; Cols:ai; CBProc:TIntProc=nil; TimeOut:integer=100):boolean; overload;
@@ -301,7 +303,11 @@ begin
      s:=AnsiReplaceStr(s,' '+TransformOptions.Delimeter,TransformOptions.Delimeter);
      s:=AnsiReplaceStr(s,TransformOptions.Delimeter+' ',TransformOptions.Delimeter);
     Until l=length(s);
-
+    if ReplaceSpaces then
+      Repeat
+       l:=length(s);
+       s:=AnsiReplaceStr(s,'  ',' ');
+      Until l=length(s);
     if TransformOptions.Filling then begin
       st:=Sep2.text;
       for ch := '0' to '9' do
@@ -595,7 +601,6 @@ var
   W2: Integer;
   ShwFldCnt: Integer;
   FieldsNum: array of Integer;
-  JJ: Integer;
   IsExternalFields: Boolean;
   FiN: string;
   cnt: Integer;
@@ -1378,15 +1383,12 @@ begin
   Result:=5=(sum*3) mod 10;
 end;
 
-procedure PrintToEpson(S:string; IgnorePageBreak:Boolean=true);
+procedure PrintToEpson(Sts:TStringList; IgnorePageBreak:Boolean=true);
 var
   I: Integer;
   prn: TextFile;
-  sts:TStrings;
   st:string;
 begin
-  sts:=TStringList.Create;
-  sts.Text:=S;
   AssignFile(Prn, 'LPT1');
   Rewrite(Prn);
   Writeln(Prn,#27'@'#27'0'#27'M'#27'x0'#$12);
@@ -1397,7 +1399,6 @@ begin
     Writeln(Prn,st);
   end;
   CloseFile(Prn);
-  sts.Free;
 end;
 
 procedure UpdateFont;
@@ -1460,7 +1461,7 @@ begin
  Printer.EndDoc;
 end;
 
-function PrintStringsToLaser(FontName: string; var sts: TStringList; StartLine:Integer=0; LastLine:Integer=-2):boolean;
+function PrintStringsToLaser(FontName: string; var sts: TStrings; StartLine:Integer=0; LastLine:Integer=-2):boolean;
 var
   I: Integer;
   PageClientHeight: Integer;
@@ -1490,7 +1491,7 @@ begin
   UpdateFont;
 end;
 
-function GetDPI(FontName: string; var sts: TStringList; StartDPI:Integer=96; StartLine:Integer=0; LastLine:Integer=-2):Integer;
+function GetDPI(FontName: string; var sts: TStrings; StartDPI:Integer=96; StartLine:Integer=0; LastLine:Integer=-2):Integer;
 var
   I: Integer;
   MaxLength: Integer;
@@ -1555,18 +1556,17 @@ begin
   result:=DPIc;
 end;
 
-procedure PrintToLaser2(S:string; Title:string='Без названия'; FontName:string='Courier New');
+procedure PrintToLaser2(Sts:TStrings; Title:string='Без названия'; FontName:string='Courier New');
 Var
-  sts:TStringList;
   IsFirstPage:boolean;
   I: Integer;
   StartLine: Integer;
   IsPrinted: Boolean;
   DPI: Integer;
 begin
-  if S='' then Exit;
+  if sts=nil then Exit;
+  if sts.Text='' then Exit;
   sts:=TStringList.Create;
-  Sts.Text:=S;
   for i := Sts.Count - 1 downto 0 do
     if PublStr.Trim(Sts[I]) = '' then
       sts.Delete(I)

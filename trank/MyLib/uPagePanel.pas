@@ -230,7 +230,7 @@ begin
     SheetPanel:=PagePanel.AddPage;
     SheetPanel.Visible:=Page.Visible;
     SheetPanel.Name:=Page.Name;
-    for J := 0 to Page.ControlCount - 1 do begin
+    for J := Page.ControlCount - 1 downto 0 do begin
       Page.Controls[J].Parent:=SheetPanel;
     end;
   end;
