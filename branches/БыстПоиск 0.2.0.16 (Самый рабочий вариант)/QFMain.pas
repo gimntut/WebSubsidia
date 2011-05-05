@@ -1,5 +1,4 @@
-unit QFMain;
-
+unit QFMain; // QuickFindString.bdsproj
 interface
 
 uses
@@ -246,6 +245,8 @@ type
     procedure SpravkaClick(Sender: TObject);
     procedure TextState;
     procedure SetHorzSplit(const Value: boolean);
+    procedure F7Sort2(Sender:TObject; sts: TStrings; Index: Integer; var Value:string);
+    procedure InvertDate(var s_SubC: string);
   protected
     procedure WMDropFiles(var Message: TMessage); message WM_DROPFILES;
     procedure SeparateDetail(Index:integer; out Parameter, Detail: string);
@@ -291,9 +292,9 @@ const
   FieldsF7_DB1: string
                  =( 'LCHET=LCHET,SUB_C=SUB_C,DATMP_F=DATMP_F,R_STS=R_STS,'+
                     'POLUCH=POLUCH,K_LGOT=K_LGOT,MIDSOULDOH=MIDSOULDOH,'+
-                    'SDD_PRAVO=SDD_PRAVO,MIDSOULDOH=MIDSOULDOH,OLD_SUB=OLD_SUB,'+
+                    'SDD_PRAVO=SDD_PRAVO,OLD_SUB=OLD_SUB,'+
                     'SUBSID=SUBSID,SV=SV,SOS_FAM=SOS_FAM,SOV_DOHL=SOV_DOHL,'+
-                    'SUM_POTR=SUM_POTR');
+                    'SUM_POTR=SUM_POTR,PR_DOLY=PR_DOLY');
 
 implementation
 uses Publ, PublFile, ShellAPI, ClipBrd, Printers, QFLoadList, ShFolder, Registry,
@@ -927,6 +928,14 @@ begin
   Detail:=PublStr.Trim(Detail);
 end;
 
+procedure TForm9.InvertDate(var s_SubC: string);
+begin
+  if s_SubC = '' then
+    s_SubC := '00000000'
+  else
+    s_SubC := copy(s_SubC, 7, 4) + copy(s_SubC, 4, 2) + LeftStr(s_SubC, 2);
+end;
+
 procedure TForm9.SetFontSize(const Value: Integer);
 begin
   FFontSize := Value;
@@ -983,12 +992,13 @@ var
   I: Integer;
   DV: TDate;
   SposV: Integer;
-  A: Extended;
-  B: Extended;
-  C: Extended;
-  D: Extended;
-  E: Extended;
-  F: Extended;
+  R_STS: Extended;
+  POLUCH: Extended;
+  K_LGOT: Extended;
+  KorKoef: Extended;
+  MIDSOULDOH: Extended;
+  SDD_PRAVO: Extended;
+  PR_DOLY: Extended;
 begin
   Otvet := ImpossibleFloat;
 //  ShowMessage(Chpr3.Text);
@@ -996,23 +1006,24 @@ begin
   begin
     DV := StrToDateDef(Chpr3.ValueByName[I, 'SUB_C'], 0);
     if not SameDate(DateV, DV) then Continue;
-    A := GetFloatValue(I, 'R_STS');
-    B := GetFloatValue(I, 'POLUCH');
+    R_STS := GetFloatValue(I, 'R_STS');
+    POLUCH := GetFloatValue(I, 'POLUCH');
     //Bb := GetFloatValue(J, 'SOS_FAM');
-    C := GetFloatValue(I, 'K_LGOT');
-    E := GetFloatValue(I, 'MIDSOULDOH');
+    K_LGOT := GetFloatValue(I, 'K_LGOT');
+    MIDSOULDOH := GetFloatValue(I, 'MIDSOULDOH');
     //E := RoundTo(Ee/Bb,-4);
     //E := Ee/Bb;
-    F := GetFloatValue(I, 'SDD_PRAVO');
+    SDD_PRAVO := GetFloatValue(I, 'SDD_PRAVO');
+    PR_DOLY := GetFloatValue(I, 'PR_DOLY')/100;
     //F := Ff/B;
-    if F=0 then D:=1
-    else D := RoundTo(E / F, -4);
-    if D > 1 then
-      D := 1;
-    Otvet := A * B * C - E * D * B * 0.22;
+    if SDD_PRAVO=0 then KorKoef:=1
+    else KorKoef := RoundTo(MIDSOULDOH / SDD_PRAVO, -4);
+    if KorKoef > 1 then
+      KorKoef := 1;
+    Otvet := R_STS * POLUCH * K_LGOT - MIDSOULDOH * KorKoef * POLUCH * PR_DOLY;
     LastOtvet := Otvet;
     SposV := StrToInt(Chpr3.ValueByName[I, 'SV']);
-    if SposV = 2 then break;
+    if SposV in [2,5] then break;
   end;
   if math.isNan(Otvet) then Otvet := LastOtvet;
 end;
@@ -2271,6 +2282,26 @@ begin
   Result:=CompareStr(n1,n2);
 end;
 
+procedure TForm9.F7Sort2(Sender:TObject; sts: TStrings; Index: Integer; var Value:string);
+var
+  s_N: string;
+  s_SubC: string;
+  s_DATMP: string;
+  s_OldSub: string;
+  s_Subsid: string;
+  choice: TChprList;
+begin
+  choice   := TChprList(Sender);
+  s_N      := AnsiReplaceText(format('%8d',[Index]),' ','0');
+  s_SubC   := choice.ValueByName[Index,'SUB_C'];
+  InvertDate(s_SubC);
+  s_DATMP  := choice.ValueByName[Index,'DATMP_F'];
+  InvertDate(s_DATMP);
+  s_OldSub := choice.ValueByName[Index,'OLD_SUB'];
+  s_Subsid := choice.ValueByName[Index,'SUBSID'];
+  Value:=format('%s %s %s',[s_SubC,s_DATMP,s_N]);//,Index,s_OldSub,s_Subsid]);
+end;
+
 function TForm9.PrepareFindResult(s, Table2: string): boolean;
 var
   Ind: Integer;
@@ -2312,17 +2343,18 @@ begin
       FastBase.BaseName := FSpravkaPath + 'f7' + '.csv';
       FastBase.BaseIndexFile := FSpravkaPath + 'f7' +'.Index';
       FastBase.Filter := s;
-      for I := 0 to FastBase.Count - 1 do begin
-        if I = 0
-        then FastBase[I] := 'N;' + FastBase[I]
-        else FastBase[I] := IntToHex(I,8) + ';' + FastBase[I];
-      end;
       Chpr3.Clear;
       Chpr3.Mode := mdCsv;
       Chpr3.Text := {ResultStr;} FastBase.Text;
       //    ShowMessage('Log1.csv');
       //    chpr3.SaveToFile('Log1.csv');
-      Chpr3.CustomSort(F7Sort);
+      //LogUnLock;
+      Chpr3.OnCustomSort:=F7Sort2;
+      Chpr3.SortedField:=1;
+      //log('f7sort');
+      //log(chpr3.AsTable.Text);
+      //LogLock;
+//      Chpr3.CustomSort(F7Sort);
     finally
       FastBase.Free;
     end;
@@ -2440,15 +2472,17 @@ procedure TForm9.PrintBtnClick(Sender: TObject);
 var
   I: Integer;
   MaxLength: Integer;
-  s:string;
+//  s:string;
   st:string;
   Lines:TStrings;
   st1: string;
   fn: string;
-  sts: TStringList;
+  sts: TStringList;               
   TmpStr:string;
   IsDbfReestr:Boolean;
+  FirstLine:Integer;
 begin
+  sts := TStringList.Create;
   fn:=AnsiUpperCase(ExtractFileName(OpenDialog1.FileName));
   IsDbfReestr:=(fn<>'') and (fn[1] in ['F','T'])
   and (ExtractFileExt(fn)='.DBF') and (Chpr.Filter='');
@@ -2458,8 +2492,7 @@ begin
   else Lines:=lstMaster.Items;
 
   if IsDbfReestr then begin
-    Lines.BeginUpdate;
-    sts := TStringList.Create;
+    Lines:=TStringList.Create;
     sts.Assign(Chpr);
     TmpStr:=sts.Text;
     sts.Delete(0);
@@ -2469,14 +2502,13 @@ begin
       sts.Delete(I);
     end;
     Chpr.Text:=sts.Text;
-    sts.Free;
     Chpr.IsOEMSource:=false;
     Lines.AddStrings(Chpr.AsTable);
     Lines.Add('');
     Lines.Add('Руководитель:___________________');
     Lines.Add('');
     Lines.Add('Проверил:_______________________');
-    Lines.EndUpdate;
+    sts.Clear;
     // PagePanel.ActivePageIndex:=1
   end;
 
@@ -2484,9 +2516,12 @@ begin
   if MaxLength>=100
     then Printer.Orientation:=poLandscape
     else Printer.Orientation:=poPortrait;
-
   if PrintDialog1.Execute then begin
-    s:=Lines.Text;
+    if n13.Enabled and n13.Checked then begin
+      sts.Text:=Chpr.Head;
+      FirstLine:=sts.Count;//-1;
+    end else FirstLine:=0;
+    sts.AddStrings(Lines);
     if not MemoMode and not IsDbfReestr
     then begin
       st:=Memo3.Text;
@@ -2494,21 +2529,22 @@ begin
       st1:=st;
       for I := 1 to length(st) do
         if st[i]<>'|' then st1[i]:='-';
-      s:=st+#13#10+st1+#13#10+s;
-      if n13.Enabled and n13.Checked then s:=Chpr.Head+#13#10+s;
+      sts.Insert(FirstLine,st);
+      sts.Insert(FirstLine+1,st1);
       if Edit1.Text<>'' then
-        s:=format('По поисковому запросу "%s" найдено %d из %d записей:'#13#10+
-        #13#10+
-        '%s',[Edit1.Text,Chpr.FilterCount-1,Chpr.Count-1,s]);
+        sts.Insert(0,format('По поисковому запросу "%s" найдено %d из %d записей:',[Edit1.Text,Chpr.FilterCount-1,Chpr.Count-1]));
+        sts.Insert(1,'');
     end;
 
     if Pos('EPSON',AnsiUpperCase(Printer.Printers[Printer.PrinterIndex]))>0 then begin
-      PrintToEpson(S);
-    end else PrintToLaser2(S,OpenDialog1.FileName,Memo1.Font.Name);
+      PrintToEpson(Sts);
+    end else PrintToLaser2(Sts,OpenDialog1.FileName,Memo1.Font.Name);
     if IsDbfReestr then begin
       Chpr.Text:=TmpStr;
     end;
   end;
+  sts.Free;
+  if IsDbfReestr then Lines.Free;
 end;
 
 procedure TForm9.ExcelAsIsBtnClick(Sender: TObject);
