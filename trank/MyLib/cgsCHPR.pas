@@ -40,7 +40,7 @@ type
   TSetOfByte=set of byte;
   TOnCustomFilter = procedure (Sender:TObject; Index:Integer; S:string; var Show:boolean) of object;
   TOnEnum = procedure (Sender:TObject; Index:Integer; S:string) of object;
-
+  TOnCustomSort = procedure (Sender:TObject; sts:TStrings; Index:Integer; var Value:string) of object;
   TChprList= class(TStringList)
   private
     FFields:TStringList;
@@ -70,6 +70,7 @@ type
     S: string;
     FCurrentValue: Integer;
     FShowFields: TStrings;
+    FOnCustomSort: TOnCustomSort;
     function GetAsTable: TStrings;
     function GetFieldNames: TStrings;
     function GetInnerDelimeter: Char;
@@ -113,10 +114,12 @@ type
     procedure SortFilter;
     procedure SetIsAbsIndexMode(const Value: Boolean);
     procedure SetShowFields(const Value: TStrings);
+    procedure SetOnCustomSort(const Value: TOnCustomSort);
   protected
     function  Compare(Index1, Index2: Integer): Integer;
     function Get(Index: Integer): string; override;
     procedure DoCustomFiltring;
+    procedure DoCustomSort(sts:TStrings;Index:Integer;var Value:string);
     procedure Put(Index: Integer; const S: string); override;
     procedure SetTextStr(const Value: string); override;
     property XValues[Row,Col:Integer]:string read GetXValues write SetXValues;
@@ -155,6 +158,7 @@ type
     property SortedField:Integer read FSortedField write SetSortedField;
     property VisibleItems[Index:Integer]:Boolean read GetVisible write SetVisible;
     property ShowFields:TStrings read FShowFields write SetShowFields;
+    property OnCustomSort:TOnCustomSort read FOnCustomSort write SetOnCustomSort;
   end;
 
   TChprStat=record
@@ -475,7 +479,7 @@ begin
   if SortedField=-1 then Exit;
     //publ.QuickSort(0,Count-2,Compare,ExchangeOrder);
   FineSort;
-  Test;
+  if not Assigned(FOnCustomSort) then Test;
 end;
 
 function TChprList.Compare(Index1, Index2: Integer): Integer;
@@ -878,6 +882,12 @@ begin
   IsAbsIndexMode:=isst;
 end;
 
+procedure TChprList.DoCustomSort(sts: TStrings; Index: Integer;
+  var Value: string);
+begin
+  if Assigned(FOnCustomSort) then OnCustomSort(self,sts,Index,value);
+end;
+
 procedure TChprList.DoEnum;
 var
   I:integer;
@@ -912,6 +922,7 @@ var
   I:Integer;
   sts: TNumStrList;
   ist:Boolean;
+  s:string;
 begin
   ist:=IsAbsIndexMode;
   IsAbsIndexMode:=true;
@@ -920,8 +931,12 @@ begin
   sts.Duplicates:=dupAccept;
   sts.Sorted:=true;
   for I := 0 to Count - 2 do begin
-    sts.AddObject(XValues[I,SortedField],pointer(I+1));
+    s:=XValues[I,SortedField];
+    DoCustomSort(Values[I],I,s);
+    sts.AddObject(s,pointer(I+1));
   end;
+//  log('FineSort');
+//  log(sts.Text);
   FOrder[0]:=0;
   FAntiOrder[0]:=0;
   for I := 0 to sts.Count - 1 do begin
@@ -1321,6 +1336,11 @@ begin
   end;
 end;
 
+procedure TChprList.SetOnCustomSort(const Value: TOnCustomSort);
+begin
+  FOnCustomSort := Value;
+end;
+
 procedure TChprList.SetOnEnum(const Value: TOnEnum);
 begin
   FOnEnum := Value;
@@ -1566,7 +1586,6 @@ Var
 begin
   if sts=nil then Exit;
   if sts.Text='' then Exit;
-  sts:=TStringList.Create;
   for i := Sts.Count - 1 downto 0 do
     if PublStr.Trim(Sts[I]) = '' then
       sts.Delete(I)
@@ -1599,7 +1618,6 @@ begin
   if IsPrinted then Printer.NewPage;
   IsFirstPage:=not PrintStringsToLaser(FontName, sts, StartLine);
   if not IsFirstPage then Printer.EndDoc else Printer.Abort;
-  sts.Free;
 end;
 
 function Analiz(Text:string;TestLength:Integer):TChprStat;
@@ -1918,7 +1936,7 @@ begin
     end else st:=chpr.Values[I].DelimitedText;
     sts2.Add(st);
   end;
-  sts2.Sort;
+  //sts2.Sort;
   if ShwFldCnt>0 then begin
     st:='';
     SetLength(FieldsNum,ShwFldCnt);
@@ -1932,6 +1950,8 @@ begin
   Assign(sts2);
   // Финал
   fs.Free;
+//  log('STS2');
+//  log(sts2.Text);
   sts2.Free;
   sts.Free;
   CloseFile(tf);
