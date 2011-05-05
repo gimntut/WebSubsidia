@@ -277,7 +277,7 @@ object Form9: TForm9
     Top = 67
     Width = 763
     Height = 432
-    ActivePage = TabSheet3
+    ActivePage = TabSheet1
     Align = alClient
     TabOrder = 2
     Visible = False
@@ -494,6 +494,10 @@ object Form9: TForm9
     object TabSheet2: TTabSheet
       Caption = #1056#1077#1076#1072#1082#1090#1086#1088
       ImageIndex = 1
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object pnMemo: TPanel
         Left = 0
         Top = 0
