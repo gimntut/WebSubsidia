@@ -14,6 +14,8 @@ const
   BitsPerInt = IntSize * 8;
   /////////////////////////////////
   ReplaceSpaces = true;
+var
+  LineSpacing:integer = 30;
 type
   TBitEnum = 0..BitsPerInt - 1;
   TBitSet = set of TBitEnum;
@@ -1411,7 +1413,7 @@ var
 begin
   AssignFile(Prn, 'LPT1');
   Rewrite(Prn);
-  Writeln(Prn,#27'@'#27'0'#27'M'#27'x0'#$12);
+  Writeln(Prn,#27'@'#27'0'#27'M'#27'x0'#$12#27'3'+chr(LineSpacing));
   for I := 0 to sts.Count - 1 do begin
     st:=AsOEM(sts[i]);
     if IgnorePageBreak then st:=AnsiReplaceStr(St,#12,'');
@@ -1488,30 +1490,34 @@ var
   HighLine: Integer;
   LinesPerPage: Integer;
   n: Integer;
+  S:string;
 begin
   if LastLine=-2 then LastLine:=sts.Count-1;
   Result:=LastLine-StartLine>=0;
   if not Result then Exit;
   n := 0;
+  PageClientHeight := Printer.PageHeight * 9 div 10;
+  HighLine := Printer.Canvas.TextHeight('рЁ');
+  LinesPerPage := PageClientHeight div HighLine;
   for i := StartLine to LastLine do
   begin
     if OutSide(i,sts.Count-1) then break;
-    PageClientHeight := Printer.PageHeight * 9 div 10;
-    HighLine := Printer.Canvas.TextHeight('рЁ');
-    LinesPerPage := PageClientHeight div HighLine;
-    Printer.Canvas.TextOut(Printer.PageWidth div 20, PageClientHeight div 18 + n * HighLine, Sts[i]);
+    S := Sts[i];
+    if (S<>'') and (S[1]=#12) then S:='---------------------- Линия отрыва -----------------------------';
+    Printer.Canvas.TextOut(Printer.PageWidth div 20, PageClientHeight div 18 + n * HighLine, S);
     Cycle(n, LinesPerPage);
     if (n = 0) and (I<LastLine) then
       Printer.NewPage;
   end;
 end;
+
 procedure UpdateDPI(DPI:Integer);
 begin
   Printer.Canvas.Font.PixelsPerInch := DPI;
   UpdateFont;
 end;
 
-function GetDPI(FontName: string; var sts: TStrings; StartDPI:Integer=96; StartLine:Integer=0; LastLine:Integer=-2):Integer;
+function GetDPI(FontName: string; var sts: TStrings; out LinesPerPage:Integer; StartDPI:Integer=96; StartLine:Integer=0; LastLine:Integer=-2):Integer;
 var
   I: Integer;
   MaxLength: Integer;
@@ -1522,7 +1528,7 @@ var
   DPIc: Integer;
   oDPIc: Integer;
   HighLine: Integer;
-  LinesPerPage: Integer;
+  oLinesPerPage: Integer;
   LineCount: Integer;
   K: Real;
   MaxLineCount: Integer;
@@ -1542,14 +1548,14 @@ begin
   Printer.Canvas.Font.Name := FontName;
   Printer.Canvas.Font.Pitch := fpFixed;
   Printer.Canvas.Font.Size := 10;
-  CharWidth := Printer.Canvas.TextWidth('W');
-  PageWidth := Printer.PageWidth;
-  PageClientWidth := PageWidth * 9 div 10;
-  PageClientHeight := Printer.PageHeight * 9 div 10;
   Printer.Canvas.Font.PixelsPerInch:=StartDPI;
   DPIc := Printer.Canvas.Font.PixelsPerInch;
   oDPIc := DPIc;
   UpdateFont;
+  CharWidth := Printer.Canvas.TextWidth('W');
+  PageWidth := Printer.PageWidth;
+  PageClientWidth := PageWidth * 9 div 10;
+  PageClientHeight := Printer.PageHeight * 9 div 10;
   if PageClientWidth < CharWidth * MaxLength then
   begin
     DPIc := DPIc * (CharWidth * MaxLength) div PageClientWidth;
@@ -1558,11 +1564,13 @@ begin
   end;
   HighLine := Printer.Canvas.TextHeight('рЁ');
   LinesPerPage := (PageClientHeight div HighLine) +1;
+  oLinesPerPage := LinesPerPage;
   LineCount:=LastLine-StartLine+1;
   K := LineCount / LinesPerPage;
   while (K > 1) and (Frac(K) < 0.3) and (LinesPerPage<MaxLineCount) do
   begin
     oDPIc := DPIc;
+    oLinesPerPage := LinesPerPage;
     DPIc := DPIc + 10;
     UpdateDPI(DPIc);
     HighLine := Printer.Canvas.TextHeight('рЁ');
@@ -1571,6 +1579,7 @@ begin
   end;
   if LinesPerPage>MaxLineCount then begin
     DPIc:=oDPIc;
+    LinesPerPage:=oLinesPerPage;
 //    UpdateDPI(DPIc);
   end;
   result:=DPIc;
@@ -1581,8 +1590,11 @@ Var
   IsFirstPage:boolean;
   I: Integer;
   StartLine: Integer;
+  StartLine2: Integer;
   IsPrinted: Boolean;
+  IsBreakLine: Boolean;
   DPI: Integer;
+  LinesPerPage:Integer;
 begin
   if sts=nil then Exit;
   if sts.Text='' then Exit;
@@ -1597,23 +1609,36 @@ begin
   Printer.BeginDoc;
   IsPrinted:=false;
   DPI := Printer.Canvas.Font.PixelsPerInch;
+  // Подбор плотности печати
   for I := 0 to sts.Count - 1 do begin
     if (I<=sts.Count-1) and not((sts[i]<>'') and (sts[i][1]=#12)) then Continue;
-    DPI:=GetDPI(FontName, sts, DPI, StartLine, I-1);
+    DPI:=GetDPI(FontName, sts, LinesPerPage, DPI, StartLine, I-1);
     StartLine:=I+1;
   end;
-  DPI:=GetDPI(FontName, sts, DPI, StartLine);
+  DPI:=GetDPI(FontName, sts, LinesPerPage, DPI, StartLine);
+  // Печать текста
   StartLine:=0;
+  StartLine2:=0;
   for I := 0 to sts.Count - 1 do begin
-    if (I<=sts.Count-1) and not((sts[i]<>'') and (sts[i][1]=#12)) then Continue;
+    IsBreakLine:=(sts[i]<>'') and (sts[i][1]=#12);
+    if not IsBreakLine then Continue;
     if IsFirstPage then begin
       Printer.Canvas.Font.PixelsPerInch := DPI;
       UpdateFont;
       IsFirstPage:=false;
     end;
+    if I-StartLine>=LinesPerPage then begin
+      if IsPrinted then Printer.NewPage;
+      IsPrinted:=PrintStringsToLaser(FontName, sts, StartLine, StartLine2-2);
+      StartLine:=StartLine2;
+    end;
+    StartLine2:=I+1
+    //if IsPrinted then Printer.NewPage;
+  end;
+  if StartLine2>StartLine then begin
     if IsPrinted then Printer.NewPage;
-    IsPrinted:=PrintStringsToLaser(FontName, sts, StartLine, I-1);
-    StartLine:=I+1;
+    IsPrinted:=PrintStringsToLaser(FontName, sts, StartLine, StartLine2-2);
+    StartLine:=StartLine2;
   end;
   if IsPrinted then Printer.NewPage;
   IsFirstPage:=not PrintStringsToLaser(FontName, sts, StartLine);
@@ -2212,3 +2237,4 @@ finalization
   FieldStrings.Free;
   ValueStrings.Free;
 end.
+
