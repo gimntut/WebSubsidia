@@ -474,6 +474,7 @@ procedure TChprList.Clear;
 begin
   inherited;
   Filter:='';
+  ShowFields.Clear;
 end;
 
 procedure TChprList.ColumnSort;
