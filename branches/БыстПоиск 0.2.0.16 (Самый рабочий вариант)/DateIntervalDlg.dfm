@@ -18,30 +18,16 @@ object PeriodDlg: TPeriodDlg
   OnKeyDown = FormKeyDown
   PixelsPerInch = 96
   TextHeight = 13
-  object Label1: TLabel
-    AlignWithMargins = True
-    Left = 3
-    Top = 3
-    Width = 853
-    Height = 19
-    Align = alTop
-    Alignment = taCenter
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clBlue
-    Font.Height = -16
-    Font.Name = 'Tahoma'
-    Font.Style = [fsBold]
-    ParentFont = False
-    ExplicitWidth = 5
-  end
   object Splitter1: TSplitter
     Left = 401
-    Top = 25
+    Top = 0
     Width = 4
-    Height = 364
+    Height = 389
     Beveled = True
     Color = clGradientInactiveCaption
     ParentColor = False
+    ExplicitTop = 25
+    ExplicitHeight = 364
   end
   object Edit1: TEdit
     Left = 8
@@ -87,16 +73,18 @@ object PeriodDlg: TPeriodDlg
   end
   object Panel2: TPanel
     Left = 0
-    Top = 25
+    Top = 0
     Width = 401
-    Height = 364
+    Height = 389
     Align = alLeft
     BevelInner = bvLowered
     TabOrder = 3
     OnResize = PictResize
+    ExplicitTop = 25
+    ExplicitHeight = 364
     object Image1: TImage
       Left = 2
-      Top = 71
+      Top = 96
       Width = 397
       Height = 239
       Align = alClient
@@ -109,8 +97,8 @@ object PeriodDlg: TPeriodDlg
     end
     object Label2: TLabel
       Left = 2
-      Top = 310
-      Width = 381
+      Top = 335
+      Width = 397
       Height = 52
       Align = alBottom
       Caption = 
@@ -119,11 +107,31 @@ object PeriodDlg: TPeriodDlg
         #1077#1081' Ctrl. '#1055#1056#1054#1041#1045#1051' - '#1074#1099#1073#1080#1088#1072#1077#1090' 6 '#1084#1077#1089#1103#1094#1077#1074' '#1087#1077#1088#1077#1076' '#1090#1077#1082#1091#1097#1080#1084'. Ctrl+'#1055#1056#1054#1041#1045#1051' ' +
         '- '#1087#1086#1082#1072#1079#1099#1074#1072#1077#1090' '#1074' '#1089#1087#1088#1072#1074#1082#1077' '#1074#1089#1077' '#1089#1091#1084#1084#1099' ('#1055#1086#1083#1085#1099#1081' '#1087#1086#1082#1072#1079').'
       WordWrap = True
+      ExplicitTop = 310
+      ExplicitWidth = 381
+    end
+    object Label1: TLabel
+      AlignWithMargins = True
+      Left = 5
+      Top = 5
+      Width = 391
+      Height = 19
+      Align = alTop
+      Alignment = taCenter
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlue
+      Font.Height = -16
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      ParentFont = False
+      ExplicitLeft = 3
+      ExplicitTop = 3
+      ExplicitWidth = 5
     end
     object CheckBox1: TCheckBox
       AlignWithMargins = True
       Left = 5
-      Top = 51
+      Top = 76
       Width = 391
       Height = 17
       Align = alTop
@@ -131,11 +139,12 @@ object PeriodDlg: TPeriodDlg
       TabOrder = 0
       Visible = False
       OnClick = TriggerClick
+      ExplicitTop = 51
     end
     object CheckBox2: TCheckBox
       AlignWithMargins = True
       Left = 5
-      Top = 28
+      Top = 53
       Width = 391
       Height = 17
       Align = alTop
@@ -143,11 +152,12 @@ object PeriodDlg: TPeriodDlg
       TabOrder = 1
       Visible = False
       OnClick = TriggerClick
+      ExplicitTop = 28
     end
     object CheckBox3: TCheckBox
       AlignWithMargins = True
       Left = 5
-      Top = 5
+      Top = 30
       Width = 391
       Height = 17
       Align = alTop
@@ -155,13 +165,14 @@ object PeriodDlg: TPeriodDlg
       TabOrder = 2
       Visible = False
       OnClick = TriggerClick
+      ExplicitTop = 5
     end
   end
   object Memo1: TMemo
     Left = 405
-    Top = 25
+    Top = 0
     Width = 454
-    Height = 364
+    Height = 389
     Align = alClient
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -172,5 +183,7 @@ object PeriodDlg: TPeriodDlg
     ReadOnly = True
     ScrollBars = ssBoth
     TabOrder = 1
+    ExplicitTop = 25
+    ExplicitHeight = 364
   end
 end

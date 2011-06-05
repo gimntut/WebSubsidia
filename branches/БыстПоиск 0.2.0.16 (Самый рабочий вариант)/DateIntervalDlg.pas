@@ -185,44 +185,55 @@ procedure TPeriodDlg.FormKeyDown(Sender: TObject; var Key: Word;
 var
   sdt,edt:TDate;
   Delta:Integer;
+  NoUpdate: Boolean;
 begin
   sdt:=FStartInterval;
   edt:=FEndInterval;
+  NoUpdate:=false;
+
+  if not InfinitiMode then
+    case ShortCut(Key,Shift) of
+      VK_LEFT: begin
+        sdt:=IncMonth(sdt,-1);
+        edt:=IncMonth(edt,-1);
+      end;
+      VK_RIGHT: begin
+        sdt:=IncMonth(sdt,1);
+        edt:=IncMonth(edt,1);
+      end;
+      VK_UP: begin
+        sdt:=IncYear(sdt,-1);
+        edt:=IncYear(edt,-1);
+      end;
+      VK_DOWN: begin
+        sdt:=IncYear(sdt,1);
+        edt:=IncYear(edt,1);
+      end;
+      scCtrl+VK_LEFT: begin
+        edt:=IncMonth(edt,-1);
+      end;
+      scCtrl+VK_RIGHT: begin
+        edt:=IncMonth(edt,1);
+      end;
+      VK_SPACE: begin
+        InitInterval;
+        Exit;
+      end;
+      else NoUpdate:=true;
+    end;
+
   case ShortCut(Key,Shift) of
     scCtrl+VK_SPACE: begin
       InfinitiMode:=not FInfinitiMode;
     end;
-    VK_LEFT: begin
-      sdt:=IncMonth(sdt,-1);
-      edt:=IncMonth(edt,-1);
-    end;
-    VK_RIGHT: begin
-      sdt:=IncMonth(sdt,1);
-      edt:=IncMonth(edt,1);
-    end;
-    VK_UP: begin
-      sdt:=IncYear(sdt,-1);
-      edt:=IncYear(edt,-1);
-    end;
-    VK_DOWN: begin
-      sdt:=IncYear(sdt,1);
-      edt:=IncYear(edt,1);
-    end;
-    scCtrl+VK_LEFT: begin
-      edt:=IncMonth(edt,-1);
-    end;
-    scCtrl+VK_RIGHT: begin
-      edt:=IncMonth(edt,1);
-    end;
-    VK_SPACE: begin
-      InitInterval;
-      Exit;
-    end;
     scCtrl+Ord('1')..scCtrl+Ord('3'): begin
       CheckBox[Key-Ord('0')].Checked:=not CheckBox[Key-Ord('0')].Checked;
     end;
-    else Exit;
+    else NoUpdate:=NoUpdate and true;
   end;
+
+  if NoUpdate then Exit;
+
   Key:=0;
   if YearOf(sdt)<LeftEdge then begin
     Delta:=LeftEdge-YearOf(sdt);
