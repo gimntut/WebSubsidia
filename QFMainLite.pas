@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, Buttons, ExtCtrls, ComCtrls, StdCtrls, ToolWin,
   cgsCHPR, XPMan, ImgList, Menus, ActnList, AppEvnts, Contnrs, uPagePanel,
-  Grids, superobject, ViewLog{, uOpenOffice}, gsCatcher;
+  Grids, superobject, ViewLog, {uOpenOffice,} gsCatcher;
 
 type
   TListBox=class(StdCtrls.TListBox)
@@ -220,7 +220,6 @@ var
   TmpSts:TStringList;
 begin
   TmpSts := TStringList.Create;
-  TmpSts.Clear;
   TmpSts.Delimiter:=',';
   TmpSts.StrictDelimiter:=false;
   TmpSts.DelimitedText:=copy(s,2,length(s)-2);
@@ -347,23 +346,16 @@ var
   FN:string;
 begin
   InFile:=ParamStr(1);
-  Log('StartCatch');
   InitCatch;
-  Log('Set Drag');
   DragAcceptFiles(Handle, true);
-  Log('Create PagePanel');
   PagePanel:=Substitution(PageControl1);
   PagePanel.ActivePageIndex:=0;
-  LogObjectAsText(PagePanel);
-  Log('Create TStrings');
   SpravkiSts := TStringList.Create;
   TmpSts:=TStringList.Create;
-  Log('Create ChprLists');
   Chpr:=TChprList.Create;
   Chpr2:=TChprList.Create;
   Chpr3:=TChprList.Create;
   Table:=TStringList.Create;
-  Log('Create ActList');
   ActList:=TObjectList.Create(true);
   Table.CommaText:=jrnHeaders;
   IniFileName:=ProgramPath+'\QFS.ini';
@@ -477,12 +469,14 @@ var
   sts: TStringList;
 begin
 //  MemoMode:=true;
+//  LogTime;
   JObject:=so(LoadStrFromFile(FileName));
   Memo1.Text :=JObject['db1.fields'].AsString;
   sts := TStringList.Create;
   sts.Add(A2B(JObject['db1.fields'].AsString));
   jAr := JObject['db1.values'].AsArray;
   for I := 0 to jAr.Length - 1 do sts.Add(A2B(jAr.S[I]));
+//  LogTime;
 //  Memo1.lines:=sts;
   //////////////////////////////////////////////////////////
   ResetEditMode;
@@ -497,6 +491,7 @@ begin
   Chpr.ShowFields.DelimitedText:=FieldsEDK_DB1;
   OutTable;
   SpravkaType := sptChild;
+  LogTime;
 end;
 
 procedure TForm9Lite.OutTable(NoDataText:string='Нет данных');

@@ -7,7 +7,6 @@ program QFSLite;
 uses
 //  MemControl,
   Forms,
-  QFMain in 'QFMain.pas' {Form9},
   QFLoadList in 'QFLoadList.pas' {Form10},
   QFTemplate in 'QFTemplate.pas' {QFTemlateDlg},
   DateIntervalDlg in 'DateIntervalDlg.pas' {PeriodDlg},
@@ -23,7 +22,6 @@ begin
   Application.Initialize;
   Application.Title := 'Работа со списками';
   Application.CreateForm(TForm9Lite, Form9Lite);
-  Application.CreateForm(TForm9, Form9);
   Application.CreateForm(TForm10, Form10);
   Application.CreateForm(TQFTemlateDlg, QFTemlateDlg);
   Application.CreateForm(TPeriodDlg, PeriodDlg);
