@@ -61,7 +61,7 @@ object PeriodDlg: TPeriodDlg
     DesignSize = (
       859
       41)
-    object Button1: TButton
+    object btnOK: TButton
       Left = 692
       Top = 8
       Width = 75
