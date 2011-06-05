@@ -579,6 +579,7 @@ begin
   FValues.Free;
   FVisible.Free;
   FTmpSts.Free;
+  FShowFields.Free;
   inherited;
 end;
 
@@ -1865,7 +1866,7 @@ end;
 procedure TFastFileStrList.SetFilter(const Value: string);
 begin
   FFilter := AnsiUpperCase(PublStr.Trim(Value));
-  DoFiltering;
+  Update;
 end;
 
 procedure TFastFileStrList.SetShowFields(const Value: TStrings);
@@ -1888,6 +1889,7 @@ destructor TFastFileStrList.Destroy;
 begin
   FShowFields.Free;
   Chpr.Free;
+  inherited;
 end;
 
 procedure TFastFileStrList.DoFiltering;
@@ -1961,22 +1963,16 @@ begin
     end else st:=chpr.Values[I].DelimitedText;
     sts2.Add(st);
   end;
-  //sts2.Sort;
   if ShwFldCnt>0 then begin
     st:='';
     SetLength(FieldsNum,ShwFldCnt);
     for I:=0 to ShwFldCnt-1 do
       st:=ContStr(st,';',ShowFields.ValueFromIndex[I]);
   end else st:=Chpr.FieldNames.DelimitedText;
-//  st:='';
-//  for I:=0 to ShowFields.Count-1 do
-//    st:=ContStr(st,';',ShowFields.ValueFromIndex[I]);
   sts2.Insert(0,st);
   Assign(sts2);
   // Финал
   fs.Free;
-//  log('STS2');
-//  log(sts2.Text);
   sts2.Free;
   sts.Free;
   CloseFile(tf);

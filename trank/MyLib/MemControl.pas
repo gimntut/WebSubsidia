@@ -5,8 +5,8 @@ interface
 
 implementation
 {$IFDEF MEMCONTROL}
-Uses Windows, SysUtils;
-Type
+uses Windows, SysUtils;
+type
  TObjInfo=Record
   obj:TObject;
   Size:Integer;
@@ -25,7 +25,7 @@ var
   Capacity:Integer;
   Count:integer;
   xTime:TDateTime;
-Const
+const
  AllocBy=1024;
  HoursPerDay   = 24;
  MinsPerHour   = 60;
@@ -103,10 +103,10 @@ begin
  if Size=0 then Exit;
  t:=Now;
  Check:=true;
- if Count>=Capacity then Begin
+ if Count>=Capacity then begin
   inc(Capacity,AllocBy);
   SetLength(p,Capacity);
- End;
+ end;
  p[Count].obj:=pn;
  p[Count].Size:=Size;
  inc(Count);
@@ -141,13 +141,13 @@ end;
 procedure Delete(pn:pointer); overload;
 Var
  i:integer;
-Begin
+begin
  if Check then Exit;
  Check:=true;
  i:=Find(pn);
  Delete(i);
  Check:=false;
-End;
+end;
 
 function NewGetMem(Size: Integer): Pointer;
 begin
@@ -205,7 +205,7 @@ type
 procedure SetNewMemMgr;
 begin
   GetMemoryManager(OldMemMgr);
-  SeTMemoryManager(NewMemMgr);
+  SetMemoryManager(NewMemMgr);
 end;
 
 procedure MessageBox(Title,Text:String);
@@ -303,28 +303,23 @@ begin
   +IntToStr(FreeMemCount)+'/'+IntToStr(GetMemCount)+#13#10
   +'Âğåìÿ MemControl -   '+IntToStr(t)+' ìñ'));
 
-// s:='(!)  Ïğîèñõîäèò óòå÷êà ïàìÿòè  (!)'#13#10#13#10
-// +'Â ïàìÿòè îñòàëîñü áëîêîâ -    '+IntToStr(Count)+#13#10
-// +'Îñâîáîæäåíî áëîêîâ / Çàõâà÷åíî áëîêîâ -    '
-// +IntToStr(FreeMemCount)+'/'+IntToStr(GetMemCount)+#13#10
-// +'Âğåìÿ MemControl -   '+IntToStr(t)+' ìñ';
  nObj:=0;
  nDat:=0;
  sResultObj:='';
  sResultDat:='';
- For i:=0 to Count-1 do Begin
+ For i:=0 to Count-1 do begin
   x:=PInteger(p[i].obj)^;
   if (x>=$400000) and (x<$500000) and (nObj<=10) then begin
    inc(nObj);
    s:=p[i].obj.ClassName;
-   sResultObj:=sResultObj+#13#10'¹'+IntToStr(nObj)+': '+s;
+   sResultObj:=sResultObj+#13#10'¹'+IntToStr(nObj)+': '+s+' ('+IntToStr(p[i].Size)+')';
    if nObj=500 then Exit;
-  End else begin
+  end else begin
    inc(nDat);
    if nDat<=10 then
-     sResultDat:=sResultDat+#13#10'¹'+IntToStr(nDat)+': '+IntToHex(Integer(p[i].obj),6);
+     sResultDat:=sResultDat+#13#10'¹'+IntToStr(nDat)+': $'+IntToHex(Integer(p[i].obj),6)+' - $'+IntToHex(Integer(p[i].obj)+p[i].Size,6)+' ('+IntToStr(p[i].Size)+')';
   end;
- End;
+ end;
  MessageBox('Îáúåêòû: ',sResultObj);
  MessageBox('Äàííûå: ',sResultDat);
 end;
@@ -335,7 +330,7 @@ initialization
  SetLength(p,Capacity);
  SetNewMemMgr;
 finalization
- SeTMemoryManager(OldMemMgr);
+ SetMemoryManager(OldMemMgr);
  Diagnoz;
  p:=nil;
 {$ENDIF}

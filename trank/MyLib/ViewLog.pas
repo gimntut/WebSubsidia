@@ -177,6 +177,7 @@ procedure LogComponentState(AComp:TComponent);
 Var
  s,st:string;
 begin
+ if FLock then Exit;
  if AComp=nil then Begin
   Log('Component = nil; ComponentState=???');
   Exit;
@@ -206,6 +207,7 @@ procedure LogControlState(ACont:TControl);
 Var
  s,st:string;
 begin
+ if FLock then Exit;
  if ACont=nil then Begin
   Log('Control = nil; ControlState=???');
   Exit;
@@ -283,6 +285,7 @@ end;
 
 procedure LogClassName(AObj:TObject);
 begin
+ if FLock then Exit;
  if AObj=nil
  then Log('Object = nil')
  else With AObj do
@@ -291,6 +294,7 @@ end;
 
 procedure LogCompName(AComp:TComponent);
 begin
+ if FLock then Exit;
  if AComp=nil
  then Log('Control = nil')
  else With AComp do
@@ -299,6 +303,7 @@ end;
 
 procedure LogMsg(Msg:Cardinal);
 begin
+ if FLock then Exit;
  Log(MsgToStr(Msg));
 end;
 
@@ -313,6 +318,7 @@ Const
   'csNoStdEvents', 'csDisplayDragImage', 'csReflector', 'csActionClient',
   'csMenuEvents', 'csNeedsBorderPaint', 'csParentBackground');
 Begin
+ if FLock then Exit;
  if Cont=nil then Begin
   Log('Control = nil; ControlStyle=???');
   Exit;
@@ -350,6 +356,7 @@ var
   Stream2: TMemoryStream;
   S: string;
 begin
+  if FLock then Exit;
   Stream1:=TMemoryStream.Create;
   Stream1.WriteComponent(Component);
 
