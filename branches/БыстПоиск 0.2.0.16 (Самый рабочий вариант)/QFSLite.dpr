@@ -1,10 +1,11 @@
-program QuickFindString;
+program QFSLite;
 
-{%TogetherDiagram 'ModelSupport_QuickFindString\default.txaPackage'}
-{%File 'QFSLite.bdsproj'}
+
+
+{%TogetherDiagram 'ModelSupport_QFSLite\default.txaPackage'}
 
 uses
-  MemControl,
+//  MemControl,
   Forms,
   QFMain in 'QFMain.pas' {Form9},
   QFLoadList in 'QFLoadList.pas' {Form10},
@@ -14,18 +15,19 @@ uses
   uImportBases in 'uImportBases.pas' {ImportDlg},
   Unit17 in 'Unit17.pas' {FioDlg},
   uQFSObj in 'uQFSObj.pas',
-  uFieldsDlg in 'uFieldsDlg.pas' {FieldsDlg};
+  QFMainLite in 'QFMainLite.pas' {Form9Lite};
 
 {$R *.res}
+
 begin
   Application.Initialize;
   Application.Title := 'Работа со списками';
+  Application.CreateForm(TForm9Lite, Form9Lite);
   Application.CreateForm(TForm9, Form9);
   Application.CreateForm(TForm10, Form10);
   Application.CreateForm(TQFTemlateDlg, QFTemlateDlg);
   Application.CreateForm(TPeriodDlg, PeriodDlg);
   Application.CreateForm(TImportDlg, ImportDlg);
   Application.CreateForm(TFioDlg, FioDlg);
-  Application.CreateForm(TFieldsDlg, FieldsDlg);
   Application.Run;
 end.

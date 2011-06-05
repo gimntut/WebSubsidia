@@ -12,7 +12,7 @@ type
     Label1: TLabel;
     Image1: TImage;
     Panel1: TPanel;
-    Button1: TButton;
+    btnOK: TButton;
     Button2: TButton;
     Panel2: TPanel;
     Label2: TLabel;
@@ -41,6 +41,7 @@ type
     flag: Boolean;
     FOnChangeInterval: TOnChangeInterval;
     FInfinitiMode: Boolean;
+    FFastPrint: Boolean;
     procedure OutPicture;
     procedure SetEndInterval(const Value: TDate);
     procedure SetStartInterval(const Value: TDate);
@@ -59,6 +60,8 @@ type
     procedure SetTriggerText(Index: Integer; const Value: string);
     procedure SetTriggerVisible(Index: Integer; const Value: Boolean);
     function GetCheckBox(Index: Integer): TCheckBox;
+    procedure SetFastPrint(const Value: Boolean);
+    procedure DoPrint;
     { Private declarations }
   protected
     procedure DoChangeInterval(Memo:TMemo);
@@ -73,6 +76,7 @@ type
     property Trigger[Index:Integer]:Boolean read GetTrigger write SetTrigger;
     property TriggerVisible[Index:Integer]:Boolean read GetTriggerVisible write SetTriggerVisible;
     property TriggerText[Index:Integer]:string read GetTriggerText write SetTriggerText;
+    property FastPrint:Boolean read FFastPrint write SetFastPrint;
     procedure TriggersOff;
     procedure AddTriger(Name:string; Checked:Boolean);
     function Execute:boolean;
@@ -138,6 +142,11 @@ begin
   end;
   ShowInfo;
   Result:=ShowModal=mrOk;
+end;
+
+procedure TPeriodDlg.DoPrint;
+begin
+  Dummy;
 end;
 
 procedure TPeriodDlg.ShowInfo;
@@ -319,9 +328,10 @@ var
   s:string;
   J: Integer;
 begin
-  if InfinitiMode
-  then Image1.Canvas.Brush.Color:=$ff0000
-  else Image1.Canvas.Brush.Color:=clWhite;
+//  if InfinitiMode
+//  then Image1.Canvas.Brush.Color:=$ff0000
+//  else
+  Image1.Canvas.Brush.Color:=clWhite;
   Image1.Canvas.Brush.Style:=bsSolid;
   Image1.Canvas.Pen.Color:=clWhite;
   Image1.Canvas.Pen.Style:=psSolid;
@@ -343,6 +353,7 @@ begin
            and (EncodeDate(I+FLeftEdge,J+1,1)-1<FEndInterval)
            then Image1.Canvas.Brush.Color:=clYellow
            else Image1.Canvas.Brush.Color:=$ddffdd;
+      if InfinitiMode then Image1.Canvas.Brush.Color:=clYellow;
       image1.Canvas.Rectangle(r1);
       Image1.Canvas.Brush.Style:=bsClear;
       s:=IntToStr(J+1);
@@ -367,6 +378,20 @@ begin
   end;
   FEndInterval := EncodeDate(YearOf(Value),MonthOf(Value),1);
   if Visible then ShowInfo;
+end;
+
+procedure TPeriodDlg.SetFastPrint(const Value: Boolean);
+begin
+  FFastPrint := Value;
+  if Value
+  then begin
+    btnOK.Caption := 'Печать';
+    Button2.caption := 'Закрыть';
+  end else begin
+    btnOK.Caption := 'ОК';
+    Button2.caption := 'Отмена';
+  end;
+  DoPrint;
 end;
 
 procedure TPeriodDlg.SetInfinitiMode(const Value: Boolean);

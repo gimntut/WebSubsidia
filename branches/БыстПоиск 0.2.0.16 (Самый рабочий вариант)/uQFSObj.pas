@@ -36,6 +36,7 @@ begin
 end;
 
 initialization
-finalization
   QFSCollection:=TQFSCollection.Create(nil,TCustomQFSObj);
+finalization
+  QFSCollection.Free;
 end.
