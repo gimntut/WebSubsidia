@@ -340,6 +340,10 @@ object Form9Lite: TForm9Lite
     object TabSheet2: TTabSheet
       Caption = #1056#1077#1076#1072#1082#1090#1086#1088
       ImageIndex = 1
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object pnMemo: TPanel
         Left = 0
         Top = 0
