@@ -2330,7 +2330,7 @@ begin
   InvertDate(s_DATMP);
   s_OldSub := choice.ValueByName[Index,'OLD_SUB'];
   s_Subsid := choice.ValueByName[Index,'SUBSID'];
-  Value:=format('%s %s %s',[s_SubC,s_DATMP,s_N]);//,Index,s_OldSub,s_Subsid]);
+  Value:=format('%s %s %s %s %s',[s_SubC,s_DATMP,s_N {]);//{,Index},s_OldSub,s_Subsid]);
 end;
 
 function TForm9.PrepareFindResult(s, Table2: string): boolean;

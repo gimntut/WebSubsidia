@@ -1,10 +1,8 @@
 program QuickFindString;
 
 {%TogetherDiagram 'ModelSupport_QuickFindString\default.txaPackage'}
-{%File 'QFSLite.bdsproj'}
 
 uses
-  MemControl,
   Forms,
   QFMain in 'QFMain.pas' {Form9},
   QFLoadList in 'QFLoadList.pas' {Form10},

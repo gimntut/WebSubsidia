@@ -210,7 +210,7 @@ const
                     'SUM_POTR=SUM_POTR');
 
 implementation
-uses Publ, PublFile, ShellAPI, ClipBrd, Printers, QFLoadList, ShFolder, Registry,
+uses Publ, PublFile, ShellAPI, ClipBrd, Printers, QFLoadList, ShFolder, 
   StrUtils, PublStr, QFTemplate, IniFiles, DateIntervalDlg, DateUtils, Types,
   Math, uImportBases;
 {$R *.dfm}
@@ -471,7 +471,6 @@ begin
 //  MemoMode:=true;
 //  LogTime;
   JObject:=so(LoadStrFromFile(FileName));
-  Memo1.Text :=JObject['db1.fields'].AsString;
   sts := TStringList.Create;
   sts.Add(A2B(JObject['db1.fields'].AsString));
   jAr := JObject['db1.values'].AsArray;
