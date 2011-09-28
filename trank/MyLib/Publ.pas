@@ -7,6 +7,8 @@ unit Publ;
 interface
 
 uses Windows, Messages, Classes; {System}
+type
+  TValueSign = -1..1;
 
 const
   NaN = 0.0 / 0.0;
@@ -17,6 +19,9 @@ const
   ImpossibleCurrency: Currency = Low(Int64) div 10000;
   CRLF: string = #13#10;
   HexSet: set of Char = ['0'..'9', 'A'..'F'];
+  NegativeValue = Low(TValueSign);
+  ZeroValue = 0;
+  PositiveValue = High(TValueSign);
 
 type
   ai = array of Integer;
@@ -258,6 +263,9 @@ function Poly(const X: Extended; const Coefficients: array of Double): Extended;
 procedure SaveValue(Stream: TStream; Field: Integer; Value: string); overload;
 procedure SaveValue(Stream: TStream; Field: Integer; Value: Integer); overload;
 procedure SaveValue(Stream: TStream; Field: Integer; Value: Boolean); overload;
+function Sign(const AValue: Integer): TValueSign; overload;
+function Sign(const AValue: Int64): TValueSign; overload;
+function Sign(const AValue: Double): TValueSign; overload;
 
 var
   DayCountInMonth: array[1..12] of Byte = (31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31);
@@ -1720,6 +1728,34 @@ procedure SaveValue(Stream: TStream; Field: Integer; Value: string);
 begin
   Stream.Write(Field, 4);
   WriteString(Stream, Value);
+end;
+
+function Sign(const AValue: Integer): TValueSign;
+begin
+  Result := ZeroValue;
+  if AValue < 0 then
+    Result := NegativeValue
+  else if AValue > 0 then
+    Result := PositiveValue;
+end;
+
+function Sign(const AValue: Int64): TValueSign;
+begin
+  Result := ZeroValue;
+  if AValue < 0 then
+    Result := NegativeValue
+  else if AValue > 0 then
+    Result := PositiveValue;
+end;
+
+function Sign(const AValue: Double): TValueSign;
+begin
+  if ((PInt64(@AValue)^ and $7FFFFFFFFFFFFFFF) = $0000000000000000) then
+    Result := ZeroValue
+  else if ((PInt64(@AValue)^ and $8000000000000000) = $8000000000000000) then
+    Result := NegativeValue
+  else
+    Result := PositiveValue;
 end;
 
 end.

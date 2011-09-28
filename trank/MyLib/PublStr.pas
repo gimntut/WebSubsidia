@@ -2,7 +2,10 @@ unit PublStr;
 
 interface
 
-uses PublTime, Types, Classes, Publ;
+uses PublTime, Types, Classes, Publ
+//, SysUtils
+//,Math
+;
 /////////////////// SysUtils ///////////////////
 type
   TFormatSettings = record
@@ -244,6 +247,7 @@ procedure EmbbedStr(var S: string; Subst: string; var position: Integer); overlo
 // ƒобавление пробелов к строке с нужной стороны
 function LSpace(s: string; len: Integer; Cut: Boolean = true): string; // - слева
 function RSpace(s: string; len: Integer; Cut: Boolean = true): string; // - справа
+function CenterSpace(s: string; len: Integer; Cut: Boolean = true): string; // - по центру
 // ѕреобразование строки в DOS кодировку
 function AsOEM(s: string): string;
 // ѕреобразование строки в WinDOwS кодировку
@@ -520,7 +524,7 @@ begin
   case i of
     11:
     begin
-      result := n[1] - n[2];
+      result := sign(n[1] - n[2]);
       if result = 0 then
         result := CompNumStr(s[1], s[2]);
     end;
@@ -547,63 +551,65 @@ begin
 end;
 
 function CompNumText(s1, s2: string): Integer; //overload;
-var
-  s, ns: array[1..2] of string;
-  n, x: array[1..2] of Int64;
-  i, j: Integer;
+//var
+//  s, ns: array[1..2] of string;
+//  n, x: array[1..2] of Int64;
+//  i, j: Integer;
+
 begin
-  result := 0;
-  if SameText(s1, s2) then
-    Exit;
-  s[1] := s1;
-  s[2] := s2;
-  for j := 1 to 2 do
-  begin
-    ns[j] := '';
-    for i := 1 to Min(Length(s[j]), 18) do
-      if s[j][1] in ['0'..'9'] then
-      begin
-        ns[j] := ns[j] + s[j][1];
-        Delete(s[j], 1, 1);
-      end
-      else
-        break;
-    if ns[j] <> '' then
-    begin
-      x[j] := 1;
-      n[j] := StrToInt64(ns[j]);
-    end
-    else
-      x[j] := 2;
-  end;
-  i := x[1] * 10 + x[2];
-  case i of
-    11:
-    begin
-      result := n[1] - n[2];
-      if result = 0 then
-        result := CompNumText(s[1], s[2]);
-    end;
-    12:
-      result := -1;
-    21:
-      result := 1;
-    22:
-      if (length(s[1]) = 0) or (length(s[2]) = 0) or (s[1][1] <> s[2][1]) then
-        result := AnsiCompareText(s[1], s[2])
-      else
-      begin
-        while (length(s[1]) > 0) and (length(s[2]) > 0) and (s[1][1] = s[2][1]) and
-          not (s[1][1] in ['0'..'9']) do
-        begin
-          Delete(s[1], 1, 1);
-          Delete(s[2], 1, 1);
-        end;
-        result := CompNumText(s[1], s[2]);
-      end;
-  else
-    result := 0;
-  end;
+  Result:=CompNumStr(AnsiUpperCase(s1),AnsiUpperCase(s2))
+//  result := 0;
+//  if SameText(s1, s2) then
+//    Exit;
+//  s[1] := s1;
+//  s[2] := s2;
+//  for j := 1 to 2 do
+//  begin
+//    ns[j] := '';
+//    for i := 1 to Min(Length(s[j]), 18) do
+//      if s[j][1] in ['0'..'9'] then
+//      begin
+//        ns[j] := ns[j] + s[j][1];
+//        Delete(s[j], 1, 1);
+//      end
+//      else
+//        break;
+//    if ns[j] <> '' then
+//    begin
+//      x[j] := 1;
+//      n[j] := StrToInt64(ns[j]);
+//    end
+//    else
+//      x[j] := 2;
+//  end;
+//  i := x[1] * 10 + x[2];
+//  case i of
+//    11:
+//    begin
+//      result := n[1] - n[2];
+//      if result = 0 then
+//        result := CompNumText(s[1], s[2]);
+//    end;
+//    12:
+//      result := -1;
+//    21:
+//      result := 1;
+//    22:
+//      if (length(s[1]) = 0) or (length(s[2]) = 0) or (s[1][1] <> s[2][1]) then
+//        result := AnsiCompareText(s[1], s[2])
+//      else
+//      begin
+//        while (length(s[1]) > 0) and (length(s[2]) > 0) and (s[1][1] = s[2][1]) and
+//          not (s[1][1] in ['0'..'9']) do
+//        begin
+//          Delete(s[1], 1, 1);
+//          Delete(s[2], 1, 1);
+//        end;
+//        result := CompNumText(s[1], s[2]);
+//      end;
+//  else
+//    result := 0;
+//  end;
 end;
 
 function MsgToStr(Msg: Cardinal): string;
@@ -2826,6 +2832,21 @@ begin
   if l >= len then
     Exit;
   result := s + StringOfChar(' ', len - l);
+end;
+
+function CenterSpace(s: string; len: Integer; Cut: Boolean): string; // - справа
+var
+  L: Integer;
+  L2: Integer;
+begin
+  if Cut then
+    s := Copy(s, 1, len);
+  result := s;
+  L := Length(s);
+  if L >= len then
+    Exit;
+  L2:=(len - L) div 2;
+  result := StringOfChar(' ', L2) + s + StringOfChar(' ', len-L2-L);
 end;
 
 function AsOEM(s: string): string;
